@@ -1,0 +1,13 @@
+{
+  "name": "acme",
+  "private": true,
+  "packageManager": "pnpm@latest",
+  "scripts": {
+    "dev": "turbo run dev --parallel",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "db:up": "docker compose up -d",
+    "db:down": "docker compose down -v"
+  }
+}

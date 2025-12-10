@@ -1,0 +1,12 @@
+node_modules
+.turbo
+dist
+.next
+.env
+.env.local
+.env.production
+.env.development
+*.log
+pnpm-lock.yaml
+android
+ios
