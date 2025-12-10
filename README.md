@@ -7,3 +7,13 @@ This repository is a Turborepo-powered monorepo scaffold for future web, mobile,
 - Start the local database with `pnpm db:up` (stops with `pnpm db:down`); Postgres listens on port 5432.
 - Environment variables live in `.env` (see `.env.example` for keys).
 - Development commands will be added later via Turborepo tasks (`pnpm dev`, `pnpm build`, etc.).
+
+## Local PostgreSQL without Docker
+
+If Docker is unavailable in your environment (e.g., sandboxed CI or Codespaces without nested virtualization), you can install and configure PostgreSQL directly with the helper script:
+
+```bash
+sudo ./scripts/setup-postgres.sh
+```
+
+The script installs PostgreSQL, enables password authentication for localhost, restarts the service, and ensures an `acme` role/database exist with the connection string `postgres://acme:acme@localhost:5432/acme`.
