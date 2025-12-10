@@ -37,7 +37,7 @@ module.exports = {
           order: 'asc',
           caseInsensitive: true,
         },
-        newlines-between: 'always',
+          'newlines-between': 'always',
       },
     ],
     'unused-imports/no-unused-imports': 'error',
