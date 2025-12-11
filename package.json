@@ -11,6 +11,7 @@
     "db:down": "docker compose down -v"
   },
   "devDependencies": {
+    "@better-auth/cli": "^1.4.6",
     "@eslint/js": "^9.39.1",
     "@types/node": "^25.0.0",
     "@types/pg": "^8.11.10",
