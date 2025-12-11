@@ -10,15 +10,15 @@
     "build": "tsc -p tsconfig.json"
   },
   "dependencies": {
-    "dotenv": "^16.4.7",
+    "dotenv": "^17.2.3",
     "drizzle-orm": "^0.45.1",
     "pg": "^8.11.5"
   },
   "devDependencies": {
-    "@types/node": "^22.10.1",
+    "@types/node": "^25.0.0",
     "@types/pg": "^8.11.10",
     "drizzle-kit": "^0.31.8",
     "tsx": "^4.19.1",
-    "typescript": "^5.4.5"
+    "typescript": "^5.7.2"
   }
 }
