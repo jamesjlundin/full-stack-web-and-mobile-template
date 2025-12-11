@@ -6,7 +6,7 @@ import tseslint from 'typescript-eslint';
 
 export default tseslint.config(
   {
-    ignores: ['**/node_modules', '**/dist', '**/.next'],
+    ignores: ['**/node_modules', '**/dist', '**/.next', '**/next-env.d.ts'],
   },
   {
     files: ['**/*.{js,jsx,ts,tsx}'],
