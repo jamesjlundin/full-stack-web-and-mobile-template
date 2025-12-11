@@ -1,19 +1,8 @@
-import nextPlugin from '@next/eslint-plugin-next';
-import baseConfig from '../../packages/config/eslint.config.mjs';
-
-const nextRecommendedRules = nextPlugin.configs.recommended.rules;
-const nextCoreWebVitalsRules = nextPlugin.configs['core-web-vitals'].rules;
+import rootConfig from '../../eslint.config.mjs';
 
 export default [
-  ...baseConfig,
+  ...rootConfig,
   {
-    name: 'next/core-web-vitals',
-    plugins: {
-      '@next/next': nextPlugin,
-    },
-    rules: {
-      ...nextRecommendedRules,
-      ...nextCoreWebVitalsRules,
-    },
+    ignores: ['next-env.d.ts'],
   },
 ];
