@@ -1,20 +1,9 @@
 import {createApiClient} from '@acme/api-client';
 import React, {useCallback, useMemo, useRef, useState} from 'react';
-import {
-  Button,
-  Platform,
-  SafeAreaView,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from 'react-native';
+import {Button, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, View} from 'react-native';
 
-const API_BASE = Platform.OS === 'android' ? 'http://10.0.2.2:3000' : 'http://localhost:3000';
-
-const DEMO_EMAIL = process.env.RN_DEMO_EMAIL;
-const DEMO_PASSWORD = process.env.RN_DEMO_PASSWORD;
+import {useAuth} from '../auth/AuthContext';
+import {API_BASE} from '../config/api';
 
 export default function ChatStream() {
   const [prompt, setPrompt] = useState('Hello from RN');
@@ -22,23 +11,18 @@ export default function ChatStream() {
   const [streaming, setStreaming] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const controllerRef = useRef<AbortController | null>(null);
-  const authTokenRef = useRef<string | undefined>();
+  const {token} = useAuth();
 
   const apiBaseLabel = useMemo(() => API_BASE.replace('http://', ''), []);
   const apiClient = useMemo(() => createApiClient({baseUrl: API_BASE}), []);
 
-  const ensureSignedIn = useCallback(async () => {
-    if (!DEMO_EMAIL || !DEMO_PASSWORD || authTokenRef.current) {
-      return authTokenRef.current;
-    }
-
-    const {token} = await apiClient.signIn({email: DEMO_EMAIL, password: DEMO_PASSWORD});
-    authTokenRef.current = token;
-    return token;
-  }, [apiClient]);
-
   const handleStart = useCallback(async () => {
     if (streaming) {
+      return;
+    }
+
+    if (!token) {
+      setError('Please sign in to start chatting.');
       return;
     }
 
@@ -50,8 +34,6 @@ export default function ChatStream() {
     setError(null);
 
     try {
-      const token = await ensureSignedIn();
-
       for await (const chunk of apiClient.streamChat({prompt, token, signal: controller?.signal})) {
         setOutput(prev => prev + chunk.content);
       }
@@ -65,7 +47,7 @@ export default function ChatStream() {
       setStreaming(false);
       controllerRef.current = null;
     }
-  }, [apiClient, ensureSignedIn, prompt, streaming]);
+  }, [apiClient, prompt, streaming, token]);
 
   const handleClear = useCallback(() => {
     if (controllerRef.current) {
