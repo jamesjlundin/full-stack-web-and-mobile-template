@@ -25,6 +25,9 @@ type SessionResponse =
 export const auth = betterAuth({
   baseURL,
   secret,
+  emailAndPassword: {
+    enabled: true,
+  },
   providers: {
     emailPassword: {},
   },

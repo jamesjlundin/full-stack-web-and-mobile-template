@@ -4,7 +4,7 @@ This is a new [**React Native**](https://reactnative.dev) project, bootstrapped 
 
 >**Note**: Make sure you have completed the [React Native - Environment Setup](https://reactnative.dev/docs/environment-setup) instructions till "Creating a new application" step, before proceeding.
 
-The default `API_BASE` in `App.tsx` points to `http://localhost:3000` for the web API. When running in an **Android Emulator**, use `http://10.0.2.2:3000` instead. The iOS Simulator can keep using `http://localhost:3000`.
+The app automatically points to `http://localhost:3000` on iOS Simulator and `http://10.0.2.2:3000` on Android Emulator for the web API. If you change the backend host, update the `API_BASE` logic in `App.tsx` accordingly.
 
 ## Step 1: Start the Metro Server
 
