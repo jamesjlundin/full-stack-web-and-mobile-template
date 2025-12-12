@@ -1,0 +1,12 @@
+{
+  "name": "@acme/ai",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "dependencies": {
+    "@ai-sdk/openai": "^2.0.85",
+    "ai": "^5.0.112"
+  }
+}
