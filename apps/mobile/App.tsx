@@ -1,12 +1,31 @@
 import {apiClientPlaceholder} from '@acme/api-client';
-import React, {useCallback, useState} from 'react';
-import {Button, SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, View} from 'react-native';
+import React, {useCallback, useMemo, useState} from 'react';
+import {
+  Button,
+  Platform,
+  SafeAreaView,
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from 'react-native';
 
-const API_BASE = 'http://localhost:3000';
+const API_BASE = Platform.OS === 'android' ? 'http://10.0.2.2:3000' : 'http://localhost:3000';
 
 function App(): React.JSX.Element {
   const [message, setMessage] = useState('Tap "Ping API" to test connectivity.');
   const [loading, setLoading] = useState(false);
+  const [token, setToken] = useState<string | null>(null);
+  const [authMessage, setAuthMessage] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
+  const tokenPreview = useMemo(() => {
+    if (!token) return 'No token stored yet';
+    return `${token.slice(0, 16)}…`;
+  }, [token]);
 
   const handlePing = useCallback(async () => {
     setLoading(true);
@@ -30,6 +49,63 @@ function App(): React.JSX.Element {
     }
   }, []);
 
+  const handleSignIn = useCallback(async () => {
+    setAuthMessage('Signing in…');
+
+    try {
+      const response = await fetch(`${API_BASE}/api/auth/token`, {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+        },
+        body: JSON.stringify({email, password}),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setAuthMessage(`Failed: ${response.status} ${JSON.stringify(data)}`);
+        setToken(null);
+        return;
+      }
+
+      setToken(typeof data.token === 'string' ? data.token : null);
+      setAuthMessage(JSON.stringify(data, null, 2));
+    } catch (error) {
+      if (error instanceof Error) {
+        setAuthMessage(error.message);
+      } else {
+        setAuthMessage('Unknown error');
+      }
+    }
+  }, [email, password]);
+
+  const handleMe = useCallback(async () => {
+    if (!token) {
+      setAuthMessage('No token available. Please sign in first.');
+      return;
+    }
+
+    setAuthMessage('Checking /api/me…');
+
+    try {
+      const response = await fetch(`${API_BASE}/api/me`, {
+        headers: {
+          authorization: `Bearer ${token}`,
+        },
+      });
+
+      const text = await response.text();
+      setAuthMessage(`Status ${response.status}: ${text}`);
+    } catch (error) {
+      if (error instanceof Error) {
+        setAuthMessage(error.message);
+      } else {
+        setAuthMessage('Unknown error');
+      }
+    }
+  }, [token]);
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <StatusBar barStyle="dark-content" />
@@ -43,6 +119,51 @@ function App(): React.JSX.Element {
           <View style={styles.resultContainer}>
             <Text style={styles.resultLabel}>Latest response</Text>
             <Text style={styles.resultText}>{message}</Text>
+          </View>
+        </View>
+
+        <View style={styles.card}>
+          <Text style={styles.title}>Mobile Sign-In</Text>
+          <Text style={styles.subtitle}>
+            API base: {API_BASE} | Token: {tokenPreview}
+          </Text>
+
+          <View style={styles.inputGroup}>
+            <Text style={styles.inputLabel}>Email</Text>
+            <TextInput
+              autoCapitalize="none"
+              keyboardType="email-address"
+              style={styles.input}
+              value={email}
+              placeholder="user@example.com"
+              onChangeText={setEmail}
+            />
+          </View>
+
+          <View style={styles.inputGroup}>
+            <Text style={styles.inputLabel}>Password</Text>
+            <TextInput
+              autoCapitalize="none"
+              secureTextEntry
+              style={styles.input}
+              value={password}
+              placeholder="••••••••"
+              onChangeText={setPassword}
+            />
+          </View>
+
+          <View style={styles.buttonRow}>
+            <View style={styles.buttonWrapper}>
+              <Button title="Sign In" onPress={handleSignIn} />
+            </View>
+            <View style={styles.buttonWrapper}>
+              <Button title="Me (Bearer)" onPress={handleMe} />
+            </View>
+          </View>
+
+          <View style={styles.resultContainer}>
+            <Text style={styles.resultLabel}>Auth response</Text>
+            <Text style={styles.resultText}>{authMessage || 'Awaiting action'}</Text>
           </View>
         </View>
       </ScrollView>
@@ -96,6 +217,29 @@ const styles = StyleSheet.create({
     fontFamily: 'Menlo',
     fontSize: 14,
     color: '#0f172a',
+  },
+  inputGroup: {
+    gap: 6,
+  },
+  inputLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#0f172a',
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: '#e2e8f0',
+    borderRadius: 8,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    fontSize: 16,
+  },
+  buttonRow: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  buttonWrapper: {
+    flex: 1,
   },
 });
 
