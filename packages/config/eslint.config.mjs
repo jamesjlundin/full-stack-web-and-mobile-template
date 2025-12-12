@@ -6,7 +6,7 @@ import tseslint from 'typescript-eslint';
 
 export default tseslint.config(
   {
-    ignores: ['**/node_modules', '**/dist', '**/.next', '**/next-env.d.ts'],
+    ignores: ['**/node_modules', '**/dist', '**/.next', '**/next-env.d.ts', 'apps/mobile/__tests__/**'],
   },
   {
     files: ['**/*.{js,jsx,ts,tsx}'],
@@ -59,6 +59,15 @@ export default tseslint.config(
         { args: 'after-used', argsIgnorePattern: '^_', vars: 'all', varsIgnorePattern: '^_' },
       ],
       '@typescript-eslint/no-unused-vars': 'off',
+    },
+  },
+  {
+    files: ['apps/mobile/**/*.{js,jsx,ts,tsx}'],
+    rules: {
+      'import/default': 'off',
+      'import/named': 'off',
+      'import/namespace': 'off',
+      'import/no-unresolved': 'off',
     },
   }
 );

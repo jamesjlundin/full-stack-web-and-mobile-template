@@ -1,0 +1,10 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "../../packages/config/tsconfig.base.json",
+  "compilerOptions": {
+    "types": ["react-native", "jest"],
+    "moduleResolution": "bundler"
+  },
+  "include": ["**/*"],
+  "exclude": ["node_modules", "android", "ios", "dist", "build", "__tests__/**/*"]
+}
