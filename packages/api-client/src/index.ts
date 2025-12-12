@@ -1,37 +1,41 @@
-import type { ChatChunk } from "@acme/types";
+import type { ChatChunk, User } from "@acme/types";
 
-type StreamChatParams = {
-  prompt: string;
-  method?: "POST" | "GET";
+type ApiClientConfig = {
+  baseUrl?: string;
 };
 
-function buildRequest({ prompt, method }: StreamChatParams): RequestInfo | URL {
-  if (method === "GET") {
-    const url = new URL("/api/chat/stream", window.location.origin);
-    url.searchParams.set("prompt", prompt);
-    return url;
+type SignInParams = {
+  email: string;
+  password: string;
+};
+
+export type StreamChatParams = {
+  prompt: string;
+  token?: string;
+  signal?: AbortSignal;
+};
+
+export type GetMeParams = {
+  token?: string;
+};
+
+function resolveUrl(path: string, baseUrl: string) {
+  if (/^https?:\/\//i.test(path)) {
+    return path;
   }
 
-  return "/api/chat/stream";
-}
-
-function buildInit({ prompt, method }: StreamChatParams): RequestInit | undefined {
-  if (method === "GET") {
-    return { method };
+  if (!baseUrl) {
+    return path;
   }
 
-  return {
-    method: method ?? "POST",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify({ prompt }),
-  };
+  return new URL(path, baseUrl).toString();
 }
 
-export async function* streamChat({ prompt, method = "POST" }: StreamChatParams): AsyncGenerator<ChatChunk> {
-  const target = buildRequest({ prompt, method });
-  const init = buildInit({ prompt, method });
-
-  const response = await fetch(target, init);
+export async function* streamFetch(
+  url: string,
+  init?: RequestInit,
+): AsyncGenerator<ChatChunk> {
+  const response = await fetch(url, init);
 
   if (!response.ok) {
     throw new Error(`Request failed with status ${response.status}`);
@@ -69,5 +73,86 @@ export async function* streamChat({ prompt, method = "POST" }: StreamChatParams)
   yield { content: "", done: true };
 }
 
-export type { ChatChunk } from "@acme/types";
-export type { StreamChatParams };
+export function createApiClient({ baseUrl = "" }: ApiClientConfig = {}) {
+  const buildUrl = (path: string) => resolveUrl(path, baseUrl);
+
+  const getMe = async ({ token }: GetMeParams = {}): Promise<User | null> => {
+    const headers: HeadersInit = {};
+
+    if (token) {
+      headers.Authorization = `Bearer ${token}`;
+    }
+
+    const response = await fetch(buildUrl("/api/me"), { headers });
+
+    if (!response.ok) {
+      return null;
+    }
+
+    const data = (await response.json().catch(() => null)) as
+      | { user?: User }
+      | null;
+
+    return data?.user ?? null;
+  };
+
+  const signIn = async ({ email, password }: SignInParams) => {
+    const response = await fetch(buildUrl("/api/auth/token"), {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({ email, password }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text().catch(() => "");
+      throw new Error(
+        `Sign-in failed with status ${response.status}${errorText ? `: ${errorText}` : ""}`,
+      );
+    }
+
+    const payload = (await response.json().catch(() => null)) as
+      | { token?: string; user?: User }
+      | null;
+
+    if (!payload?.token || !payload.user) {
+      throw new Error("Invalid sign-in response");
+    }
+
+    return payload;
+  };
+
+  const streamChat = async function* ({ prompt, token, signal }: StreamChatParams) {
+    const headers: HeadersInit = {
+      "content-type": "application/json",
+    };
+
+    if (token) {
+      headers.Authorization = `Bearer ${token}`;
+    }
+
+    const url = buildUrl("/api/chat/stream");
+
+    yield* streamFetch(url, {
+      method: "POST",
+      headers,
+      body: JSON.stringify({ prompt }),
+      signal,
+    });
+  };
+
+  return {
+    getMe,
+    signIn,
+    streamChat,
+  };
+}
+
+const defaultClient = createApiClient();
+
+export const getMe = defaultClient.getMe;
+export const signIn = defaultClient.signIn;
+export const streamChat = defaultClient.streamChat;
+
+export type { ChatChunk, User } from "@acme/types";
