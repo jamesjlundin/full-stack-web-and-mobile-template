@@ -25,6 +25,9 @@ type SessionResponse =
 export const auth = betterAuth({
   baseURL,
   secret,
+  providers: {
+    emailPassword: {},
+  },
   database: drizzleAdapter(db, {
     provider: "pg",
     schema,
