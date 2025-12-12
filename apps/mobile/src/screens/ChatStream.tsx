@@ -1,3 +1,4 @@
+import {createApiClient} from '@acme/api-client';
 import React, {useCallback, useMemo, useRef, useState} from 'react';
 import {
   Button,
@@ -10,66 +11,10 @@ import {
   View,
 } from 'react-native';
 
-type StreamReader = {
-  read: () => Promise<{done: boolean; value?: Uint8Array}>;
-};
-
-type StreamLike = {
-  getReader: () => StreamReader;
-};
-
-type StreamDecoder = {
-  decode: (input?: Uint8Array, options?: {stream?: boolean}) => string;
-};
-
 const API_BASE = Platform.OS === 'android' ? 'http://10.0.2.2:3000' : 'http://localhost:3000';
 
-async function streamChat(prompt: string, onChunk: (text: string) => void, signal?: AbortSignal) {
-  const response = await fetch(`${API_BASE}/api/chat/stream`, {
-    method: 'POST',
-    headers: {
-      'content-type': 'application/json',
-    },
-    body: JSON.stringify({prompt}),
-    signal,
-  });
-
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(`Request failed: ${response.status} ${errorText}`);
-  }
-
-  const stream = (response as {body?: StreamLike | null}).body;
-
-  if (!stream || typeof stream.getReader !== 'function') {
-    throw new Error('Streaming not supported in this environment');
-  }
-
-  const reader = stream.getReader();
-  const decoder =
-    typeof (globalThis as {TextDecoder?: new () => StreamDecoder}).TextDecoder !== 'undefined'
-      ? new (globalThis as unknown as {TextDecoder: new () => StreamDecoder}).TextDecoder()
-      : null;
-
-  while (true) {
-    const {done, value} = await reader.read();
-    if (done) {
-      break;
-    }
-
-    if (value && decoder) {
-      const text = decoder.decode(value, {stream: true});
-      onChunk(text);
-    }
-  }
-
-  if (decoder) {
-    const finalText = decoder.decode();
-    if (finalText) {
-      onChunk(finalText);
-    }
-  }
-}
+const DEMO_EMAIL = process.env.RN_DEMO_EMAIL;
+const DEMO_PASSWORD = process.env.RN_DEMO_PASSWORD;
 
 export default function ChatStream() {
   const [prompt, setPrompt] = useState('Hello from RN');
@@ -77,8 +22,20 @@ export default function ChatStream() {
   const [streaming, setStreaming] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const controllerRef = useRef<AbortController | null>(null);
+  const authTokenRef = useRef<string | undefined>();
 
   const apiBaseLabel = useMemo(() => API_BASE.replace('http://', ''), []);
+  const apiClient = useMemo(() => createApiClient({baseUrl: API_BASE}), []);
+
+  const ensureSignedIn = useCallback(async () => {
+    if (!DEMO_EMAIL || !DEMO_PASSWORD || authTokenRef.current) {
+      return authTokenRef.current;
+    }
+
+    const {token} = await apiClient.signIn({email: DEMO_EMAIL, password: DEMO_PASSWORD});
+    authTokenRef.current = token;
+    return token;
+  }, [apiClient]);
 
   const handleStart = useCallback(async () => {
     if (streaming) {
@@ -93,9 +50,11 @@ export default function ChatStream() {
     setError(null);
 
     try {
-      await streamChat(prompt, chunk => {
-        setOutput(prev => prev + chunk);
-      }, controller?.signal);
+      const token = await ensureSignedIn();
+
+      for await (const chunk of apiClient.streamChat({prompt, token, signal: controller?.signal})) {
+        setOutput(prev => prev + chunk.content);
+      }
     } catch (err) {
       if (err instanceof Error) {
         setError(err.message);
@@ -106,7 +65,7 @@ export default function ChatStream() {
       setStreaming(false);
       controllerRef.current = null;
     }
-  }, [prompt, streaming]);
+  }, [apiClient, ensureSignedIn, prompt, streaming]);
 
   const handleClear = useCallback(() => {
     if (controllerRef.current) {
