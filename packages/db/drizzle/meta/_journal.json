@@ -8,6 +8,13 @@
       "when": 1765487653540,
       "tag": "0000_bouncy_scalphunter",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1765492493000,
+      "tag": "0001_update_user_name_default",
+      "breakpoints": true
     }
   ]
 }
