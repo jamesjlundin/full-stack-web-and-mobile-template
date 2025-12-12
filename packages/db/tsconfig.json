@@ -2,10 +2,10 @@
   "extends": "../config/tsconfig.base.json",
   "compilerOptions": {
     "outDir": "dist",
-    "noEmit": false,
-    "rootDir": "src",
+    "noEmit": true,
+    "rootDir": ".",
     "moduleResolution": "NodeNext",
-    "module": "ESNext"
+    "module": "NodeNext"
   },
   "include": ["src/**/*.ts", "drizzle.config.ts"],
   "exclude": ["dist", "drizzle"]
