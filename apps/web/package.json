@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@acme/ai": "workspace:*",
+    "@acme/api-client": "workspace:*",
     "@acme/auth": "workspace:*",
     "jose": "^6.0.8",
     "next": "15.5.7",
