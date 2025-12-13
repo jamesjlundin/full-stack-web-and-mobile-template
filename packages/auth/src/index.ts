@@ -27,26 +27,50 @@ function isDevTokenAllowed(): boolean {
   return process.env.NODE_ENV !== "production" || process.env.ALLOW_DEV_TOKENS === "true";
 }
 
-// DEV ONLY: In-memory store for tokens to enable testing without SMTP.
-// NEVER expose tokens in production - this store is only populated in dev mode.
+// In-memory store for tokens. Used for:
+// - DEV mode: Token echoing for testing without email delivery
+// - PROD mode: Temporary storage to pass token from callback to route handler for email sending
 type DevTokenEntry = { token: string; url: string; timestamp: number };
 const devTokenStore: Map<string, DevTokenEntry> = new Map();
 
 /**
- * DEV ONLY: Store a token for later retrieval. In production, this is a no-op.
+ * Store a token for later retrieval.
+ * Always stores the token (for both dev and prod use cases).
+ * In dev mode, logs the token for convenience.
  */
 export function storeDevToken(type: "verify" | "reset", email: string, token: string, url: string): void {
-  if (!isDevTokenAllowed()) return;
   const key = `${type}:${email.toLowerCase()}`;
   devTokenStore.set(key, { token, url, timestamp: Date.now() });
-  console.log(`[DEV] ${type} token for ${email}: ${token}`);
+  if (isDevTokenAllowed()) {
+    console.log(`[DEV] ${type} token for ${email}: ${token}`);
+  }
 }
 
 /**
- * DEV ONLY: Retrieve and consume a stored token. Returns null in production or if no token exists.
+ * DEV ONLY: Retrieve and consume a stored token for API response echoing.
+ * Returns null in production (unless ALLOW_DEV_TOKENS=true) or if no token exists.
+ * Use this for returning devToken in API responses.
  */
 export function getDevToken(type: "verify" | "reset", email: string): string | null {
   if (!isDevTokenAllowed()) return null;
+  const key = `${type}:${email.toLowerCase()}`;
+  const entry = devTokenStore.get(key);
+  if (!entry) return null;
+  // Token is valid for 10 minutes
+  if (Date.now() - entry.timestamp > 10 * 60 * 1000) {
+    devTokenStore.delete(key);
+    return null;
+  }
+  devTokenStore.delete(key);
+  return entry.token;
+}
+
+/**
+ * Retrieve and consume a stored token for email sending purposes.
+ * Works in all environments. Used by mailer to get token for sending emails.
+ * Returns null if no token exists or token has expired.
+ */
+export function consumeTokenForEmail(type: "verify" | "reset", email: string): string | null {
   const key = `${type}:${email.toLowerCase()}`;
   const entry = devTokenStore.get(key);
   if (!entry) return null;

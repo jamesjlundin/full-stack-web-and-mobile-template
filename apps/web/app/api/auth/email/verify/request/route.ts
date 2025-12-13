@@ -1,16 +1,24 @@
-import { auth, getDevToken } from "@acme/auth";
+import { auth, getDevToken, consumeTokenForEmail } from "@acme/auth";
 import { NextResponse } from "next/server";
+
+import { sendVerificationEmail } from "@/app/api/_lib/mailer";
 
 /**
  * POST /api/auth/email/verify/request
  * Request email verification. Body: { email: string }
  *
- * DEV MODE ONLY: Returns { ok: true, devToken: "..." } for testing without SMTP.
- * PRODUCTION: Returns { ok: true } only. Tokens are NEVER exposed in production.
+ * Behavior:
+ * - DEV MODE: Returns { ok: true, devToken: "..." } for testing without email delivery.
+ * - PRODUCTION with RESEND_API_KEY: Sends verification email via Resend, returns { ok: true }.
+ * - PRODUCTION with RESEND_DRY_RUN=1: Logs email payload, returns { ok: true, devNote: "dry_run: email payload logged" }.
+ * - PRODUCTION without RESEND_API_KEY: Returns error (email not configured).
  */
 export async function POST(request: Request) {
   // Check if dev token echoing is allowed (dev mode OR ALLOW_DEV_TOKENS=true for testing)
   const isDevTokenAllowed = process.env.NODE_ENV !== "production" || process.env.ALLOW_DEV_TOKENS === "true";
+  const isProduction = process.env.NODE_ENV === "production";
+  const hasResendKey = !!process.env.RESEND_API_KEY;
+  const isDryRun = process.env.RESEND_DRY_RUN === "1";
 
   try {
     const body = await request.json();
@@ -24,21 +32,60 @@ export async function POST(request: Request) {
     }
 
     // Call Better Auth's send verification email API
+    // This triggers the callback which stores the token
     await auth.api.sendVerificationEmail({
       body: { email },
       headers: request.headers,
     });
 
-    // In dev mode, retrieve the token that was stored by the email callback
-    // IMPORTANT: This token echoing is FORBIDDEN in actual production
+    // Small delay to ensure token is stored by the callback
+    await new Promise((resolve) => setTimeout(resolve, 100));
+
+    // DEV MODE: Return devToken for testing
     if (isDevTokenAllowed) {
-      // Small delay to ensure token is stored
-      await new Promise((resolve) => setTimeout(resolve, 100));
       const devToken = getDevToken("verify", email);
       return NextResponse.json({ ok: true, devToken: devToken ?? undefined });
     }
 
-    // Production: never expose tokens
+    // PRODUCTION: Send email via Resend
+    if (isProduction && hasResendKey) {
+      // Retrieve token for email sending
+      const token = consumeTokenForEmail("verify", email);
+      if (!token) {
+        console.error("[email/verify/request] Failed to retrieve token for email");
+        return NextResponse.json(
+          { ok: false, error: "Failed to generate verification token" },
+          { status: 500 }
+        );
+      }
+
+      const result = await sendVerificationEmail({ to: email, token });
+
+      if (!result.ok) {
+        return NextResponse.json(
+          { ok: false, error: result.error || "Failed to send verification email" },
+          { status: 500 }
+        );
+      }
+
+      // Dry run mode: include note in response
+      if (isDryRun) {
+        return NextResponse.json({ ok: true, devNote: "dry_run: email payload logged" });
+      }
+
+      return NextResponse.json({ ok: true });
+    }
+
+    // PRODUCTION without RESEND_API_KEY: Error
+    if (isProduction && !hasResendKey) {
+      console.error("[email/verify/request] RESEND_API_KEY not configured");
+      return NextResponse.json(
+        { ok: false, error: "Email service not configured" },
+        { status: 500 }
+      );
+    }
+
+    // Fallback (should not reach here)
     return NextResponse.json({ ok: true });
   } catch (error) {
     console.error("[email/verify/request] Error:", error);
