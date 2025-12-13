@@ -1,5 +1,91 @@
 import { NextResponse, type NextRequest } from "next/server";
 
+// Security headers for API responses
+const securityHeaders: Record<string, string> = {
+  "X-Content-Type-Options": "nosniff",
+  "X-Frame-Options": "DENY",
+  "Referrer-Policy": "no-referrer",
+  "Permissions-Policy": "camera=(), microphone=(), geolocation=()",
+  "Cross-Origin-Opener-Policy": "same-origin",
+};
+
+// Check if origin is allowed in development (localhost or 127.0.0.1)
+function isDevOriginAllowed(origin: string): boolean {
+  try {
+    const url = new URL(origin);
+    return (
+      url.hostname === "localhost" || url.hostname === "127.0.0.1"
+    );
+  } catch {
+    return false;
+  }
+}
+
+// Get allowed origin based on environment
+function getAllowedOrigin(requestOrigin: string | null): string | null {
+  if (!requestOrigin) return null;
+
+  const isDev = process.env.NODE_ENV !== "production";
+
+  if (isDev) {
+    // In development, allow localhost and 127.0.0.1 origins
+    if (isDevOriginAllowed(requestOrigin)) {
+      return requestOrigin;
+    }
+  } else {
+    // In production, only allow ALLOWED_ORIGIN from env
+    const allowedOrigin = process.env.ALLOWED_ORIGIN;
+    if (allowedOrigin && requestOrigin === allowedOrigin) {
+      return allowedOrigin;
+    }
+  }
+
+  return null;
+}
+
+// Apply security headers to response
+function applySecurityHeaders(response: NextResponse): void {
+  for (const [key, value] of Object.entries(securityHeaders)) {
+    response.headers.set(key, value);
+  }
+}
+
+// Apply CORS headers to response
+function applyCorsHeaders(
+  response: NextResponse,
+  allowedOrigin: string | null
+): void {
+  if (allowedOrigin) {
+    response.headers.set("Access-Control-Allow-Origin", allowedOrigin);
+    response.headers.set("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
+    response.headers.set(
+      "Access-Control-Allow-Headers",
+      "Content-Type,Authorization"
+    );
+  }
+}
+
+// Handle API routes with security headers and CORS
+function handleApiRoute(request: NextRequest): NextResponse {
+  const origin = request.headers.get("origin");
+  const allowedOrigin = getAllowedOrigin(origin);
+
+  // Handle OPTIONS preflight request
+  if (request.method === "OPTIONS") {
+    const response = new NextResponse(null, { status: 204 });
+    applySecurityHeaders(response);
+    applyCorsHeaders(response, allowedOrigin);
+    return response;
+  }
+
+  // For non-OPTIONS requests, proceed with security and CORS headers
+  const response = NextResponse.next();
+  applySecurityHeaders(response);
+  applyCorsHeaders(response, allowedOrigin);
+
+  return response;
+}
+
 async function isAuthenticated(request: NextRequest): Promise<boolean> {
   const meUrl = new URL("/api/me", request.nextUrl.origin);
   const response = await fetch(meUrl.toString(), {
@@ -11,14 +97,22 @@ async function isAuthenticated(request: NextRequest): Promise<boolean> {
 }
 
 export async function middleware(request: NextRequest) {
-  const normalizedPathname = request.nextUrl.pathname.replace("/(protected)", "");
-  const requiresRewrite = normalizedPathname !== request.nextUrl.pathname;
+  const pathname = request.nextUrl.pathname;
+
+  // Handle API routes: apply security headers and CORS
+  if (pathname.startsWith("/api/")) {
+    return handleApiRoute(request);
+  }
+
+  // Handle protected app routes: existing auth middleware
+  const normalizedPathname = pathname.replace("/(protected)", "");
+  const requiresRewrite = normalizedPathname !== pathname;
 
   const authenticated = await isAuthenticated(request);
 
   if (!authenticated) {
     const loginUrl = new URL("/login", request.nextUrl.origin);
-    loginUrl.searchParams.set("redirect", request.nextUrl.pathname);
+    loginUrl.searchParams.set("redirect", pathname);
     return NextResponse.redirect(loginUrl);
   }
 
@@ -32,5 +126,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/app/:path*"],
+  matcher: ["/app/:path*", "/api/:path*"],
 };
