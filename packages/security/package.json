@@ -1,0 +1,18 @@
+{
+  "name": "@acme/security",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "main": "src/rateLimit.ts",
+  "types": "src/rateLimit.ts",
+  "exports": {
+    ".": "./src/rateLimit.ts"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json"
+  },
+  "devDependencies": {
+    "@types/node": "^25.0.0",
+    "typescript": "^5.7.2"
+  }
+}
