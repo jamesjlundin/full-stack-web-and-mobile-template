@@ -1,0 +1,61 @@
+# Migration-Safe Deploy Pipeline
+# Runs migrations against production database, then triggers Vercel deploy hook
+# Only runs on push to main branch
+
+name: Deploy
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Setup pnpm before Node.js to enable pnpm caching in setup-node
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        # Version is read from package.json packageManager field
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Typecheck
+        run: pnpm tsc --noEmit
+
+      - name: Lint
+        run: pnpm eslint .
+
+      - name: Build web app
+        run: pnpm -C apps/web build
+
+      - name: Run database preflight check
+        run: node packages/db/scripts/preflight.ts
+
+      - name: Run database migrations
+        run: pnpm -C packages/db migrate:apply
+
+      - name: Trigger Vercel deploy hook
+        run: |
+          curl -X POST "${{ secrets.VERCEL_DEPLOY_HOOK_URL }}" \
+            --fail \
+            --silent \
+            --show-error
+        env:
+          # Secrets are masked automatically by GitHub Actions
+          # Using env block for clarity - no secrets printed to logs
+          VERCEL_DEPLOY_HOOK_URL: ${{ secrets.VERCEL_DEPLOY_HOOK_URL }}
