@@ -1,5 +1,5 @@
 # CI Pipeline for the monorepo
-# Runs install, typecheck, lint, and web build on every push/PR
+# Runs install, typecheck, lint, web build, and integration tests
 
 name: CI
 
@@ -8,6 +8,27 @@ on: [push, pull_request]
 jobs:
   build:
     runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        ports:
+          - "5432:5432"
+        options: >-
+          --health-cmd="pg_isready -U postgres"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/postgres
+      BETTER_AUTH_SECRET: testsecretkeythatishighentropy_0123456789
+      BETTER_AUTH_URL: http://localhost:3000
+      AI_MODEL: gpt-4o-mini
+      # OPENAI_API_KEY not required; stream will use mock fallback if absent
 
     steps:
       - name: Checkout repository
@@ -40,32 +61,16 @@ jobs:
       - name: Run mobile tests (optional)
         run: pnpm -C apps/mobile test || echo "mobile tests optional"
 
-      # -------------------------------------------------------------------
-      # FUTURE: Adding database and migrations for auth/DB tests
-      # -------------------------------------------------------------------
-      # To run tests that require a database, add a Postgres service and
-      # migration step. Example configuration:
-      #
-      # services:
-      #   postgres:
-      #     image: postgres:16
-      #     env:
-      #       POSTGRES_USER: test
-      #       POSTGRES_PASSWORD: test
-      #       POSTGRES_DB: test_db
-      #     ports:
-      #       - 5432:5432
-      #     options: >-
-      #       --health-cmd="pg_isready -U test"
-      #       --health-interval=10s
-      #       --health-timeout=5s
-      #       --health-retries=5
-      #
-      # Then add these steps before running auth/DB tests:
-      #
-      # - name: Set DATABASE_URL
-      #   run: echo "DATABASE_URL=postgresql://test:test@localhost:5432/test_db" >> $GITHUB_ENV
-      #
-      # - name: Run database migrations
-      #   run: pnpm -C packages/db migrate:apply
-      # -------------------------------------------------------------------
+      # Run database migrations
+      - name: Run database migrations
+        run: pnpm -C packages/db migrate:apply
+
+      # Start web server in background and wait for it to be ready
+      - name: Start web server
+        run: |
+          pnpm -C apps/web start &
+          npx wait-on http://localhost:3000/api/health --timeout 60000
+
+      # Run integration tests
+      - name: Run integration tests
+        run: pnpm test:integration
