@@ -44,7 +44,7 @@ jobs:
         run: pnpm -C apps/web build
 
       - name: Run database preflight check
-        run: node packages/db/scripts/preflight.ts
+        run: node packages/db/scripts/preflight.js
 
       - name: Run database migrations
         run: pnpm -C packages/db migrate:apply
