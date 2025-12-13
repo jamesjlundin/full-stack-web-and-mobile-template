@@ -26,7 +26,7 @@ export default tseslint.config(
         },
         typescript: {
           alwaysTryTypes: true,
-          project: ['./tsconfig.json'],
+          project: ['./tsconfig.json', './apps/*/tsconfig.json', './packages/*/tsconfig.json'],
           extensionAlias: {
             '.js': ['.ts', '.tsx'],
           },

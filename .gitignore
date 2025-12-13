@@ -7,6 +7,5 @@ dist
 .env.production
 .env.development
 *.log
-pnpm-lock.yaml
 android
 ios
