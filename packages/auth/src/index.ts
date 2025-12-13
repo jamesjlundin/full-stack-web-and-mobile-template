@@ -14,6 +14,51 @@ if (!baseURL) {
   throw new Error("BETTER_AUTH_URL is not set");
 }
 
+/**
+ * Check if dev token echoing is allowed.
+ * Returns true if:
+ * - NODE_ENV is not "production" (true development mode), OR
+ * - ALLOW_DEV_TOKENS is set to "true" (for testing with production builds)
+ *
+ * IMPORTANT: ALLOW_DEV_TOKENS should NEVER be set in actual production environments.
+ * It exists only to allow testing production builds locally.
+ */
+function isDevTokenAllowed(): boolean {
+  return process.env.NODE_ENV !== "production" || process.env.ALLOW_DEV_TOKENS === "true";
+}
+
+// DEV ONLY: In-memory store for tokens to enable testing without SMTP.
+// NEVER expose tokens in production - this store is only populated in dev mode.
+type DevTokenEntry = { token: string; url: string; timestamp: number };
+const devTokenStore: Map<string, DevTokenEntry> = new Map();
+
+/**
+ * DEV ONLY: Store a token for later retrieval. In production, this is a no-op.
+ */
+export function storeDevToken(type: "verify" | "reset", email: string, token: string, url: string): void {
+  if (!isDevTokenAllowed()) return;
+  const key = `${type}:${email.toLowerCase()}`;
+  devTokenStore.set(key, { token, url, timestamp: Date.now() });
+  console.log(`[DEV] ${type} token for ${email}: ${token}`);
+}
+
+/**
+ * DEV ONLY: Retrieve and consume a stored token. Returns null in production or if no token exists.
+ */
+export function getDevToken(type: "verify" | "reset", email: string): string | null {
+  if (!isDevTokenAllowed()) return null;
+  const key = `${type}:${email.toLowerCase()}`;
+  const entry = devTokenStore.get(key);
+  if (!entry) return null;
+  // Token is valid for 10 minutes
+  if (Date.now() - entry.timestamp > 10 * 60 * 1000) {
+    devTokenStore.delete(key);
+    return null;
+  }
+  devTokenStore.delete(key);
+  return entry.token;
+}
+
 type SessionResponse =
   | {
       headers: Headers | null | undefined;
@@ -27,9 +72,25 @@ export const auth = betterAuth({
   secret,
   emailAndPassword: {
     enabled: true,
+    sendResetPassword: async ({ user, url, token }) => {
+      // Store token in dev mode for testing. In production, integrate with SMTP.
+      storeDevToken("reset", user.email, token, url);
+      if (!isDevTokenAllowed()) {
+        // TODO: Implement production SMTP email sending here
+        console.log(`[PROD] Password reset email would be sent to ${user.email}`);
+      }
+    },
   },
-  providers: {
-    emailPassword: {},
+  emailVerification: {
+    sendVerificationEmail: async ({ user, url, token }) => {
+      // Store token in dev mode for testing. In production, integrate with SMTP.
+      storeDevToken("verify", user.email, token, url);
+      if (!isDevTokenAllowed()) {
+        // TODO: Implement production SMTP email sending here
+        console.log(`[PROD] Verification email would be sent to ${user.email}`);
+      }
+    },
+    sendOnSignUp: false, // Don't auto-send on signup - use explicit request endpoint
   },
   database: drizzleAdapter(db, {
     provider: "pg",
