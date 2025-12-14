@@ -182,6 +182,12 @@ importers:
       ai:
         specifier: ^5.0.112
         version: 5.0.113(zod@4.1.13)
+      ajv:
+        specifier: ^8.17.1
+        version: 8.17.1
+      ajv-formats:
+        specifier: ^3.0.1
+        version: 3.0.1(ajv@8.17.1)
 
   packages/api-client:
     dependencies:
@@ -8148,7 +8154,9 @@ snapshots:
     transitivePeerDependencies:
       - '@babel/core'
       - '@babel/preset-env'
+      - bufferutil
       - supports-color
+      - utf-8-validate
 
   '@react-native/normalize-colors@0.74.87': {}
 

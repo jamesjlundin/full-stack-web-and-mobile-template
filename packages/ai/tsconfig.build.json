@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "../config/tsconfig.base.json",
+  "compilerOptions": {
+    "types": ["node"],
+    "moduleResolution": "bundler",
+    "outDir": "./dist",
+    "declaration": true,
+    "declarationMap": true,
+    "noEmit": false,
+    "allowImportingTsExtensions": false
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist", "build"]
+}

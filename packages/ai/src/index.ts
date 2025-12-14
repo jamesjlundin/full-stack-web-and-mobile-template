@@ -1,8 +1,23 @@
 import { createOpenAI } from "@ai-sdk/openai";
 import { streamText } from "ai";
 
+// Re-export version and routing utilities
+export { selectPrompt, listFeatures, listChannels } from "./router";
+export {
+  buildVersionMeta,
+  attachVersionHeaders,
+  extractVersionHeaders,
+  VERSION_HEADERS,
+  type VersionMeta,
+  type BuildVersionMetaArgs,
+} from "./versions";
+export { configureAjv, type AjvConfig, type SchemaValidator, type ValidatorResult } from "./ajv";
+export { schemas, type SchemaInfo, type SchemaKey } from "./schemas/index";
+export type { PromptDef } from "./prompts/types";
+
 type StreamChatParams = {
   prompt: string;
+  systemPrompt?: string;
 };
 
 type StreamChatResult = Promise<Response>;
@@ -47,7 +62,7 @@ async function createMockStreamResponse(): StreamChatResult {
   return new Response(stream, { headers: buildHeaders() });
 }
 
-async function createOpenAIStreamResponse(prompt: string): StreamChatResult {
+async function createOpenAIStreamResponse(prompt: string, systemPrompt?: string): StreamChatResult {
   const apiKey = process.env.OPENAI_API_KEY;
 
   if (!apiKey) {
@@ -58,9 +73,15 @@ async function createOpenAIStreamResponse(prompt: string): StreamChatResult {
   const client = createOpenAI({ apiKey });
   const encoder = new TextEncoder();
 
+  const messages: Array<{ role: "system" | "user"; content: string }> = [];
+  if (systemPrompt) {
+    messages.push({ role: "system", content: systemPrompt });
+  }
+  messages.push({ role: "user", content: prompt });
+
   const result = await streamText({
     model: client(model),
-    messages: [{ role: "user", content: prompt }],
+    messages,
   });
 
   const stream = new ReadableStream<Uint8Array>({
@@ -85,10 +106,10 @@ async function createOpenAIStreamResponse(prompt: string): StreamChatResult {
   return new Response(stream, { headers: buildHeaders() });
 }
 
-export async function streamChat({ prompt }: StreamChatParams): StreamChatResult {
+export async function streamChat({ prompt, systemPrompt }: StreamChatParams): StreamChatResult {
   if (!prompt) {
     return new Response("Missing prompt", { status: 400 });
   }
 
-  return createOpenAIStreamResponse(prompt);
+  return createOpenAIStreamResponse(prompt, systemPrompt);
 }
