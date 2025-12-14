@@ -23,13 +23,21 @@
   },
   "peerDependencies": {
     "@ai-sdk/openai": "^2.0.85",
-    "ai": "^5.0.112"
+    "ai": "^5.0.112",
+    "@acme/rag": "workspace:*",
+    "@acme/db": "workspace:*"
   },
   "peerDependenciesMeta": {
     "@ai-sdk/openai": {
       "optional": true
     },
     "ai": {
+      "optional": true
+    },
+    "@acme/rag": {
+      "optional": true
+    },
+    "@acme/db": {
       "optional": true
     }
   }

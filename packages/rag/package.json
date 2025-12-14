@@ -1,0 +1,48 @@
+{
+  "name": "@acme/rag",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./config": {
+      "types": "./dist/config.d.ts",
+      "import": "./dist/config.js"
+    },
+    "./chunk": {
+      "types": "./dist/chunk.d.ts",
+      "import": "./dist/chunk.js"
+    },
+    "./embed": {
+      "types": "./dist/embed.d.ts",
+      "import": "./dist/embed.js"
+    },
+    "./query": {
+      "types": "./dist/query.d.ts",
+      "import": "./dist/query.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "seed": "node dist/bin/seed.js",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@acme/db": "workspace:*",
+    "@acme/obs": "workspace:*",
+    "ai": "^5.0.112",
+    "@ai-sdk/openai": "^2.0.85",
+    "drizzle-orm": "^0.45.1",
+    "ulid": "^2.3.0"
+  },
+  "devDependencies": {
+    "@types/node": "^25.0.0",
+    "dotenv": "^17.2.3",
+    "typescript": "^5.7.2"
+  }
+}
