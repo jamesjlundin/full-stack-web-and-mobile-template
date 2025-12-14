@@ -12,7 +12,10 @@
     "test:integration": "pnpm -C packages/tests test",
     "evals": "node packages/evals/dist/cli.js",
     "ai:build": "pnpm -C packages/ai build",
-    "obs:build": "pnpm -C packages/obs build"
+    "obs:build": "pnpm -C packages/obs build",
+    "tools:build": "pnpm -C packages/tools build",
+    "tools-testing:build": "pnpm -C packages/tools-testing build",
+    "tools-testing:test": "pnpm -C packages/tools-testing test"
   },
   "devDependencies": {
     "@better-auth/cli": "^1.4.6",

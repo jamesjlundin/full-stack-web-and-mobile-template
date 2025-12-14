@@ -1,0 +1,40 @@
+{
+  "name": "@acme/tools-testing",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "import": "./src/index.ts"
+    },
+    "./register": {
+      "types": "./src/register.ts",
+      "import": "./src/register.ts"
+    },
+    "./tools/echo": {
+      "types": "./src/tools/echo.ts",
+      "import": "./src/tools/echo.ts"
+    },
+    "./tools/math.add": {
+      "types": "./src/tools/math.add.ts",
+      "import": "./src/tools/math.add.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run --reporter=dot",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@acme/tools": "workspace:*",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/node": "^22.5.5",
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.1"
+  }
+}
