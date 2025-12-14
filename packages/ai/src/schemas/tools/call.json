@@ -1,0 +1,21 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "tools.call.v1",
+  "title": "ToolCall",
+  "description": "Schema for tool/function call requests",
+  "type": "object",
+  "required": ["name"],
+  "properties": {
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Name of the tool to call"
+    },
+    "arguments": {
+      "type": "object",
+      "description": "Arguments to pass to the tool",
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": false
+}
