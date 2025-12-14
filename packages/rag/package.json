@@ -3,33 +3,33 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
+      "types": "./src/index.ts",
+      "import": "./src/index.ts"
     },
     "./config": {
-      "types": "./dist/config.d.ts",
-      "import": "./dist/config.js"
+      "types": "./src/config.ts",
+      "import": "./src/config.ts"
     },
     "./chunk": {
-      "types": "./dist/chunk.d.ts",
-      "import": "./dist/chunk.js"
+      "types": "./src/chunk.ts",
+      "import": "./src/chunk.ts"
     },
     "./embed": {
-      "types": "./dist/embed.d.ts",
-      "import": "./dist/embed.js"
+      "types": "./src/embed.ts",
+      "import": "./src/embed.ts"
     },
     "./query": {
-      "types": "./dist/query.d.ts",
-      "import": "./dist/query.js"
+      "types": "./src/query.ts",
+      "import": "./src/query.ts"
     }
   },
   "scripts": {
     "build": "tsc -p tsconfig.json",
-    "seed": "node dist/bin/seed.js",
+    "seed": "tsx src/bin/seed.ts",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
@@ -43,6 +43,7 @@
   "devDependencies": {
     "@types/node": "^25.0.0",
     "dotenv": "^17.2.3",
+    "tsx": "^4.19.1",
     "typescript": "^5.7.2"
   }
 }

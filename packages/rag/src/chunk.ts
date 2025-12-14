@@ -6,7 +6,7 @@
 
 import { ulid } from "ulid";
 
-import { DEFAULT_CHUNK_SIZE, DEFAULT_CHUNK_OVERLAP } from "./config.js";
+import { DEFAULT_CHUNK_SIZE, DEFAULT_CHUNK_OVERLAP } from "./config";
 
 /**
  * A chunk of text with metadata

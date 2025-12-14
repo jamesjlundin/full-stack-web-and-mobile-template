@@ -12,9 +12,9 @@ import "dotenv/config";
 
 import { db } from "@acme/db";
 
-import { fixedSizeChunks } from "../chunk.js";
-import { openaiEmbedder, hasOpenAIKey } from "../embed.js";
-import { upsertChunks, countChunks, deleteDocChunks } from "../store.js";
+import { fixedSizeChunks } from "../chunk";
+import { openaiEmbedder, hasOpenAIKey } from "../embed";
+import { upsertChunks, countChunks, deleteDocChunks } from "../store";
 
 /**
  * Sample documents for seeding

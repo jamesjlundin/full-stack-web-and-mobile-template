@@ -5,8 +5,8 @@
  */
 
 
-import { openaiEmbedder, hasOpenAIKey, MissingApiKeyError } from "./embed.js";
-import { querySimilar } from "./store.js";
+import { openaiEmbedder, hasOpenAIKey, MissingApiKeyError } from "./embed";
+import { querySimilar } from "./store";
 
 import type { NodePgDatabase } from "drizzle-orm/node-postgres";
 

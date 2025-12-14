@@ -319,6 +319,9 @@ importers:
       dotenv:
         specifier: ^17.2.3
         version: 17.2.3
+      tsx:
+        specifier: ^4.19.1
+        version: 4.21.0
       typescript:
         specifier: ^5.7.2
         version: 5.9.3

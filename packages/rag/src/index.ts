@@ -37,7 +37,7 @@ export {
   RAG_CONFIG_VERSION,
   DEFAULT_CHUNK_SIZE,
   DEFAULT_CHUNK_OVERLAP,
-} from "./config.js";
+} from "./config";
 
 // Chunking
 export {
@@ -46,7 +46,7 @@ export {
   splitParagraphs,
   type Chunk,
   type FixedSizeChunkOptions,
-} from "./chunk.js";
+} from "./chunk";
 
 // Embedding
 export {
@@ -55,7 +55,7 @@ export {
   hasOpenAIKey,
   MissingApiKeyError,
   type Embedder,
-} from "./embed.js";
+} from "./embed";
 
 // Vector store operations
 export {
@@ -65,7 +65,7 @@ export {
   countChunks,
   type ChunkRow,
   type SimilarChunk,
-} from "./store.js";
+} from "./store";
 
 // High-level query API
 export {
@@ -73,4 +73,4 @@ export {
   createRetrieveFn,
   type RagQueryOptions,
   type RagQueryResult,
-} from "./query.js";
+} from "./query";

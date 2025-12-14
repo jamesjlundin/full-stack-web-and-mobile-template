@@ -7,7 +7,7 @@
 import { openai } from "@ai-sdk/openai";
 import { embed, embedMany } from "ai";
 
-import { EMBED_DIMS, EMBED_MODEL } from "./config.js";
+import { EMBED_DIMS, EMBED_MODEL } from "./config";
 
 /**
  * Interface for embedding providers
