@@ -1,0 +1,4 @@
+app_identifier(ENV["APP_IDENTIFIER"])
+apple_id(ENV["APPLE_ID"] || "ios-ci@example.com")
+itc_team_id(ENV["APPLE_TEAM_ID"])
+team_id(ENV["APPLE_TEAM_ID"])

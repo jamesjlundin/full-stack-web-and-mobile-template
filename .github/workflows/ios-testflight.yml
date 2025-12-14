@@ -1,0 +1,55 @@
+name: iOS TestFlight Upload
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-and-upload:
+    runs-on: macos-14
+    env:
+      APP_IDENTIFIER: ${{ secrets.APP_IDENTIFIER }}
+      APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+      APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+      APP_STORE_CONNECT_PRIVATE_KEY: ${{ secrets.APP_STORE_CONNECT_PRIVATE_KEY }}
+      MATCH_GIT_URL: ${{ secrets.MATCH_GIT_URL }}
+      MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+      APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+      IOS_SCHEME: Production
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "pnpm"
+
+      - name: Install JS deps
+        run: pnpm install
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.2"
+          bundler-cache: true
+          working-directory: apps/mobile/ios
+
+      - name: Install CocoaPods
+        run: |
+          sudo gem install cocoapods
+          cd apps/mobile/ios && pod install --repo-update
+
+      - name: Fastlane preflight (safe if secrets missing)
+        working-directory: apps/mobile/ios
+        run: bundle exec fastlane ios preflight
+
+      - name: Fastlane upload to TestFlight
+        if: ${{ success() }}
+        working-directory: apps/mobile/ios
+        run: bundle exec fastlane ios upload_testflight

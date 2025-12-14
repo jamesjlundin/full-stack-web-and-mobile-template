@@ -1,0 +1,6 @@
+git_url(ENV["MATCH_GIT_URL"])
+storage_mode("git")
+type("appstore")
+username(ENV["APPLE_ID"] || "ios-ci@example.com")
+team_id(ENV["APPLE_TEAM_ID"])
+app_identifier([ENV["APP_IDENTIFIER"]])
