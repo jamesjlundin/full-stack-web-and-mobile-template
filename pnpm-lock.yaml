@@ -142,6 +142,9 @@ importers:
       '@acme/auth':
         specifier: workspace:*
         version: link:../../packages/auth
+      '@acme/obs':
+        specifier: workspace:*
+        version: link:../../packages/obs
       '@acme/security':
         specifier: workspace:*
         version: link:../../packages/security
@@ -271,6 +274,8 @@ importers:
       typescript:
         specifier: ^5.7.2
         version: 5.9.3
+
+  packages/obs: {}
 
   packages/security:
     devDependencies:
@@ -8154,9 +8159,7 @@ snapshots:
     transitivePeerDependencies:
       - '@babel/core'
       - '@babel/preset-env'
-      - bufferutil
       - supports-color
-      - utf-8-validate
 
   '@react-native/normalize-colors@0.74.87': {}
 

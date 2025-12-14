@@ -11,7 +11,8 @@
     "db:down": "docker compose down -v",
     "test:integration": "pnpm -C packages/tests test",
     "evals": "node packages/evals/dist/cli.js",
-    "ai:build": "pnpm -C packages/ai build"
+    "ai:build": "pnpm -C packages/ai build",
+    "obs:build": "pnpm -C packages/obs build"
   },
   "devDependencies": {
     "@better-auth/cli": "^1.4.6",
