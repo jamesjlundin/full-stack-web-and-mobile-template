@@ -1,0 +1,69 @@
+name: LLM Evaluations
+
+on:
+  pull_request:
+    branches: [main, master]
+  push:
+    branches: [main, master]
+
+jobs:
+  evals:
+    name: Run LLM Evaluations
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Get pnpm store directory
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
+      - name: Setup pnpm cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build evals package
+        run: pnpm -C packages/evals build
+
+      - name: Run evaluations with mock model (required)
+        run: pnpm evals --report=json --model=mock
+
+      - name: Run evaluations with OpenAI (optional)
+        if: env.OPENAI_API_KEY != ''
+        continue-on-error: true
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: pnpm evals --report=json --model=openai
+
+      - name: Check for RAG package
+        id: check-rag
+        run: |
+          if [ -d "packages/rag" ]; then
+            echo "rag_exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "rag_exists=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Run RAG evaluations (optional)
+        if: steps.check-rag.outputs.rag_exists == 'true'
+        continue-on-error: true
+        run: pnpm evals --report=json --model=mock --rag
