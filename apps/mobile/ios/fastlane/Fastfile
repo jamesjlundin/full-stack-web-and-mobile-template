@@ -1,0 +1,95 @@
+default_platform(:ios)
+
+platform :ios do
+  before_all do
+    UI.user_error!("Missing APP_IDENTIFIER") unless ENV["APP_IDENTIFIER"].to_s.strip.length > 0
+  end
+
+  lane :preflight do
+    missing = []
+    %w[
+      APP_IDENTIFIER
+      APP_STORE_CONNECT_ISSUER_ID
+      APP_STORE_CONNECT_KEY_ID
+      APP_STORE_CONNECT_PRIVATE_KEY
+      MATCH_GIT_URL
+      MATCH_PASSWORD
+      APPLE_TEAM_ID
+    ].each { |k| missing << k if (ENV[k].to_s.strip.length == 0) }
+
+    if missing.any?
+      UI.important("iOS preflight: missing secrets → #{missing.join(", ")}")
+      UI.important("Add them in GitHub → Repo → Settings → Secrets and variables → Actions")
+      UI.important("This is expected if you're setting up from your phone. Exiting 0.")
+      next
+    else
+      UI.message("iOS preflight OK: all required secrets present")
+    end
+  end
+
+  lane :bootstrap_signing do
+    preflight
+    return if ENV["MATCH_GIT_URL"].to_s.strip.empty?
+
+    api_key = app_store_connect_api_key(
+      key_id: ENV["APP_STORE_CONNECT_KEY_ID"],
+      issuer_id: ENV["APP_STORE_CONNECT_ISSUER_ID"],
+      key_content: ENV["APP_STORE_CONNECT_PRIVATE_KEY"],
+      is_key_content_base64: false
+    )
+
+    enable_automatic_code_signing(
+      path: "apps/mobile/ios",
+      use_automatic_signing: true
+    )
+
+    match(
+      api_key: api_key,
+      type: "appstore",
+      readonly: false
+    )
+  end
+
+  lane :upload_testflight do
+    preflight
+    return if ENV["APP_STORE_CONNECT_KEY_ID"].to_s.strip.empty?
+
+    api_key = app_store_connect_api_key(
+      key_id: ENV["APP_STORE_CONNECT_KEY_ID"],
+      issuer_id: ENV["APP_STORE_CONNECT_ISSUER_ID"],
+      key_content: ENV["APP_STORE_CONNECT_PRIVATE_KEY"],
+      is_key_content_base64: false
+    )
+
+    cocoapods(project_directory: "apps/mobile/ios")
+
+    sh("pnpm install")
+    sh("pnpm -C apps/mobile tsc --noEmit || true")
+    sh("pnpm -C apps/mobile eslint . || true")
+
+    build_number = (latest_testflight_build_number(
+      api_key: api_key,
+      app_identifier: ENV["APP_IDENTIFIER"]
+    ).to_i + 1)
+
+    increment_build_number(
+      xcodeproj: "apps/mobile/ios/.xcodeproj",
+      build_number: build_number
+    )
+
+    gym(
+      project: "apps/mobile/ios/.xcodeproj",
+      scheme: ENV["IOS_SCHEME"] || "Production",
+      configuration: "Release",
+      export_method: "app-store",
+      clean: true
+    )
+
+    pilot(
+      api_key: api_key,
+      skip_submission: true,
+      distribute_external: false,
+      changelog: (ENV["TF_CHANGELOG"] || "Automated upload from CI")
+    )
+  end
+end

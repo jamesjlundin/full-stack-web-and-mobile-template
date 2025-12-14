@@ -9,3 +9,5 @@ dist
 *.log
 android
 ios
+# But allow Fastlane configuration in apps/mobile/ios
+!apps/mobile/ios/
