@@ -1,5 +1,18 @@
 import { NextResponse, type NextRequest } from "next/server";
 
+/**
+ * Protected route paths that require authentication.
+ * Add paths here to protect them. Supports exact matches and prefix matches.
+ * - Exact: "/dashboard" matches only /dashboard
+ * - Prefix with wildcard: "/app" matches /app, /app/settings, /app/foo/bar, etc.
+ */
+const PROTECTED_PATH_PREFIXES = [
+  "/app",
+  "/dashboard",
+  "/account",
+  "/protected",
+];
+
 // Security headers for API responses
 const securityHeaders: Record<string, string> = {
   "X-Content-Type-Options": "nosniff",
@@ -86,6 +99,14 @@ function handleApiRoute(request: NextRequest): NextResponse {
   return response;
 }
 
+// Check if a path requires authentication
+function isProtectedPath(pathname: string): boolean {
+  return PROTECTED_PATH_PREFIXES.some(
+    (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`)
+  );
+}
+
+// Check authentication status by calling /api/me
 async function isAuthenticated(request: NextRequest): Promise<boolean> {
   const meUrl = new URL("/api/me", request.nextUrl.origin);
   const response = await fetch(meUrl.toString(), {
@@ -104,6 +125,11 @@ export async function middleware(request: NextRequest) {
     return handleApiRoute(request);
   }
 
+  // Only check authentication for protected paths
+  if (!isProtectedPath(pathname)) {
+    return NextResponse.next();
+  }
+
   // Handle protected app routes: existing auth middleware
   const normalizedPathname = pathname.replace("/(protected)", "");
   const requiresRewrite = normalizedPathname !== pathname;
@@ -112,7 +138,7 @@ export async function middleware(request: NextRequest) {
 
   if (!authenticated) {
     const loginUrl = new URL("/login", request.nextUrl.origin);
-    loginUrl.searchParams.set("redirect", pathname);
+    loginUrl.searchParams.set("next", pathname);
     return NextResponse.redirect(loginUrl);
   }
 
@@ -126,5 +152,13 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/app/:path*", "/api/:path*"],
+  matcher: [
+    /*
+     * Match all paths except:
+     * - _next (Next.js internals)
+     * - static files (images, fonts, etc.)
+     * - favicon.ico
+     */
+    "/((?!_next|.*\\..*|favicon.ico).*)",
+  ],
 };

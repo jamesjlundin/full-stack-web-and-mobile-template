@@ -28,7 +28,7 @@ export default function LogoutPage() {
       }
 
       setStatus("Signed out successfully.");
-      router.push("/login");
+      router.push("/");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Unexpected error occurred");
     } finally {
@@ -46,7 +46,7 @@ export default function LogoutPage() {
         {loading ? "Signing out..." : "Sign out"}
       </button>
       <p>
-        Go back to the <Link href="/app/(protected)/home">protected home</Link> or <Link href="/login">login</Link>.
+        Go back to the <Link href="/">home page</Link> or <Link href="/login">sign in</Link>.
       </p>
     </main>
   );

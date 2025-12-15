@@ -1,15 +1,18 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { FormEvent, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { FormEvent, useState, Suspense } from "react";
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  const nextUrl = searchParams.get("next") || "/app/(protected)/home";
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -25,7 +28,7 @@ export default function LoginPage() {
       });
 
       if (response.ok) {
-        router.push("/app/(protected)/home");
+        router.push(nextUrl);
         return;
       }
 
@@ -73,9 +76,14 @@ export default function LoginPage() {
       <p>
         <Link href="/reset-password">Forgot password?</Link> | <Link href="/auth/verify">Verify email</Link>
       </p>
-      <p>
-        Visit the protected <Link href="/app/(protected)/home">home page</Link>.
-      </p>
     </main>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<main className="main"><h1>Sign in</h1><p>Loading...</p></main>}>
+      <LoginForm />
+    </Suspense>
   );
 }

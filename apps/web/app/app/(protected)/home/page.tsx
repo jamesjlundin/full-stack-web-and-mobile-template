@@ -1,31 +1,26 @@
-"use client";
-
 import Link from "next/link";
 
-import { useUser } from "../../../_components/useUser";
+import { getServerSession } from "../../../../lib/session";
 
-export default function ProtectedHomePage() {
-  const { user, loading, error, refresh } = useUser();
+import { SignOutButton } from "./_components/SignOutButton";
+
+export default async function ProtectedHomePage() {
+  const user = await getServerSession();
+
+  // Display name: prefer name, fall back to email, then generic message
+  const displayName = user?.name || user?.email || "Signed in";
 
   return (
     <main className="main">
-      <h1>Protected home</h1>
-      {loading && <p>Loading your account...</p>}
-      {error && <p style={{ color: "#b91c1c" }}>Error: {error.message}</p>}
-      {!loading && !error && (
-        <p>
-          Signed in as <strong>{user?.email ?? "Unknown user"}</strong>
-        </p>
-      )}
-      <div style={{ display: "flex", gap: 12 }}>
-        <button onClick={refresh} style={{ padding: "8px 12px" }}>
-          Refresh session
-        </button>
-        <Link href="/logout">Sign out</Link>
-      </div>
+      <h1>Protected Home</h1>
       <p>
-        Return to the <Link href="/">public home</Link> or manage your account via the
-        <Link href="/login"> login</Link> / <Link href="/register">register</Link> pages.
+        Signed in as <strong>{displayName}</strong>
+      </p>
+      <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+        <SignOutButton />
+      </div>
+      <p style={{ marginTop: "24px" }}>
+        Return to the <Link href="/">public home</Link>.
       </p>
     </main>
   );
