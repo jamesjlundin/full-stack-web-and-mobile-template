@@ -422,6 +422,152 @@ See `apps/mobile/src/linking/README.md` for detailed configuration instructions.
 
 ---
 
+## Mobile Authentication & Protected Routes
+
+The mobile app implements a secure authentication flow with protected routes using React Native's Keychain/Keystore for token storage.
+
+### Architecture Overview
+
+The mobile app uses a two-stack navigation pattern:
+
+1. **AuthStack** - Screens for unauthenticated users:
+   - `SignInScreen` - Email/password login
+   - `SignUpScreen` - Account registration
+   - `ResetRequestScreen` - Request password reset
+   - `ResetConfirmScreen` - Confirm password reset
+
+2. **AppStack** - Protected screens for authenticated users:
+   - `ChatStream` - AI chat interface
+   - `AccountScreen` - User profile and logout
+
+3. **SplashScreen** - Shown during session restoration on app startup
+
+### How It Works
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                      RootNavigator                          │
+│                                                             │
+│  ┌─────────┐    ┌─────────────┐    ┌─────────────────────┐ │
+│  │ loading │───►│ user == null│───►│    user != null     │ │
+│  │  true   │    │             │    │                     │ │
+│  └────┬────┘    └──────┬──────┘    └──────────┬──────────┘ │
+│       │                │                       │            │
+│       ▼                ▼                       ▼            │
+│  SplashScreen     AuthStack               AppStack         │
+└─────────────────────────────────────────────────────────────┘
+```
+
+1. **App Startup**: AuthProvider loads token from secure storage
+2. **Token Validation**: If token exists, validates with `getMe()` API call
+3. **Navigation Decision**: RootNavigator shows appropriate stack based on auth state
+
+### Secure Token Storage
+
+Tokens are stored securely using `react-native-keychain`:
+
+```typescript
+// apps/mobile/src/auth/tokenStorage.ts
+
+// Save token after successful login
+await saveToken(token);
+
+// Load token on app startup
+const token = await loadToken();
+
+// Clear token on logout
+await clearToken();
+```
+
+**Security Features:**
+- iOS: Stored in iOS Keychain with `WHEN_UNLOCKED_THIS_DEVICE_ONLY` accessibility
+- Android: Stored in Android Keystore
+- Never stored in plain text or AsyncStorage
+
+### AuthContext API
+
+The `AuthProvider` exposes the following via `useAuth()`:
+
+```typescript
+const {
+  user,           // Current user object or null
+  token,          // Current session token or null
+  loading,        // True while restoring session on startup
+  signIn,         // (email, password) => Promise<void>
+  signUp,         // (email, password) => Promise<void>
+  signOut,        // () => Promise<void>
+  refreshSession, // () => Promise<void> - Re-validate current session
+} = useAuth();
+```
+
+### Adding New Protected Screens
+
+To add a new protected screen:
+
+1. Create the screen component in `apps/mobile/src/screens/`:
+
+```typescript
+// apps/mobile/src/screens/NewScreen.tsx
+import React from 'react';
+import {SafeAreaView, Text} from 'react-native';
+import {useAuth} from '../auth/AuthContext';
+
+export default function NewScreen() {
+  const {user} = useAuth();
+  return (
+    <SafeAreaView>
+      <Text>Welcome, {user?.email}</Text>
+    </SafeAreaView>
+  );
+}
+```
+
+2. Add the screen to the `AppStack` in `App.tsx`:
+
+```typescript
+// In AppStack type
+type AppStackScreen = 'chat' | 'account' | 'newScreen';
+
+// In AppStack component, add navigation and rendering
+```
+
+The screen is automatically protected—it can only be accessed when `user != null`.
+
+### Adding New Auth Screens
+
+To add a new auth screen (e.g., onboarding):
+
+1. Create the screen in `apps/mobile/src/screens/`
+2. Add to `AuthStackScreen` type in `App.tsx`
+3. Add rendering logic in `AuthStack` component
+
+### Session Lifecycle
+
+| Event | Behavior |
+|-------|----------|
+| App Launch | Load token → Validate with server → Set user or clear |
+| Sign In | API call → Save token → Update state → Show AppStack |
+| Sign Up | Create account → Auto sign in → Show AppStack |
+| Sign Out | Clear secure storage → Reset state → Show AuthStack |
+| App Resume | (Optional) Call `refreshSession()` to re-validate |
+| Token Invalid | Clear secure storage → Show AuthStack |
+
+### Native Configuration
+
+#### iOS (already configured)
+
+Ensure your Podfile includes react-native-keychain:
+
+```bash
+cd apps/mobile/ios && pod install
+```
+
+#### Android (already configured)
+
+No additional configuration needed. The library uses Android Keystore automatically.
+
+---
+
 ## Project Structure
 
 ```
@@ -502,8 +648,8 @@ This template is designed to be a starting point. Here are some common ways to e
 
 ### Mobile
 
-- **Secure token storage**: Replace the in-memory token storage in `apps/mobile/src/auth/tokenStorage.ts` with `react-native-keychain` or `expo-secure-store`
 - **Push notifications**: Add Firebase Cloud Messaging or Apple Push Notifications
+- **Biometric authentication**: Extend `react-native-keychain` to require Face ID/Touch ID for token access
 
 ### Observability
 
