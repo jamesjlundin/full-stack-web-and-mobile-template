@@ -326,6 +326,100 @@ Visit your production URL and test:
 |----------|-------------|
 | `ALLOW_DEV_TOKENS` | Set to `true` to enable token echoing in production builds (testing only—never use in production) |
 
+### Mobile Deep Linking (Optional)
+
+| Variable | Description |
+|----------|-------------|
+| `MOBILE_APP_SCHEME` | Custom URL scheme for mobile deep links (default: `app-template`) |
+| `MOBILE_DEEP_LINK_ENABLED` | Set to `1` to include mobile deep links in password reset emails |
+
+---
+
+## Password Reset Flow
+
+The template includes a complete password reset flow for both web and mobile applications.
+
+### How It Works
+
+1. User navigates to `/reset-password` (web) or "Forgot Password" (mobile)
+2. User enters their email address
+3. Backend always returns success (prevents email enumeration)
+4. If email exists, a reset link is sent via Resend (or logged to console in dev)
+5. User clicks the reset link in email
+6. User enters new password on `/reset-password/confirm` page
+7. Password is updated and user is redirected to login
+
+### API Endpoints
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/auth/reset/request` | POST | Request password reset (body: `{ email }`) |
+| `/api/auth/reset/confirm` | POST | Confirm password reset (body: `{ token, newPassword }`) |
+
+Both endpoints are rate limited to 5 requests per minute per IP.
+
+### Web Pages
+
+- `/reset-password` - Request password reset form
+- `/reset-password/confirm` - Set new password form (accepts `?token=` query param)
+
+### Mobile Screens
+
+- `ResetRequestScreen` - Request password reset
+- `ResetConfirmScreen` - Enter new password
+
+### Security Features
+
+- **No email enumeration**: Request endpoint always returns 200
+- **Rate limiting**: 5 requests per minute per IP
+- **Token expiration**: Reset tokens expire after 10 minutes
+- **Password validation**: Minimum 8 characters required
+- **Dev mode safety**: Tokens only echoed in development or when `ALLOW_DEV_TOKENS=true`
+
+### Development Mode
+
+In development (`NODE_ENV !== "production"`), password reset tokens are:
+1. Logged to the server console
+2. Returned in the API response as `devToken`
+3. Displayed in the UI for easy testing
+
+No emails are sent in development mode.
+
+### Mobile Deep Linking
+
+When `MOBILE_DEEP_LINK_ENABLED=1`, password reset emails include a mobile deep link:
+
+```
+{MOBILE_APP_SCHEME}://reset?token={token}
+```
+
+To enable deep linking in your mobile app:
+
+**iOS**: Add URL scheme to `Info.plist`:
+```xml
+<key>CFBundleURLTypes</key>
+<array>
+  <dict>
+    <key>CFBundleURLSchemes</key>
+    <array>
+      <string>app-template</string>
+    </array>
+  </dict>
+</array>
+```
+
+**Android**: Add intent filter to `AndroidManifest.xml`:
+```xml
+<intent-filter>
+  <action android:name="android.intent.action.VIEW" />
+  <category android:name="android.intent.category.DEFAULT" />
+  <category android:name="android.intent.category.BROWSABLE" />
+  <data android:scheme="app-template" />
+</intent-filter>
+```
+
+See `apps/mobile/src/linking/README.md` for detailed configuration instructions.
+
 ---
 
 ## Project Structure

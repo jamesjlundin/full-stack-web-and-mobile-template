@@ -71,7 +71,7 @@ export default function LoginPage() {
         Need an account? <Link href="/register">Create one</Link>
       </p>
       <p>
-        <Link href="/auth/reset">Forgot password?</Link> | <Link href="/auth/verify">Verify email</Link>
+        <Link href="/reset-password">Forgot password?</Link> | <Link href="/auth/verify">Verify email</Link>
       </p>
       <p>
         Visit the protected <Link href="/app/(protected)/home">home page</Link>.
