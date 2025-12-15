@@ -6,9 +6,10 @@ import {useAuth} from '../auth/AuthContext';
 type SignInScreenProps = {
   onSwitchToSignUp: () => void;
   onSignedIn: () => void;
+  onForgotPassword?: () => void;
 };
 
-export default function SignInScreen({onSwitchToSignUp, onSignedIn}: SignInScreenProps) {
+export default function SignInScreen({onSwitchToSignUp, onSignedIn, onForgotPassword}: SignInScreenProps) {
   const {signIn} = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -71,6 +72,9 @@ export default function SignInScreen({onSwitchToSignUp, onSignedIn}: SignInScree
         <View style={styles.buttonGroup}>
           <Button title={submitting ? 'Signing In…' : 'Sign In'} onPress={handleSubmit} disabled={submitting} />
           <Button title="Need an account? Sign Up" onPress={onSwitchToSignUp} />
+          {onForgotPassword ? (
+            <Button title="Forgot Password?" onPress={onForgotPassword} />
+          ) : null}
         </View>
       </View>
     </SafeAreaView>

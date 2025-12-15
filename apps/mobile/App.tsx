@@ -2,25 +2,61 @@ import React, {useCallback, useEffect, useMemo, useState} from 'react';
 import {ActivityIndicator, Button, SafeAreaView, StyleSheet, View} from 'react-native';
 
 import {AuthProvider, useAuth} from './src/auth/AuthContext';
+import {setupDeepLinkListener, DeepLinkHandler} from './src/linking/DeepLinkHandler';
 import AccountScreen from './src/screens/AccountScreen';
 import ChatStream from './src/screens/ChatStream';
+import ResetConfirmScreen from './src/screens/ResetConfirmScreen';
+import ResetRequestScreen from './src/screens/ResetRequestScreen';
 import SignInScreen from './src/screens/SignInScreen';
 import SignUpScreen from './src/screens/SignUpScreen';
 
-type AuthStackScreen = 'signIn' | 'signUp';
+type AuthStackScreen = 'signIn' | 'signUp' | 'resetRequest' | 'resetConfirm';
 type AppStackScreen = 'chat' | 'account';
 
 function Navigator() {
   const {token, loading} = useAuth();
   const [authScreen, setAuthScreen] = useState<AuthStackScreen>('signIn');
   const [appScreen, setAppScreen] = useState<AppStackScreen>('chat');
+  const [resetToken, setResetToken] = useState<string | undefined>(undefined);
 
+  // Handle deep links
+  useEffect(() => {
+    const handleDeepLink = (link: DeepLinkHandler) => {
+      if (link.type === 'reset') {
+        setResetToken(link.token);
+        setAuthScreen('resetConfirm');
+      }
+    };
+
+    const cleanup = setupDeepLinkListener(handleDeepLink);
+    return cleanup;
+  }, []);
+
+  // Reset auth screen when token changes
   useEffect(() => {
     if (!token) {
-      setAuthScreen('signIn');
+      // Only reset to signIn if not in a password reset flow
+      if (authScreen !== 'resetRequest' && authScreen !== 'resetConfirm') {
+        setAuthScreen('signIn');
+      }
       setAppScreen('chat');
     }
-  }, [token]);
+  }, [token, authScreen]);
+
+  const handleNavigateToResetConfirm = useCallback((tokenFromRequest?: string) => {
+    setResetToken(tokenFromRequest);
+    setAuthScreen('resetConfirm');
+  }, []);
+
+  const handleResetSuccess = useCallback(() => {
+    setResetToken(undefined);
+    setAuthScreen('signIn');
+  }, []);
+
+  const handleBackToSignIn = useCallback(() => {
+    setResetToken(undefined);
+    setAuthScreen('signIn');
+  }, []);
 
   const screen = useMemo(() => {
     if (loading) {
@@ -41,10 +77,34 @@ function Navigator() {
         );
       }
 
+      if (authScreen === 'resetRequest') {
+        return (
+          <ResetRequestScreen
+            onNavigateToConfirm={handleNavigateToResetConfirm}
+            onBackToSignIn={handleBackToSignIn}
+          />
+        );
+      }
+
+      if (authScreen === 'resetConfirm') {
+        return (
+          <ResetConfirmScreen
+            initialToken={resetToken}
+            onSuccess={handleResetSuccess}
+            onBackToRequest={() => {
+              setResetToken(undefined);
+              setAuthScreen('resetRequest');
+            }}
+            onBackToSignIn={handleBackToSignIn}
+          />
+        );
+      }
+
       return (
         <SignInScreen
           onSignedIn={() => setAppScreen('chat')}
           onSwitchToSignUp={() => setAuthScreen('signUp')}
+          onForgotPassword={() => setAuthScreen('resetRequest')}
         />
       );
     }
@@ -54,7 +114,16 @@ function Navigator() {
     ) : (
       <ChatStream />
     );
-  }, [appScreen, authScreen, loading, token]);
+  }, [
+    appScreen,
+    authScreen,
+    handleBackToSignIn,
+    handleNavigateToResetConfirm,
+    handleResetSuccess,
+    loading,
+    resetToken,
+    token,
+  ]);
 
   const handleSelectChat = useCallback(() => setAppScreen('chat'), []);
   const handleSelectAccount = useCallback(() => setAppScreen('account'), []);
