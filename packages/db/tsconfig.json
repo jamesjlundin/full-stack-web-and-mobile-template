@@ -4,8 +4,7 @@
     "outDir": "dist",
     "noEmit": true,
     "rootDir": ".",
-    "moduleResolution": "NodeNext",
-    "module": "NodeNext"
+    "moduleResolution": "bundler"
   },
   "include": ["src/**/*.ts", "drizzle.config.ts"],
   "exclude": ["dist", "drizzle"]

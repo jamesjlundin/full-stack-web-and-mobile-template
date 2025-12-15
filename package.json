@@ -15,7 +15,9 @@
     "obs:build": "pnpm -C packages/obs build",
     "tools:build": "pnpm -C packages/tools build",
     "tools-testing:build": "pnpm -C packages/tools-testing build",
-    "tools-testing:test": "pnpm -C packages/tools-testing test"
+    "tools-testing:test": "pnpm -C packages/tools-testing test",
+    "rag:build": "pnpm -C packages/rag build",
+    "rag:seed": "pnpm -C packages/rag seed"
   },
   "devDependencies": {
     "@better-auth/cli": "^1.4.6",

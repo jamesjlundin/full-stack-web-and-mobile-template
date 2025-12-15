@@ -138,19 +138,53 @@ export async function loadRag(): Promise<RagModule | null> {
       return null;
     }
 
-    // Use dynamic import with variable to avoid TypeScript static resolution
-    // The RAG package path will be: packages/rag/dist/query.js
-    const ragPath = '@acme/rag';
-    const ragModule = await import(/* webpackIgnore: true */ ragPath);
+    // Dynamic import of @acme/rag
+    // Using a variable to avoid static analysis issues with bundlers
+    const ragModulePath = '@acme/rag';
+    const ragModule = await import(/* webpackIgnore: true */ ragModulePath);
 
-    if (ragModule && typeof ragModule.retrieve === 'function') {
-      return ragModule as RagModule;
+    // Check for required exports
+    if (!ragModule.ragQuery || !ragModule.hasOpenAIKey) {
+      console.warn('RAG package found but does not export expected interface');
+      return null;
     }
 
-    console.warn('RAG package found but does not export expected interface');
-    return null;
-  } catch {
-    console.warn('RAG package not available yet');
+    // Check if OpenAI API key is available
+    if (!ragModule.hasOpenAIKey()) {
+      console.warn('RAG package available but OPENAI_API_KEY not set - RAG evals will be skipped');
+      return null;
+    }
+
+    // Import database client
+    const dbModulePath = '@acme/db';
+    const dbModule = await import(/* webpackIgnore: true */ dbModulePath);
+
+    if (!dbModule.db) {
+      console.warn('Database module not available');
+      return null;
+    }
+
+    // Create the retrieve function that matches our interface
+    const retrieve: RetrievalFn = async (query: string, k: number) => {
+      const result = await ragModule.ragQuery(dbModule.db, { query, k });
+      return result.chunks.map((chunk: { id: string; text: string; score: number; metadata?: Record<string, unknown> }) => ({
+        id: chunk.id,
+        content: chunk.text,
+        score: chunk.score,
+        metadata: chunk.metadata,
+      }));
+    };
+
+    console.log('RAG module loaded successfully');
+    return { retrieve };
+  } catch (err) {
+    // Only log actual errors, not module-not-found which is expected
+    const errorMessage = err instanceof Error ? err.message : String(err);
+    if (!errorMessage.includes('Cannot find module') && !errorMessage.includes('MODULE_NOT_FOUND')) {
+      console.warn('Failed to load RAG package:', errorMessage);
+    } else {
+      console.warn('RAG package not available yet');
+    }
     return null;
   }
 }
@@ -162,8 +196,29 @@ export async function ragPackageExists(): Promise<boolean> {
   try {
     const fs = await import('fs');
     const path = await import('path');
-    const ragPath = path.resolve(process.cwd(), '../rag/package.json');
-    return fs.existsSync(ragPath);
+
+    // Check multiple possible locations
+    const possiblePaths = [
+      path.resolve(process.cwd(), '../rag/package.json'),
+      path.resolve(process.cwd(), 'packages/rag/package.json'),
+      path.resolve(process.cwd(), '../../packages/rag/package.json'),
+    ];
+
+    for (const ragPath of possiblePaths) {
+      if (fs.existsSync(ragPath)) {
+        return true;
+      }
+    }
+
+    // Also try to resolve the package directly
+    try {
+      await import.meta.resolve?.('@acme/rag');
+      return true;
+    } catch {
+      // Package not resolvable
+    }
+
+    return false;
   } catch {
     return false;
   }

@@ -1,2 +1,2 @@
-export * as schema from "./schema.ts";
-export { db, pool } from "./client.ts";
+export * as schema from "./schema";
+export { db, pool } from "./client";

@@ -1,0 +1,49 @@
+{
+  "name": "@acme/rag",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "import": "./src/index.ts"
+    },
+    "./config": {
+      "types": "./src/config.ts",
+      "import": "./src/config.ts"
+    },
+    "./chunk": {
+      "types": "./src/chunk.ts",
+      "import": "./src/chunk.ts"
+    },
+    "./embed": {
+      "types": "./src/embed.ts",
+      "import": "./src/embed.ts"
+    },
+    "./query": {
+      "types": "./src/query.ts",
+      "import": "./src/query.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "seed": "tsx src/bin/seed.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@acme/db": "workspace:*",
+    "@acme/obs": "workspace:*",
+    "ai": "^5.0.112",
+    "@ai-sdk/openai": "^2.0.85",
+    "drizzle-orm": "^0.45.1",
+    "ulid": "^2.3.0"
+  },
+  "devDependencies": {
+    "@types/node": "^25.0.0",
+    "dotenv": "^17.2.3",
+    "tsx": "^4.19.1",
+    "typescript": "^5.7.2"
+  }
+}
