@@ -16,7 +16,6 @@
     "react-native-keychain": "^9.2.2"
   },
   "devDependencies": {
-    "@react-native-community/cli": "^13.6.9",
     "@types/jest": "^29.5.14",
     "@babel/core": "^7.20.0",
     "@babel/preset-env": "^7.20.0",
