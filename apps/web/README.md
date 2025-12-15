@@ -111,3 +111,63 @@ curl -X POST http://localhost:3000/api/rag/query \
 |----------|-------------|----------|
 | `DATABASE_URL` | PostgreSQL connection string with pgvector | Yes |
 | `OPENAI_API_KEY` | OpenAI API key for embeddings | For RAG queries |
+
+## Protected Routes
+
+The web app uses a two-layer approach to route protection:
+
+1. **Middleware** (`middleware.ts`): Intercepts requests and redirects unauthenticated users to `/login`
+2. **Server-side fallback** (`app/app/layout.tsx`): Secondary protection in case middleware is bypassed
+
+### Default Protected Paths
+
+The following path prefixes are protected by default:
+
+- `/app/*` - Main application routes
+- `/dashboard/*` - Dashboard routes
+- `/account/*` - Account management routes
+- `/protected/*` - Generic protected routes
+
+### Adding New Protected Paths
+
+To protect additional routes, edit the `PROTECTED_PATH_PREFIXES` array in `middleware.ts`:
+
+```typescript
+const PROTECTED_PATH_PREFIXES = [
+  "/app",
+  "/dashboard",
+  "/account",
+  "/protected",
+  "/my-new-route",  // Add your new protected path here
+];
+```
+
+### How Redirects Work
+
+When an unauthenticated user tries to access a protected route:
+
+1. Middleware intercepts the request
+2. User is redirected to `/login?next=/original-path`
+3. After successful login, user is redirected back to the original path
+
+The `next` query parameter preserves the intended destination so users land where they wanted to go after authentication.
+
+### Server-Side Protection
+
+The `app/app/layout.tsx` provides a server-side session check as a fallback. This ensures protection even in edge cases where middleware might not run (e.g., certain deployment configurations).
+
+To add server-side protection to other route groups, you can use the `getServerSession` function from `lib/session.ts`:
+
+```typescript
+import { getServerSession } from "@/lib/session";
+import { redirect } from "next/navigation";
+
+export default async function MyProtectedPage() {
+  const user = await getServerSession();
+
+  if (!user) {
+    redirect("/login?next=/my-protected-page");
+  }
+
+  return <div>Protected content for {user.email}</div>;
+}
