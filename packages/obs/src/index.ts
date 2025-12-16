@@ -20,6 +20,10 @@ export { redact } from "./redaction";
 // Pricing
 export { getCostUsd, getAvailableModels } from "./pricing";
 
+// Background work
+export { runInBackground, nowMs, durationMs } from "./background";
+export type { BackgroundContext } from "./background";
+
 // Types
 export type {
   TraceContext,

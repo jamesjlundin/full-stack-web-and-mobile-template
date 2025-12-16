@@ -303,3 +303,82 @@ The `cn()` utility function in `lib/utils.ts` merges Tailwind classes safely:
 import { cn } from "@/lib/utils";
 
 <div className={cn("base-class", conditional && "conditional-class", className)} />
+
+## Background & Cron Jobs
+
+The web app includes a background job system using Vercel Cron Jobs and a `runInBackground` helper for post-response work.
+
+### Environment Variables
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `CRON_SECRET` | Secret for authenticating cron requests | `dev-secret` |
+| `BACKGROUND_ENABLED` | Enable/disable background work | `1` (enabled) |
+| `APP_BASE_URL` | Base URL for the application | `http://localhost:3000` |
+
+**Important**: In production, set `CRON_SECRET` to a secure random value.
+
+### Cron Endpoints
+
+All cron endpoints require authentication via the `x-cron-secret` header.
+
+| Endpoint | Method | Schedule | Description |
+|----------|--------|----------|-------------|
+| `/api/cron/heartbeat` | GET | Daily 12pm UTC | Health check canary |
+| `/api/cron/nightly` | GET/POST | Daily 5am UTC | Maintenance tasks |
+| `/api/cron/run` | POST | Manual | Trigger any job on demand |
+
+### Vercel Cron Configuration
+
+Cron schedules are defined in `vercel.json` at the repository root. Vercel automatically calls these endpoints on the specified schedule.
+
+**Note**: Vercel Hobby plan limits cron jobs to 2 jobs with daily minimum frequency. Pro plan allows more frequent schedules (e.g., every 15 minutes). Adjust schedules in `vercel.json` based on your plan.
+
+To add a new scheduled job, first create the route handler in `app/api/cron/[jobname]/route.ts` and the job logic in `server/jobs/[jobname].ts`, then add an entry to `vercel.json`.
+
+### Job Logic
+
+Job logic is factored into pure functions in `server/jobs/` for testability and reuse. Route handlers are thin wrappers that handle authentication and invoke these functions.
+
+To add a new job, create a new file in `server/jobs/` with an async function, export it from `server/jobs/index.ts`, and create a corresponding route handler.
+
+### Manual Triggers (Local Development)
+
+To test cron endpoints locally, use curl with the secret header.
+
+Test heartbeat: curl -H "x-cron-secret: dev-secret" http://localhost:3000/api/cron/heartbeat
+
+Test nightly: curl -H "x-cron-secret: dev-secret" http://localhost:3000/api/cron/nightly
+
+Test without secret (should return 401): curl http://localhost:3000/api/cron/heartbeat
+
+Run any job via the trigger endpoint: curl -X POST -H "x-cron-secret: dev-secret" -H "Content-Type: application/json" -d '{"job":"heartbeat"}' http://localhost:3000/api/cron/run
+
+### Background Work Helper
+
+The `runInBackground` helper from `@acme/obs` allows you to schedule work that runs after the HTTP response is sent. This is useful for analytics, cache warming, or other non-critical tasks.
+
+On Vercel, it uses `waitUntil` to keep the function running. In other environments, it falls back to safe fire-and-forget execution with error logging.
+
+```typescript
+import { runInBackground } from "@acme/obs";
+
+export async function GET() {
+  // Main work...
+
+  // Schedule background work (won't block response)
+  runInBackground(async () => {
+    await sendAnalytics();
+    await warmCache();
+  }, undefined, "post-response-tasks");
+
+  return Response.json({ ok: true });
+}
+```
+
+Use `runInBackground` when:
+- The work is non-critical and can fail silently
+- You want to reduce response latency
+- The task doesn't need to complete before responding
+
+Do not use it for work that must succeed before the user sees a result.
