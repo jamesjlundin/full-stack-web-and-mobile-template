@@ -1,7 +1,24 @@
 "use client";
 
+import { CheckCircle, Mail } from "lucide-react";
 import Link from "next/link";
 import { FormEvent, useState } from "react";
+import { toast } from "sonner";
+
+import { AppShell } from "@/components/layout";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
+import { Spinner } from "@/components/ui/spinner";
 
 export default function VerifyEmailPage() {
   const [email, setEmail] = useState("");
@@ -28,7 +45,8 @@ export default function VerifyEmailPage() {
       const data = await response.json();
 
       if (data.ok) {
-        setMessage("Verification email sent! Check your inbox (or use the dev token below).");
+        setMessage("Verification email sent! Check your inbox.");
+        toast.success("Verification email sent");
         if (data.devToken) {
           setDevToken(data.devToken);
           setToken(data.devToken);
@@ -60,6 +78,7 @@ export default function VerifyEmailPage() {
 
       if (data.ok) {
         setMessage("Email verified successfully! You can now sign in.");
+        toast.success("Email verified successfully");
         setDevToken(null);
         setToken("");
       } else {
@@ -73,72 +92,125 @@ export default function VerifyEmailPage() {
   };
 
   return (
-    <main className="main">
-      <h1>Verify Email</h1>
+    <AppShell>
+      <div className="container flex items-center justify-center min-h-[calc(100vh-3.5rem)] py-12">
+        <Card className="w-full max-w-md">
+          <CardHeader className="space-y-1">
+            <CardTitle className="text-2xl font-bold flex items-center gap-2">
+              <Mail className="h-6 w-6" />
+              Verify Email
+            </CardTitle>
+            <CardDescription>
+              Verify your email address to complete registration
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {message && (
+              <Alert className="border-green-500 bg-green-50 dark:bg-green-950">
+                <CheckCircle className="h-4 w-4 text-green-600" />
+                <AlertDescription className="text-green-700 dark:text-green-300">
+                  {message}
+                </AlertDescription>
+              </Alert>
+            )}
 
-      {/* Request Verification Form */}
-      <section style={{ marginBottom: 32 }}>
-        <h2 style={{ fontSize: "1.2rem" }}>Step 1: Request Verification</h2>
-        <form onSubmit={handleRequestVerification} style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-          <label>
-            Email
-            <input
-              type="email"
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
-              required
-              style={{ width: "100%", padding: 8, marginTop: 4 }}
-            />
-          </label>
-          <button type="submit" disabled={loading} style={{ padding: "10px 12px" }}>
-            {loading ? "Sending..." : "Send verification email"}
-          </button>
-        </form>
-      </section>
+            {error && (
+              <Alert variant="destructive">
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
 
-      {/* Dev Token Display (only in dev mode) */}
-      {devToken ? (
-        <section style={{ marginBottom: 32, padding: 12, backgroundColor: "#fef3c7", borderRadius: 4 }}>
-          <p style={{ margin: 0, fontWeight: "bold", color: "#92400e" }}>DEV MODE: Token received</p>
-          <code style={{ wordBreak: "break-all", fontSize: "0.85rem" }}>{devToken}</code>
-          <p style={{ margin: "8px 0 0 0", fontSize: "0.85rem", color: "#78350f" }}>
-            Token auto-filled below. Click &quot;Confirm&quot; to verify.
-          </p>
-        </section>
-      ) : null}
+            {/* Step 1: Request Verification */}
+            <div className="space-y-4">
+              <h3 className="text-sm font-medium">Step 1: Request Verification</h3>
+              <form onSubmit={handleRequestVerification} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="you@example.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    autoComplete="email"
+                  />
+                </div>
+                <Button type="submit" className="w-full" disabled={loading}>
+                  {loading && <Spinner size="sm" className="mr-2" />}
+                  Send verification email
+                </Button>
+              </form>
+            </div>
 
-      {/* Confirm Verification Form */}
-      <section style={{ marginBottom: 32 }}>
-        <h2 style={{ fontSize: "1.2rem" }}>Step 2: Confirm Verification</h2>
-        <form onSubmit={handleConfirmVerification} style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-          <label>
-            Verification Token
-            <input
-              type="text"
-              value={token}
-              onChange={(event) => setToken(event.target.value)}
-              required
-              placeholder="Paste token from email"
-              style={{ width: "100%", padding: 8, marginTop: 4 }}
-            />
-          </label>
-          <button type="submit" disabled={loading || !token} style={{ padding: "10px 12px" }}>
-            {loading ? "Verifying..." : "Confirm verification"}
-          </button>
-        </form>
-      </section>
+            {/* Dev Token Display */}
+            {devToken && (
+              <Alert className="border-yellow-500 bg-yellow-50 dark:bg-yellow-950">
+                <AlertTitle className="text-yellow-800 dark:text-yellow-300">
+                  DEV MODE: Token received
+                </AlertTitle>
+                <AlertDescription className="space-y-2">
+                  <code className="block break-all text-xs bg-yellow-100 dark:bg-yellow-900 p-2 rounded mt-2">
+                    {devToken}
+                  </code>
+                  <p className="text-sm text-yellow-700 dark:text-yellow-400">
+                    Token auto-filled below. Click confirm to verify.
+                  </p>
+                </AlertDescription>
+              </Alert>
+            )}
 
-      {message ? <p style={{ color: "#047857" }}>{message}</p> : null}
-      {error ? <p style={{ color: "#b91c1c" }}>{error}</p> : null}
+            <Separator />
 
-      <nav style={{ marginTop: 24 }}>
-        <p>
-          <Link href="/login">Back to Sign in</Link>
-        </p>
-        <p>
-          <Link href="/auth/reset">Forgot password?</Link>
-        </p>
-      </nav>
-    </main>
+            {/* Step 2: Confirm Verification */}
+            <div className="space-y-4">
+              <h3 className="text-sm font-medium">Step 2: Confirm Verification</h3>
+              <form onSubmit={handleConfirmVerification} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="token">Verification Token</Label>
+                  <Input
+                    id="token"
+                    type="text"
+                    placeholder="Paste token from email"
+                    value={token}
+                    onChange={(e) => setToken(e.target.value)}
+                    required
+                  />
+                </div>
+                <Button
+                  type="submit"
+                  className="w-full"
+                  disabled={loading || !token}
+                >
+                  {loading && <Spinner size="sm" className="mr-2" />}
+                  Confirm verification
+                </Button>
+              </form>
+            </div>
+
+            <Separator />
+
+            <div className="text-sm text-center space-y-2">
+              <p className="text-muted-foreground">
+                <Link
+                  href="/login"
+                  className="text-primary underline-offset-4 hover:underline"
+                >
+                  Back to Sign in
+                </Link>
+              </p>
+              <p className="text-muted-foreground">
+                <Link
+                  href="/reset-password"
+                  className="text-primary underline-offset-4 hover:underline"
+                >
+                  Forgot password?
+                </Link>
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </AppShell>
   );
 }
