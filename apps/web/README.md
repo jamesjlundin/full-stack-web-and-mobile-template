@@ -324,13 +324,15 @@ All cron endpoints require authentication via the `x-cron-secret` header.
 
 | Endpoint | Method | Schedule | Description |
 |----------|--------|----------|-------------|
-| `/api/cron/heartbeat` | GET | Every 15 min | Health check canary |
+| `/api/cron/heartbeat` | GET | Daily 12pm UTC | Health check canary |
 | `/api/cron/nightly` | GET/POST | Daily 5am UTC | Maintenance tasks |
 | `/api/cron/run` | POST | Manual | Trigger any job on demand |
 
 ### Vercel Cron Configuration
 
 Cron schedules are defined in `vercel.json` at the repository root. Vercel automatically calls these endpoints on the specified schedule.
+
+**Note**: Vercel Hobby plan limits cron jobs to 2 jobs with daily minimum frequency. Pro plan allows more frequent schedules (e.g., every 15 minutes). Adjust schedules in `vercel.json` based on your plan.
 
 To add a new scheduled job, first create the route handler in `app/api/cron/[jobname]/route.ts` and the job logic in `server/jobs/[jobname].ts`, then add an entry to `vercel.json`.
 

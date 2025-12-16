@@ -5,7 +5,7 @@ import { runHeartbeat } from "@/server/jobs";
  * GET /api/cron/heartbeat
  *
  * Heartbeat cron endpoint - safe canary for testing cron infrastructure.
- * Runs every 15 minutes via Vercel Cron.
+ * Runs daily at 12pm UTC via Vercel Cron (Hobby plan: daily minimum).
  *
  * Auth: requires x-cron-secret header or Vercel Cron header
  * Returns: { ok: true, ts: number, job: "heartbeat", checks: {...}, duration_ms: number }
