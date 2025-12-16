@@ -1,8 +1,25 @@
 "use client";
 
+import { CheckCircle } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { FormEvent, useState, useEffect, Suspense } from "react";
+import { toast } from "sonner";
+
+import { AppShell } from "@/components/layout";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Spinner } from "@/components/ui/spinner";
 
 function ResetConfirmForm() {
   const router = useRouter();
@@ -13,6 +30,8 @@ function ResetConfirmForm() {
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  const hasTokenInUrl = !!searchParams.get("token");
 
   useEffect(() => {
     const tokenParam = searchParams.get("token");
@@ -27,7 +46,6 @@ function ResetConfirmForm() {
     setSuccess(false);
     setLoading(true);
 
-    // Client-side validation
     if (newPassword.length < 8) {
       setError("Password must be at least 8 characters");
       setLoading(false);
@@ -51,13 +69,15 @@ function ResetConfirmForm() {
 
       if (response.ok && data.ok) {
         setSuccess(true);
-        // Redirect to login after 2 seconds
+        toast.success("Password reset successfully");
         setTimeout(() => {
           router.push("/login?message=password_reset_success");
         }, 2000);
       } else {
         if (data.error === "invalid_or_expired_token") {
-          setError("This link is invalid or has expired. Please request a new password reset.");
+          setError(
+            "This link is invalid or has expired. Please request a new password reset."
+          );
         } else {
           setError(data.error ?? "Failed to reset password");
         }
@@ -71,96 +91,151 @@ function ResetConfirmForm() {
 
   if (success) {
     return (
-      <section style={{ marginBottom: 32 }}>
-        <p style={{ color: "#047857" }}>
-          Your password has been reset successfully! Redirecting to sign in...
-        </p>
-        <p>
-          <Link href="/login" style={{ color: "#1d4ed8" }}>
-            Click here if you are not redirected
-          </Link>
-        </p>
-      </section>
+      <AppShell>
+        <div className="container flex items-center justify-center min-h-[calc(100vh-3.5rem)] py-12">
+          <Card className="w-full max-w-md">
+            <CardHeader className="space-y-1">
+              <CardTitle className="text-2xl font-bold">Password Reset</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <Alert className="border-green-500 bg-green-50 dark:bg-green-950">
+                <CheckCircle className="h-4 w-4 text-green-600" />
+                <AlertDescription className="text-green-700 dark:text-green-300">
+                  Your password has been reset successfully! Redirecting to sign
+                  in...
+                </AlertDescription>
+              </Alert>
+              <Button variant="ghost" asChild className="w-full">
+                <Link href="/login">Click here if you are not redirected</Link>
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </AppShell>
     );
   }
 
   return (
-    <>
-      <section style={{ marginBottom: 32 }}>
-        <p>Enter your new password below.</p>
-        <form onSubmit={handleConfirmReset} style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-          {!searchParams.get("token") && (
-            <label>
-              Reset Token
-              <input
-                type="text"
-                value={token}
-                onChange={(event) => setToken(event.target.value)}
-                required
-                placeholder="Paste token from email"
-                style={{ width: "100%", padding: 8, marginTop: 4 }}
-              />
-            </label>
-          )}
-          <label>
-            New Password
-            <input
-              type="password"
-              value={newPassword}
-              onChange={(event) => setNewPassword(event.target.value)}
-              required
-              minLength={8}
-              placeholder="Enter new password (min 8 characters)"
-              style={{ width: "100%", padding: 8, marginTop: 4 }}
-            />
-          </label>
-          <label>
-            Confirm Password
-            <input
-              type="password"
-              value={confirmPassword}
-              onChange={(event) => setConfirmPassword(event.target.value)}
-              required
-              minLength={8}
-              placeholder="Confirm new password"
-              style={{ width: "100%", padding: 8, marginTop: 4 }}
-            />
-          </label>
-          {error ? <p style={{ color: "#b91c1c" }}>{error}</p> : null}
-          <button type="submit" disabled={loading || !token || !newPassword || !confirmPassword} style={{ padding: "10px 12px" }}>
-            {loading ? "Resetting..." : "Set new password"}
-          </button>
-        </form>
-      </section>
+    <AppShell>
+      <div className="container flex items-center justify-center min-h-[calc(100vh-3.5rem)] py-12">
+        <Card className="w-full max-w-md">
+          <CardHeader className="space-y-1">
+            <CardTitle className="text-2xl font-bold">Set New Password</CardTitle>
+            <CardDescription>Enter your new password below.</CardDescription>
+          </CardHeader>
+          <form onSubmit={handleConfirmReset}>
+            <CardContent className="space-y-4">
+              {error && (
+                <Alert variant="destructive">
+                  <AlertDescription>{error}</AlertDescription>
+                </Alert>
+              )}
 
-      {error?.includes("invalid or has expired") && (
-        <section style={{ marginBottom: 16 }}>
-          <Link href="/reset-password" style={{ color: "#1d4ed8" }}>
-            Request a new password reset
-          </Link>
-        </section>
-      )}
-    </>
+              {!hasTokenInUrl && (
+                <div className="space-y-2">
+                  <Label htmlFor="token">Reset Token</Label>
+                  <Input
+                    id="token"
+                    type="text"
+                    placeholder="Paste token from email"
+                    value={token}
+                    onChange={(e) => setToken(e.target.value)}
+                    required
+                  />
+                </div>
+              )}
+
+              <div className="space-y-2">
+                <Label htmlFor="newPassword">New Password</Label>
+                <Input
+                  id="newPassword"
+                  type="password"
+                  placeholder="Enter new password (min 8 characters)"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  required
+                  minLength={8}
+                  autoComplete="new-password"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="confirmPassword">Confirm Password</Label>
+                <Input
+                  id="confirmPassword"
+                  type="password"
+                  placeholder="Confirm new password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  required
+                  minLength={8}
+                  autoComplete="new-password"
+                />
+              </div>
+
+              {error?.includes("invalid or has expired") && (
+                <Button variant="outline" asChild className="w-full">
+                  <Link href="/reset-password">Request a new password reset</Link>
+                </Button>
+              )}
+            </CardContent>
+            <CardFooter className="flex flex-col space-y-4">
+              <Button
+                type="submit"
+                className="w-full"
+                disabled={loading || !token || !newPassword || !confirmPassword}
+              >
+                {loading && <Spinner size="sm" className="mr-2" />}
+                {loading ? "Resetting..." : "Set new password"}
+              </Button>
+              <div className="text-sm text-center space-y-2">
+                <p className="text-muted-foreground">
+                  <Link
+                    href="/login"
+                    className="text-primary underline-offset-4 hover:underline"
+                  >
+                    Back to Sign in
+                  </Link>
+                </p>
+                <p className="text-muted-foreground">
+                  <Link
+                    href="/reset-password"
+                    className="text-primary underline-offset-4 hover:underline"
+                  >
+                    Request a new reset link
+                  </Link>
+                </p>
+              </div>
+            </CardFooter>
+          </form>
+        </Card>
+      </div>
+    </AppShell>
+  );
+}
+
+function ResetConfirmLoading() {
+  return (
+    <AppShell>
+      <div className="container flex items-center justify-center min-h-[calc(100vh-3.5rem)] py-12">
+        <Card className="w-full max-w-md">
+          <CardHeader className="space-y-1">
+            <CardTitle className="text-2xl font-bold">Set New Password</CardTitle>
+            <CardDescription>Loading...</CardDescription>
+          </CardHeader>
+          <CardContent className="flex justify-center py-8">
+            <Spinner size="lg" />
+          </CardContent>
+        </Card>
+      </div>
+    </AppShell>
   );
 }
 
 export default function ConfirmResetPage() {
   return (
-    <main className="main">
-      <h1>Set New Password</h1>
-
-      <Suspense fallback={<p>Loading...</p>}>
-        <ResetConfirmForm />
-      </Suspense>
-
-      <nav style={{ marginTop: 24 }}>
-        <p>
-          <Link href="/login">Back to Sign in</Link>
-        </p>
-        <p>
-          <Link href="/reset-password">Request a new reset link</Link>
-        </p>
-      </nav>
-    </main>
+    <Suspense fallback={<ResetConfirmLoading />}>
+      <ResetConfirmForm />
+    </Suspense>
   );
 }

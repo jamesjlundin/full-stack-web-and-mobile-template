@@ -1,7 +1,24 @@
 "use client";
 
+import { CheckCircle } from "lucide-react";
 import Link from "next/link";
 import { FormEvent, useState } from "react";
+import { toast } from "sonner";
+
+import { AppShell } from "@/components/layout";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Spinner } from "@/components/ui/spinner";
 
 export default function RequestResetPage() {
   const [email, setEmail] = useState("");
@@ -26,8 +43,8 @@ export default function RequestResetPage() {
 
       const data = await response.json();
 
-      // Always show success to prevent email enumeration
       setSubmitted(true);
+      toast.success("Reset link sent");
       if (data.devToken) {
         setDevToken(data.devToken);
       }
@@ -39,72 +56,116 @@ export default function RequestResetPage() {
   };
 
   return (
-    <main className="main">
-      <h1>Reset Password</h1>
+    <AppShell>
+      <div className="container flex items-center justify-center min-h-[calc(100vh-3.5rem)] py-12">
+        <Card className="w-full max-w-md">
+          <CardHeader className="space-y-1">
+            <CardTitle className="text-2xl font-bold">Reset Password</CardTitle>
+            <CardDescription>
+              {!submitted
+                ? "Enter your email address and we'll send you a link to reset your password."
+                : "Check your email for further instructions."}
+            </CardDescription>
+          </CardHeader>
 
-      {!submitted ? (
-        <section style={{ marginBottom: 32 }}>
-          <p>Enter your email address and we&apos;ll send you a link to reset your password.</p>
-          <form onSubmit={handleRequestReset} style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-            <label>
-              Email
-              <input
-                type="email"
-                value={email}
-                onChange={(event) => setEmail(event.target.value)}
-                required
-                placeholder="you@example.com"
-                style={{ width: "100%", padding: 8, marginTop: 4 }}
-              />
-            </label>
-            <button type="submit" disabled={loading} style={{ padding: "10px 12px" }}>
-              {loading ? "Sending..." : "Send reset link"}
-            </button>
-          </form>
-        </section>
-      ) : (
-        <section style={{ marginBottom: 32 }}>
-          <p style={{ color: "#047857" }}>
-            If that email exists in our system, a reset link has been sent. Please check your inbox.
-          </p>
-          <button
-            onClick={() => {
-              setSubmitted(false);
-              setEmail("");
-              setDevToken(null);
-            }}
-            style={{ padding: "10px 12px", marginTop: 12 }}
-          >
-            Send another request
-          </button>
-        </section>
-      )}
+          {!submitted ? (
+            <form onSubmit={handleRequestReset}>
+              <CardContent className="space-y-4">
+                {error && (
+                  <Alert variant="destructive">
+                    <AlertDescription>{error}</AlertDescription>
+                  </Alert>
+                )}
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="you@example.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    autoComplete="email"
+                  />
+                </div>
+              </CardContent>
+              <CardFooter className="flex flex-col space-y-4">
+                <Button type="submit" className="w-full" disabled={loading}>
+                  {loading && <Spinner size="sm" className="mr-2" />}
+                  {loading ? "Sending..." : "Send reset link"}
+                </Button>
+                <div className="text-sm text-center space-y-2">
+                  <p className="text-muted-foreground">
+                    <Link
+                      href="/login"
+                      className="text-primary underline-offset-4 hover:underline"
+                    >
+                      Back to Sign in
+                    </Link>
+                  </p>
+                  <p className="text-muted-foreground">
+                    <Link
+                      href="/reset-password/confirm"
+                      className="text-primary underline-offset-4 hover:underline"
+                    >
+                      Already have a reset token?
+                    </Link>
+                  </p>
+                </div>
+              </CardFooter>
+            </form>
+          ) : (
+            <CardContent className="space-y-4">
+              <Alert className="border-green-500 bg-green-50 dark:bg-green-950">
+                <CheckCircle className="h-4 w-4 text-green-600" />
+                <AlertDescription className="text-green-700 dark:text-green-300">
+                  If that email exists in our system, a reset link has been sent.
+                  Please check your inbox.
+                </AlertDescription>
+              </Alert>
 
-      {error ? <p style={{ color: "#b91c1c" }}>{error}</p> : null}
+              {devToken && (
+                <Alert className="border-yellow-500 bg-yellow-50 dark:bg-yellow-950">
+                  <AlertTitle className="text-yellow-800 dark:text-yellow-300">
+                    DEV MODE: Reset Token
+                  </AlertTitle>
+                  <AlertDescription className="space-y-2">
+                    <code className="block break-all text-xs bg-yellow-100 dark:bg-yellow-900 p-2 rounded mt-2">
+                      {devToken}
+                    </code>
+                    <p className="text-sm text-yellow-700 dark:text-yellow-400">
+                      Use this token on the{" "}
+                      <Link
+                        href={`/reset-password/confirm?token=${encodeURIComponent(devToken)}`}
+                        className="text-primary underline-offset-4 hover:underline"
+                      >
+                        confirmation page
+                      </Link>
+                      .
+                    </p>
+                  </AlertDescription>
+                </Alert>
+              )}
 
-      {/* Dev Token Display (only in dev mode) */}
-      {devToken ? (
-        <section style={{ marginBottom: 32, padding: 12, backgroundColor: "#fef3c7", borderRadius: 4 }}>
-          <p style={{ margin: 0, fontWeight: "bold", color: "#92400e" }}>DEV MODE: Reset Token</p>
-          <code style={{ wordBreak: "break-all", fontSize: "0.85rem" }}>{devToken}</code>
-          <p style={{ margin: "8px 0 0 0", fontSize: "0.85rem", color: "#78350f" }}>
-            Use this token on the{" "}
-            <Link href={`/reset-password/confirm?token=${encodeURIComponent(devToken)}`} style={{ color: "#1d4ed8" }}>
-              confirmation page
-            </Link>
-            .
-          </p>
-        </section>
-      ) : null}
-
-      <nav style={{ marginTop: 24 }}>
-        <p>
-          <Link href="/login">Back to Sign in</Link>
-        </p>
-        <p>
-          <Link href="/reset-password/confirm">Already have a reset token?</Link>
-        </p>
-      </nav>
-    </main>
+              <div className="flex flex-col gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setSubmitted(false);
+                    setEmail("");
+                    setDevToken(null);
+                  }}
+                >
+                  Send another request
+                </Button>
+                <Button variant="ghost" asChild>
+                  <Link href="/login">Back to Sign in</Link>
+                </Button>
+              </div>
+            </CardContent>
+          )}
+        </Card>
+      </div>
+    </AppShell>
   );
 }

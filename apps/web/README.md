@@ -171,3 +171,135 @@ export default async function MyProtectedPage() {
 
   return <div>Protected content for {user.email}</div>;
 }
+```
+
+## Design System
+
+This web app uses [shadcn/ui](https://ui.shadcn.com/) as its component library, built on [Radix UI](https://www.radix-ui.com/) primitives and styled with [Tailwind CSS](https://tailwindcss.com/).
+
+### Component Location
+
+UI components are located in `components/ui/`. Each component is a separate file that can be customized as needed:
+
+```
+components/
+├── ui/
+│   ├── alert.tsx
+│   ├── avatar.tsx
+│   ├── badge.tsx
+│   ├── button.tsx
+│   ├── card.tsx
+│   ├── checkbox.tsx
+│   ├── dialog.tsx
+│   ├── dropdown-menu.tsx
+│   ├── input.tsx
+│   ├── label.tsx
+│   ├── select.tsx
+│   ├── separator.tsx
+│   ├── sheet.tsx
+│   ├── skeleton.tsx
+│   ├── sonner.tsx (toast notifications)
+│   ├── spinner.tsx
+│   ├── textarea.tsx
+│   ├── tooltip.tsx
+│   └── index.ts (barrel export)
+├── layout/
+│   ├── header.tsx
+│   ├── app-shell.tsx
+│   ├── theme-toggle.tsx
+│   └── index.ts
+└── theme-provider.tsx
+```
+
+### Adding New Components
+
+To add new shadcn/ui components, use the CLI:
+
+```bash
+# From the apps/web directory
+npx shadcn@latest add [component-name]
+
+# Examples:
+npx shadcn@latest add accordion
+npx shadcn@latest add tabs
+npx shadcn@latest add table
+```
+
+The CLI will automatically place components in `components/ui/` based on the `components.json` configuration.
+
+### Theme Configuration
+
+The theme uses CSS variables defined in `app/globals.css`. Colors use HSL format for easy customization:
+
+```css
+:root {
+  --background: 0 0% 100%;
+  --foreground: 222.2 84% 4.9%;
+  --primary: 222.2 47.4% 11.2%;
+  /* ... more variables */
+}
+
+.dark {
+  --background: 222.2 84% 4.9%;
+  --foreground: 210 40% 98%;
+  /* ... dark mode overrides */
+}
+```
+
+To customize the theme:
+1. Edit the CSS variables in `app/globals.css`
+2. Adjust colors in `tailwind.config.ts` if needed
+
+### Dark Mode
+
+Dark mode is enabled via the `class` strategy and managed by `next-themes`:
+
+- The `ThemeProvider` is set up in `app/layout.tsx`
+- Use the `ThemeToggle` component to switch themes
+- System preference is respected by default
+
+To programmatically control the theme:
+
+```tsx
+import { useTheme } from "next-themes";
+
+function MyComponent() {
+  const { theme, setTheme } = useTheme();
+
+  return (
+    <button onClick={() => setTheme(theme === "dark" ? "light" : "dark")}>
+      Toggle theme
+    </button>
+  );
+}
+```
+
+### Toast Notifications
+
+Toast notifications use [Sonner](https://sonner.emilkowal.ski/). The `Toaster` component is already added to the root layout.
+
+To show a toast:
+
+```tsx
+import { toast } from "sonner";
+
+// Success
+toast.success("Operation completed");
+
+// Error
+toast.error("Something went wrong");
+
+// Custom
+toast("Event has been created", {
+  description: "Monday, January 3rd at 6:00pm",
+});
+```
+
+### Utility Functions
+
+The `cn()` utility function in `lib/utils.ts` merges Tailwind classes safely:
+
+```tsx
+import { cn } from "@/lib/utils";
+
+<div className={cn("base-class", conditional && "conditional-class", className)} />

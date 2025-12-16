@@ -1,7 +1,12 @@
 "use client";
 
+import { LogOut } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { toast } from "sonner";
+
+import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
 
 export function SignOutButton() {
   const router = useRouter();
@@ -17,31 +22,28 @@ export function SignOutButton() {
       });
 
       if (response.ok) {
+        toast.success("Signed out successfully");
         router.push("/");
         router.refresh();
+      } else {
+        toast.error("Failed to sign out");
       }
     } catch (error) {
       console.error("Sign out failed:", error);
+      toast.error("An error occurred while signing out");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <button
-      onClick={handleSignOut}
-      disabled={loading}
-      style={{
-        padding: "8px 16px",
-        backgroundColor: "#ef4444",
-        color: "#fff",
-        border: "none",
-        borderRadius: "6px",
-        cursor: loading ? "not-allowed" : "pointer",
-        opacity: loading ? 0.7 : 1,
-      }}
-    >
+    <Button variant="destructive" onClick={handleSignOut} disabled={loading}>
+      {loading ? (
+        <Spinner size="sm" className="mr-2" />
+      ) : (
+        <LogOut className="mr-2 h-4 w-4" />
+      )}
       {loading ? "Signing out..." : "Sign out"}
-    </button>
+    </Button>
   );
 }

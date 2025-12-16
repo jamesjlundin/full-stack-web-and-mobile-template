@@ -3,6 +3,22 @@
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { FormEvent, useState, Suspense } from "react";
+import { toast } from "sonner";
+
+import { AppShell } from "@/components/layout";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Spinner } from "@/components/ui/spinner";
 
 function RegisterForm() {
   const router = useRouter();
@@ -41,12 +57,15 @@ function RegisterForm() {
       });
 
       if (signinResponse.ok) {
+        toast.success("Account created successfully");
         router.push(nextUrl);
         return;
       }
 
       const data = await signinResponse.json().catch(() => ({}));
-      setError(data?.message ?? "Signed up but failed to sign in. Please try again.");
+      setError(
+        data?.message ?? "Signed up but failed to sign in. Please try again."
+      );
     } catch (err) {
       setError(err instanceof Error ? err.message : "Unexpected error occurred");
     } finally {
@@ -55,44 +74,89 @@ function RegisterForm() {
   };
 
   return (
-    <main className="main">
-      <h1>Create an account</h1>
-      <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-        <label>
-          Email
-          <input
-            type="email"
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
-            required
-            style={{ width: "100%", padding: 8, marginTop: 4 }}
-          />
-        </label>
-        <label>
-          Password
-          <input
-            type="password"
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
-            required
-            style={{ width: "100%", padding: 8, marginTop: 4 }}
-          />
-        </label>
-        {error ? <p style={{ color: "#b91c1c" }}>{error}</p> : null}
-        <button type="submit" disabled={loading} style={{ padding: "10px 12px" }}>
-          {loading ? "Signing up..." : "Create account"}
-        </button>
-      </form>
-      <p>
-        Already have an account? <Link href="/login">Sign in</Link>
-      </p>
-    </main>
+    <AppShell>
+      <div className="container flex items-center justify-center min-h-[calc(100vh-3.5rem)] py-12">
+        <Card className="w-full max-w-md">
+          <CardHeader className="space-y-1">
+            <CardTitle className="text-2xl font-bold">Create an account</CardTitle>
+            <CardDescription>
+              Enter your email and create a password to get started
+            </CardDescription>
+          </CardHeader>
+          <form onSubmit={handleSubmit}>
+            <CardContent className="space-y-4">
+              {error && (
+                <Alert variant="destructive">
+                  <AlertDescription>{error}</AlertDescription>
+                </Alert>
+              )}
+              <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="you@example.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  autoComplete="email"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="password">Password</Label>
+                <Input
+                  id="password"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  autoComplete="new-password"
+                />
+              </div>
+            </CardContent>
+            <CardFooter className="flex flex-col space-y-4">
+              <Button type="submit" className="w-full" disabled={loading}>
+                {loading && <Spinner size="sm" className="mr-2" />}
+                {loading ? "Creating account..." : "Create account"}
+              </Button>
+              <p className="text-sm text-center text-muted-foreground">
+                Already have an account?{" "}
+                <Link
+                  href="/login"
+                  className="text-primary underline-offset-4 hover:underline"
+                >
+                  Sign in
+                </Link>
+              </p>
+            </CardFooter>
+          </form>
+        </Card>
+      </div>
+    </AppShell>
+  );
+}
+
+function RegisterLoading() {
+  return (
+    <AppShell>
+      <div className="container flex items-center justify-center min-h-[calc(100vh-3.5rem)] py-12">
+        <Card className="w-full max-w-md">
+          <CardHeader className="space-y-1">
+            <CardTitle className="text-2xl font-bold">Create an account</CardTitle>
+            <CardDescription>Loading...</CardDescription>
+          </CardHeader>
+          <CardContent className="flex justify-center py-8">
+            <Spinner size="lg" />
+          </CardContent>
+        </Card>
+      </div>
+    </AppShell>
   );
 }
 
 export default function RegisterPage() {
   return (
-    <Suspense fallback={<main className="main"><h1>Create an account</h1><p>Loading...</p></main>}>
+    <Suspense fallback={<RegisterLoading />}>
       <RegisterForm />
     </Suspense>
   );
