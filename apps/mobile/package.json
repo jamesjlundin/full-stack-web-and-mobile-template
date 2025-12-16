@@ -12,7 +12,8 @@
   "dependencies": {
     "@acme/api-client": "workspace:*",
     "react": "18.2.0",
-    "react-native": "0.74.5"
+    "react-native": "0.74.5",
+    "react-native-keychain": "^9.2.2"
   },
   "devDependencies": {
     "@types/jest": "^29.5.14",
