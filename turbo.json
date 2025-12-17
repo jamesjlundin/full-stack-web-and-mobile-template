@@ -2,6 +2,7 @@
   "$schema": "https://turbo.build/schema.json",
   "globalEnv": [
     "DATABASE_URL",
+    "DATABASE_URL_UNPOOLED",
     "BETTER_AUTH_SECRET",
     "BETTER_AUTH_URL",
     "RESEND_API_KEY",
@@ -11,7 +12,21 @@
     "ALLOWED_ORIGIN",
     "MOBILE_API_BASE_URL",
     "OPENAI_API_KEY",
-    "NODE_ENV"
+    "NODE_ENV",
+    "POSTGRES_URL",
+    "POSTGRES_PRISMA_URL",
+    "POSTGRES_URL_NON_POOLING",
+    "POSTGRES_URL_NO_SSL",
+    "POSTGRES_HOST",
+    "POSTGRES_USER",
+    "POSTGRES_PASSWORD",
+    "POSTGRES_DATABASE",
+    "PGHOST",
+    "PGHOST_UNPOOLED",
+    "PGUSER",
+    "PGPASSWORD",
+    "PGDATABASE",
+    "NEON_PROJECT_ID"
   ],
   "tasks": {
     "dev": {
