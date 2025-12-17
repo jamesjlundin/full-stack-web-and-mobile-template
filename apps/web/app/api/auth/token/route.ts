@@ -7,13 +7,16 @@ type SignInResponse = {
   user?: { id: string; email: string };
 };
 
-const authBaseURL = process.env.BETTER_AUTH_URL as string;
-
-if (!authBaseURL) {
-  throw new Error("BETTER_AUTH_URL is not set");
+function getAuthBaseURL(): string {
+  const url = process.env.BETTER_AUTH_URL;
+  if (!url) {
+    throw new Error("BETTER_AUTH_URL is not set");
+  }
+  return url;
 }
 
 async function authenticateUser(email: string, password: string) {
+  const authBaseURL = getAuthBaseURL();
   const response = await fetch(`${authBaseURL}/api/auth/sign-in/email`, {
     method: "POST",
     headers: {

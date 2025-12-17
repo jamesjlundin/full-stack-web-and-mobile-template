@@ -8,6 +8,7 @@
 import { openaiEmbedder, hasOpenAIKey, MissingApiKeyError } from "./embed";
 import { querySimilar } from "./store";
 
+import type { NeonHttpDatabase } from "drizzle-orm/neon-http";
 import type { NodePgDatabase } from "drizzle-orm/node-postgres";
 
 /**
@@ -40,10 +41,10 @@ export interface RagQueryResult {
 }
 
 /**
- * Database type - accepts any Drizzle NodePgDatabase instance
+ * Database type - accepts either NodePgDatabase or NeonHttpDatabase
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-type DbInstance = NodePgDatabase<any>;
+type DbInstance = NodePgDatabase<any> | NeonHttpDatabase<any>;
 
 /**
  * Execute a RAG query: embed the query and find similar chunks
