@@ -1,15 +1,13 @@
 import { selectPrompt } from "@acme/ai";
 import { createRateLimiter } from "@acme/security";
 import { createOpenAI } from "@ai-sdk/openai";
-import { streamText } from "ai";
+import { stepCountIs, streamText } from "ai";
 import { NextRequest } from "next/server";
 import { z } from "zod";
 
 import { withUserRateLimit } from "../../_lib/withUserRateLimit";
 
 import type { CurrentUserResult } from "@acme/auth";
-
-
 
 // Rate limiter: 20 requests per 60 seconds per user
 const agentLimiter = createRateLimiter({
@@ -23,18 +21,24 @@ const DEFAULT_MODEL = "gpt-4o-mini";
 // Mock weather data based on city
 function getMockWeather(city: string) {
   const cityLower = city.toLowerCase();
-  const weatherData: Record<string, { temperature: number; conditions: string }> = {
+  const weatherData: Record<
+    string,
+    { temperature: number; conditions: string }
+  > = {
     "san francisco": { temperature: 62, conditions: "Foggy" },
     "new york": { temperature: 45, conditions: "Partly cloudy" },
     "los angeles": { temperature: 75, conditions: "Sunny" },
-    "chicago": { temperature: 38, conditions: "Windy" },
-    "miami": { temperature: 82, conditions: "Humid and sunny" },
-    "seattle": { temperature: 52, conditions: "Rainy" },
-    "austin": { temperature: 78, conditions: "Clear skies" },
-    "denver": { temperature: 55, conditions: "Sunny with thin clouds" },
+    chicago: { temperature: 38, conditions: "Windy" },
+    miami: { temperature: 82, conditions: "Humid and sunny" },
+    seattle: { temperature: 52, conditions: "Rainy" },
+    austin: { temperature: 78, conditions: "Clear skies" },
+    denver: { temperature: 55, conditions: "Sunny with thin clouds" },
   };
 
-  const data = weatherData[cityLower] || { temperature: 68, conditions: "Pleasant" };
+  const data = weatherData[cityLower] || {
+    temperature: 68,
+    conditions: "Pleasant",
+  };
 
   return {
     city,
@@ -72,11 +76,14 @@ const requestSchema = z.object({
     z.object({
       role: z.enum(["user", "assistant"]),
       content: z.string(),
-    })
+    }),
   ),
 });
 
-async function handleRequest(request: NextRequest, _userResult: CurrentUserResult) {
+async function handleRequest(
+  request: NextRequest,
+  _userResult: CurrentUserResult,
+) {
   const model = process.env.AI_MODEL || DEFAULT_MODEL;
   const apiKey = process.env.OPENAI_API_KEY;
 
@@ -86,8 +93,11 @@ async function handleRequest(request: NextRequest, _userResult: CurrentUserResul
 
   if (!parsed.success) {
     return new Response(
-      JSON.stringify({ error: "Invalid request body", details: parsed.error.issues }),
-      { status: 400, headers: { "Content-Type": "application/json" } }
+      JSON.stringify({
+        error: "Invalid request body",
+        details: parsed.error.issues,
+      }),
+      { status: 400, headers: { "Content-Type": "application/json" } },
     );
   }
 
@@ -111,21 +121,29 @@ async function handleRequest(request: NextRequest, _userResult: CurrentUserResul
     messages,
     tools: {
       get_weather: {
-        description: "Get current weather for a city. Use this when users ask about weather.",
+        description:
+          "Get current weather for a city. Use this when users ask about weather.",
         inputSchema: z.object({
           city: z.string().describe("The city name to get weather for"),
         }),
         execute: async ({ city }: { city: string }) => getMockWeather(city),
       },
       get_time: {
-        description: "Get current time in a timezone. Use this when users ask about time.",
+        description:
+          "Get current time in a timezone. Use this when users ask about time.",
         inputSchema: z.object({
-          timezone: z.string().optional().describe("The timezone (e.g., 'America/New_York', 'UTC'). Defaults to UTC."),
+          timezone: z
+            .string()
+            .optional()
+            .describe(
+              "The timezone (e.g., 'America/New_York', 'UTC'). Defaults to UTC.",
+            ),
         }),
-        execute: async ({ timezone }: { timezone?: string }) => getMockTime(timezone),
+        execute: async ({ timezone }: { timezone?: string }) =>
+          getMockTime(timezone),
       },
     },
-    maxToolRoundtrips: 3, // Allow up to 3 tool calls per response
+    stopWhen: stepCountIs(3), // Allow up to 3 steps (tool calls)
   });
 
   // Create SSE stream with tool events
@@ -138,36 +156,43 @@ async function handleRequest(request: NextRequest, _userResult: CurrentUserResul
 
           switch (part.type) {
             case "text-delta":
-              event = { type: "text", text: part.textDelta };
+              event = { type: "text", text: part.text };
               break;
             case "tool-call":
               event = {
                 type: "tool_call",
                 id: part.toolCallId,
                 name: part.toolName,
-                args: part.args,
+                args: part.input,
               };
               break;
             case "tool-result":
               event = {
                 type: "tool_result",
                 id: part.toolCallId,
-                result: part.result,
+                result: part.output,
               };
               break;
           }
 
           if (event) {
-            controller.enqueue(encoder.encode(`data: ${JSON.stringify(event)}\n\n`));
+            controller.enqueue(
+              encoder.encode(`data: ${JSON.stringify(event)}\n\n`),
+            );
           }
         }
 
-        controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: "done" })}\n\n`));
+        controller.enqueue(
+          encoder.encode(`data: ${JSON.stringify({ type: "done" })}\n\n`),
+        );
         controller.close();
       } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : "Unknown error";
+        const errorMessage =
+          error instanceof Error ? error.message : "Unknown error";
         controller.enqueue(
-          encoder.encode(`data: ${JSON.stringify({ type: "error", error: errorMessage })}\n\n`)
+          encoder.encode(
+            `data: ${JSON.stringify({ type: "error", error: errorMessage })}\n\n`,
+          ),
         );
         controller.close();
       }
@@ -185,14 +210,18 @@ async function handleRequest(request: NextRequest, _userResult: CurrentUserResul
 
 // Mock streaming response when no API key is set
 function createMockStream(messages: { role: string; content: string }[]) {
-  const lastMessage = messages[messages.length - 1]?.content.toLowerCase() || "";
+  const lastMessage =
+    messages[messages.length - 1]?.content.toLowerCase() || "";
   const encoder = new TextEncoder();
 
-  let mockResponse = "I'm a demo agent. In production with an OpenAI API key, I can help with weather and time queries using tools.";
+  let mockResponse =
+    "I'm a demo agent. In production with an OpenAI API key, I can help with weather and time queries using tools.";
 
   // Check if the user asked about weather
   if (lastMessage.includes("weather")) {
-    const cityMatch = lastMessage.match(/weather\s+(?:in|for|at)?\s*(\w+(?:\s+\w+)?)/i);
+    const cityMatch = lastMessage.match(
+      /weather\s+(?:in|for|at)?\s*(\w+(?:\s+\w+)?)/i,
+    );
     const city = cityMatch?.[1] || "San Francisco";
     const weather = getMockWeather(city);
 
@@ -201,7 +230,11 @@ function createMockStream(messages: { role: string; content: string }[]) {
     const stream = new ReadableStream({
       async start(controller) {
         // Send initial text
-        controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: "text", text: mockResponse })}\n\n`));
+        controller.enqueue(
+          encoder.encode(
+            `data: ${JSON.stringify({ type: "text", text: mockResponse })}\n\n`,
+          ),
+        );
 
         // Simulate tool call
         await new Promise((r) => setTimeout(r, 300));
@@ -212,8 +245,8 @@ function createMockStream(messages: { role: string; content: string }[]) {
               id: "mock_1",
               name: "get_weather",
               args: { city },
-            })}\n\n`
-          )
+            })}\n\n`,
+          ),
         );
 
         // Simulate tool result
@@ -224,16 +257,22 @@ function createMockStream(messages: { role: string; content: string }[]) {
               type: "tool_result",
               id: "mock_1",
               result: weather,
-            })}\n\n`
-          )
+            })}\n\n`,
+          ),
         );
 
         // Send follow-up text
         await new Promise((r) => setTimeout(r, 200));
         const followUp = ` The current weather in ${weather.city} is ${weather.temperature}°F and ${weather.conditions.toLowerCase()}.`;
-        controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: "text", text: followUp })}\n\n`));
+        controller.enqueue(
+          encoder.encode(
+            `data: ${JSON.stringify({ type: "text", text: followUp })}\n\n`,
+          ),
+        );
 
-        controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: "done" })}\n\n`));
+        controller.enqueue(
+          encoder.encode(`data: ${JSON.stringify({ type: "done" })}\n\n`),
+        );
         controller.close();
       },
     });
@@ -249,7 +288,9 @@ function createMockStream(messages: { role: string; content: string }[]) {
 
   // Check if the user asked about time
   if (lastMessage.includes("time")) {
-    const tzMatch = lastMessage.match(/time\s+(?:in|for|at)?\s*(\w+(?:\/\w+)?)/i);
+    const tzMatch = lastMessage.match(
+      /time\s+(?:in|for|at)?\s*(\w+(?:\/\w+)?)/i,
+    );
     const timezone = tzMatch?.[1] || "UTC";
     const time = getMockTime(timezone);
 
@@ -257,7 +298,11 @@ function createMockStream(messages: { role: string; content: string }[]) {
 
     const stream = new ReadableStream({
       async start(controller) {
-        controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: "text", text: mockResponse })}\n\n`));
+        controller.enqueue(
+          encoder.encode(
+            `data: ${JSON.stringify({ type: "text", text: mockResponse })}\n\n`,
+          ),
+        );
 
         await new Promise((r) => setTimeout(r, 300));
         controller.enqueue(
@@ -267,8 +312,8 @@ function createMockStream(messages: { role: string; content: string }[]) {
               id: "mock_2",
               name: "get_time",
               args: { timezone },
-            })}\n\n`
-          )
+            })}\n\n`,
+          ),
         );
 
         await new Promise((r) => setTimeout(r, 500));
@@ -278,15 +323,21 @@ function createMockStream(messages: { role: string; content: string }[]) {
               type: "tool_result",
               id: "mock_2",
               result: time,
-            })}\n\n`
-          )
+            })}\n\n`,
+          ),
         );
 
         await new Promise((r) => setTimeout(r, 200));
         const followUp = ` The current time in ${time.timezone} is ${time.time}.`;
-        controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: "text", text: followUp })}\n\n`));
+        controller.enqueue(
+          encoder.encode(
+            `data: ${JSON.stringify({ type: "text", text: followUp })}\n\n`,
+          ),
+        );
 
-        controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: "done" })}\n\n`));
+        controller.enqueue(
+          encoder.encode(`data: ${JSON.stringify({ type: "done" })}\n\n`),
+        );
         controller.close();
       },
     });
@@ -304,10 +355,16 @@ function createMockStream(messages: { role: string; content: string }[]) {
   const stream = new ReadableStream({
     async start(controller) {
       for (const char of mockResponse) {
-        controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: "text", text: char })}\n\n`));
+        controller.enqueue(
+          encoder.encode(
+            `data: ${JSON.stringify({ type: "text", text: char })}\n\n`,
+          ),
+        );
         await new Promise((r) => setTimeout(r, 20));
       }
-      controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: "done" })}\n\n`));
+      controller.enqueue(
+        encoder.encode(`data: ${JSON.stringify({ type: "done" })}\n\n`),
+      );
       controller.close();
     },
   });
@@ -321,4 +378,8 @@ function createMockStream(messages: { role: string; content: string }[]) {
   });
 }
 
-export const POST = withUserRateLimit("/api/agent/stream", agentLimiter, handleRequest);
+export const POST = withUserRateLimit(
+  "/api/agent/stream",
+  agentLimiter,
+  handleRequest,
+);
