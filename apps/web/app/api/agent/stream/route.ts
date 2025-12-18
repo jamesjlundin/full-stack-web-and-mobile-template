@@ -125,7 +125,7 @@ async function handleRequest(request: NextRequest, _userResult: CurrentUserResul
         execute: async ({ timezone }: { timezone?: string }) => getMockTime(timezone),
       },
     },
-    maxSteps: 3, // Allow up to 3 tool calls per response
+    maxToolRoundtrips: 3, // Allow up to 3 tool calls per response
   });
 
   // Create SSE stream with tool events
