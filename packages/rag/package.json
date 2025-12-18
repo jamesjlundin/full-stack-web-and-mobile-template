@@ -35,8 +35,8 @@
   "dependencies": {
     "@acme/db": "workspace:*",
     "@acme/obs": "workspace:*",
-    "ai": "^5.0.112",
-    "@ai-sdk/openai": "^2.0.85",
+    "ai": "^5.0.115",
+    "@ai-sdk/openai": "^2.0.88",
     "drizzle-orm": "^0.45.1",
     "ulid": "^2.3.0"
   },
@@ -44,6 +44,6 @@
     "@types/node": "^25.0.0",
     "dotenv": "^17.2.3",
     "tsx": "^4.19.1",
-    "typescript": "^5.7.2"
+    "typescript": "^5.9.3"
   }
 }
