@@ -1,7 +1,7 @@
 import { selectPrompt } from "@acme/ai";
 import { createRateLimiter } from "@acme/security";
 import { createOpenAI } from "@ai-sdk/openai";
-import { streamText, tool } from "ai";
+import { streamText } from "ai";
 import { NextRequest } from "next/server";
 import { z } from "zod";
 
@@ -110,20 +110,20 @@ async function handleRequest(request: NextRequest, _userResult: CurrentUserResul
     system: activePrompt.content,
     messages,
     tools: {
-      get_weather: tool({
+      get_weather: {
         description: "Get current weather for a city. Use this when users ask about weather.",
         parameters: z.object({
           city: z.string().describe("The city name to get weather for"),
         }),
-        execute: async ({ city }) => getMockWeather(city),
-      }),
-      get_time: tool({
+        execute: async ({ city }: { city: string }) => getMockWeather(city),
+      },
+      get_time: {
         description: "Get current time in a timezone. Use this when users ask about time.",
         parameters: z.object({
           timezone: z.string().optional().describe("The timezone (e.g., 'America/New_York', 'UTC'). Defaults to UTC."),
         }),
-        execute: async ({ timezone }) => getMockTime(timezone),
-      }),
+        execute: async ({ timezone }: { timezone?: string }) => getMockTime(timezone),
+      },
     },
     maxSteps: 3, // Allow up to 3 tool calls per response
   });
