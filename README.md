@@ -2,7 +2,126 @@
 
 A production-ready GitHub template for building full-stack applications with a shared codebase across web and mobile platforms. This monorepo provides everything you need to start a new project with authentication, database, API routes, AI chat streaming, and deployment automation—all wired up and ready to go.
 
-**Use this template** to skip weeks of boilerplate setup and jump straight into building your product.
+---
+
+## Quickstart: From Template to Production
+
+### 1. Create Your Repository
+
+1. On this repo, click **"Use this template"** → **"Create a new repository"**
+2. Name your repo and click **"Create repository"**
+
+### 2. Create Vercel Project
+
+1. Go to [vercel.com/new](https://vercel.com/new)
+2. Click **"Import Git Repository"** → select your new repo
+3. Under **"Root Directory"**, click **"Edit"** → type `apps/web` → click **"Continue"**
+4. Click **"Deploy"** — it will fail (that's OK, we need env vars first)
+
+### 3. Create Neon Database
+
+1. In your Vercel project, click the **"Storage"** tab
+2. Click **"Create Database"** → select **"Postgres"**
+3. Select **"Neon"** as provider → click **"Continue"** → **"Create"**
+
+Vercel automatically adds these env vars to your project:
+- `DATABASE_URL`
+- `POSTGRES_URL`
+- `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_HOST`, `POSTGRES_DATABASE`
+
+### 4. Set Up Resend (Email)
+
+1. Go to [resend.com](https://resend.com) and create an account
+2. In the Resend dashboard, click **"API Keys"** → **"Create API Key"**
+3. Copy the API key
+4. (Optional) Click **"Domains"** → **"Add Domain"** to verify your domain, or use `onboarding@resend.dev` for testing
+
+### 5. Configure Vercel Environment Variables
+
+1. In your Vercel project, click **"Settings"** tab → **"Environment Variables"**
+2. Add each variable below (click **"Add"** after each):
+
+**Required** (you must add these manually):
+
+| Variable | Value |
+|----------|-------|
+| `BETTER_AUTH_SECRET` | Random string, 32+ chars (run `openssl rand -base64 32` in terminal) |
+| `BETTER_AUTH_URL` | `https://your-project.vercel.app` (your Vercel URL) |
+| `APP_BASE_URL` | `https://your-project.vercel.app` (same as above) |
+| `ALLOWED_ORIGIN` | `https://your-project.vercel.app` (same as above) |
+| `RESEND_API_KEY` | Your Resend API key from step 4 |
+| `MAIL_FROM` | Your verified domain email or `onboarding@resend.dev` |
+
+**Optional** (add if using these features):
+
+| Variable | Value |
+|----------|-------|
+| `OPENAI_API_KEY` | For AI chat functionality |
+
+### 6. Create Deploy Hook
+
+1. In Vercel, click **"Settings"** → **"Git"** (left sidebar)
+2. Scroll to **"Deploy Hooks"** → click **"Create Hook"**
+3. Name: `GitHub Actions`, Branch: `main` → click **"Create Hook"**
+4. Copy the generated URL
+
+### 7. Disable Auto-Deploy
+
+1. In Vercel **"Settings"** → **"Git"**, scroll to **"Ignored Build Step"**
+2. Select **"Custom"** and enter: `exit 0`
+3. Click **"Save"**
+
+This prevents Vercel from auto-deploying; our GitHub Actions CI/CD handles deployments after running migrations.
+
+### 8. Add GitHub Secrets
+
+1. Go to your GitHub repo → **"Settings"** tab → **"Secrets and variables"** → **"Actions"**
+2. Click **"New repository secret"** and add each:
+
+**Required** (both are needed for CI/CD to work):
+
+| Secret | Value |
+|--------|-------|
+| `DATABASE_URL` | Copy from Vercel: Settings → Environment Variables → click `DATABASE_URL` to reveal |
+| `VERCEL_DEPLOY_HOOK_URL` | The deploy hook URL from step 6 |
+
+These secrets allow GitHub Actions to run migrations against your production database and trigger Vercel deployments.
+
+### 9. Clone and Set Up Locally
+
+```bash
+git clone https://github.com/YOUR_USERNAME/YOUR_REPO.git
+cd YOUR_REPO
+pnpm install
+cp .env.example .env
+```
+
+Edit `.env` with local values:
+```
+DATABASE_URL=postgres://postgres:postgres@localhost:5432/acme
+BETTER_AUTH_SECRET=local-dev-secret-at-least-32-chars
+BETTER_AUTH_URL=http://localhost:3000
+APP_BASE_URL=http://localhost:3000
+```
+
+### 10. Run Locally
+
+```bash
+pnpm db:up              # Start local PostgreSQL (requires Docker)
+pnpm -C packages/db migrate:apply  # Run migrations
+pnpm -C apps/web dev    # Start dev server at localhost:3000
+```
+
+### 11. Deploy to Production
+
+```bash
+git add -A && git commit -m "Initial setup"
+git push origin main
+```
+
+This triggers: GitHub Actions → runs migrations → calls Vercel deploy hook → production live.
+
+**Verify:** Visit `https://your-project.vercel.app/api/health` — should return `{"ok":true}`
 
 ---
 
@@ -87,190 +206,47 @@ A production-ready GitHub template for building full-stack applications with a s
 
 ## Prerequisites
 
-Before you begin, ensure you have the following installed:
+**Required:**
+- Node.js 20+, pnpm (`npm install -g pnpm`), Git, Docker
 
-- **Node.js 20** or newer
-- **pnpm** (`npm install -g pnpm`)
-- **Git**
-- **Docker** (for local PostgreSQL development)
+**For mobile development:**
+- iOS: Xcode + CocoaPods (`sudo gem install cocoapods`)
+- Android: Android Studio with SDK configured
 
-For mobile development:
-
-- **iOS**: Xcode and CocoaPods (`sudo gem install cocoapods`)
-- **Android**: Android Studio with SDK and emulator configured
-
-Accounts needed:
-
-- **GitHub** account
-- **Vercel** account (free tier works)
-- **Resend** account (optional, for production email delivery)
+**Accounts:**
+- GitHub, Vercel (free tier works), Resend (for email)
 
 ---
 
-## Setup Guide
+## Local Development Details
 
-### Step 1: Create Your Repository
+### No Docker?
 
-1. Click the **"Use this template"** button on the GitHub repository page
-2. Name your new repository and create it
-3. Clone your new repository locally:
-
+If Docker is unavailable, install PostgreSQL directly:
 ```bash
-git clone https://github.com/YOUR_USERNAME/YOUR_REPO_NAME.git
-cd YOUR_REPO_NAME
+sudo ./scripts/setup-postgres.sh
 ```
 
-### Step 2: Install Dependencies
+### Mobile App Setup
 
-```bash
-pnpm install
-```
-
-### Step 3: Set Up Third-Party Services
-
-#### Vercel Setup
-
-1. Create a [Vercel account](https://vercel.com) if you don't have one
-2. Create a new Vercel project and connect it to your GitHub repository
-3. Configure project settings:
-
-   **Git Settings** (Settings → Git):
-   - Confirm the production branch is set to `main`
-   - Optionally disable auto-deploy if using the migration-safe deploy pattern exclusively
-
-   **Database** (Settings → Storage):
-   - Click "Create Database"
-   - Select **Postgres** and choose **Neon** as the provider
-   - Copy the `DATABASE_URL` connection string
-
-   **Environment Variables** (Settings → Environment Variables):
-   Add all required environment variables (see [Environment Variables Reference](#environment-variables-reference))
-
-   **Deploy Hook** (Settings → Git → Deploy Hooks):
-   - Create a new deploy hook for the `main` branch
-   - Name it something like "GitHub Actions Deploy"
-   - Copy the generated webhook URL
-
-#### GitHub Secrets Setup
-
-Navigate to your repository: **Settings → Secrets and variables → Actions**
-
-Add the following secrets:
-
-| Secret | Value |
-|--------|-------|
-| `DATABASE_URL` | Your Neon PostgreSQL connection string from Vercel |
-| `VERCEL_DEPLOY_HOOK_URL` | The deploy hook URL from Vercel |
-
-**How it works**: When you push to `main`, GitHub Actions runs your migrations against the production database using `DATABASE_URL`. If migrations succeed, the workflow triggers the `VERCEL_DEPLOY_HOOK_URL`, which starts a production deployment on Vercel.
-
-### Step 4: Configure Local Development
-
-1. Copy the example environment file:
-
-```bash
-cp .env.example .env
-```
-
-2. Start the local PostgreSQL database:
-
-```bash
-pnpm db:up
-```
-
-This starts PostgreSQL on port 5432 and pgweb (a database UI) on port 8081.
-
-> **No Docker?** If Docker is unavailable (e.g., sandboxed CI or Codespaces), you can install PostgreSQL directly:
-> ```bash
-> sudo ./scripts/setup-postgres.sh
-> ```
-
-3. Run database migrations:
-
-```bash
-pnpm -C packages/db migrate:apply
-```
-
-4. Update your `.env` file with required values:
-
-```bash
-DATABASE_URL=postgres://postgres:postgres@localhost:5432/acme
-BETTER_AUTH_SECRET=your-secret-key-at-least-32-characters-long
-BETTER_AUTH_URL=http://localhost:3000
-APP_BASE_URL=http://localhost:3000
-```
-
-### Step 5: Run the Project Locally
-
-#### Web Application
-
-```bash
-pnpm -C apps/web dev
-```
-
-The web app will be available at [http://localhost:3000](http://localhost:3000).
-
-#### Mobile Application
+The mobile app requires the web app running locally for API access.
 
 **iOS:**
-
 ```bash
-cd apps/mobile/ios
-pod install
-cd ..
+cd apps/mobile/ios && pod install && cd ..
 pnpm ios
 ```
 
 **Android:**
-
 ```bash
 pnpm android
 ```
 
-Note: The mobile app connects to `localhost:3000` (iOS) or `10.0.2.2:3000` (Android emulator) by default. Ensure the web app is running.
+The mobile app connects to `localhost:3000` (iOS) or `10.0.2.2:3000` (Android emulator).
 
-### Step 6: Push to Main and Deploy
+### Database UI
 
-When you push to the `main` branch:
-
-1. **GitHub Actions CI** runs:
-   - Type checking
-   - Linting
-   - Web app build
-   - Database preflight check
-   - Database migrations
-   - Deploy hook trigger
-
-2. **Vercel** receives the webhook and:
-   - Builds your application
-   - Deploys to production
-
-Monitor the Actions tab in your GitHub repository to see the pipeline progress.
-
-### Step 7: Verify Production Deployment
-
-After deployment completes, verify everything is working:
-
-```bash
-# Health check
-curl https://your-app.vercel.app/api/health
-# Expected: {"ok":true}
-
-# Unauthenticated /api/me
-curl https://your-app.vercel.app/api/me
-# Expected: {"user":null}
-
-# Test registration (replace with your domain)
-curl -X POST https://your-app.vercel.app/api/auth/email-password/sign-up \
-  -H "Content-Type: application/json" \
-  -d '{"email":"test@example.com","password":"securepassword123"}'
-```
-
-Visit your production URL and test:
-
-- User registration and login
-- Protected routes (should redirect when not authenticated)
-- Chat streaming functionality
+When running `pnpm db:up`, pgweb is available at [http://localhost:8081](http://localhost:8081) for browsing your local database.
 
 ---
 

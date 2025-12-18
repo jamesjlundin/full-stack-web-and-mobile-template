@@ -48,7 +48,7 @@ export async function sendVerificationEmail({
     };
   }
 
-  const mailFrom = process.env.MAIL_FROM || "no-reply@example.com";
+  const mailFrom = process.env.MAIL_FROM || "onboarding@resend.dev";
 
   const emailPayload = {
     from: mailFrom,

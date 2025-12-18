@@ -129,7 +129,7 @@ export async function sendPasswordResetEmail({
     };
   }
 
-  const mailFrom = process.env.MAIL_FROM || "no-reply@example.com";
+  const mailFrom = process.env.MAIL_FROM || "onboarding@resend.dev";
   const html = buildPasswordResetEmailHtml(webResetUrl, mobileDeepLink);
 
   const emailPayload = {
