@@ -57,16 +57,8 @@ export default async function ProtectedHomePage() {
                   Back to Home
                 </Link>
               </Button>
-              <Button
-                variant="outline"
-                onClick={() => {
-                  if (typeof window !== "undefined") {
-                    window.location.reload();
-                  }
-                }}
-                asChild
-              >
-                <Link href="/app/(protected)/home">
+              <Button variant="outline" asChild>
+                <Link href="/app/home">
                   <RefreshCw className="mr-2 h-4 w-4" />
                   Refresh
                 </Link>
