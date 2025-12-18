@@ -112,14 +112,14 @@ async function handleRequest(request: NextRequest, _userResult: CurrentUserResul
     tools: {
       get_weather: {
         description: "Get current weather for a city. Use this when users ask about weather.",
-        parameters: z.object({
+        inputSchema: z.object({
           city: z.string().describe("The city name to get weather for"),
         }),
         execute: async ({ city }: { city: string }) => getMockWeather(city),
       },
       get_time: {
         description: "Get current time in a timezone. Use this when users ask about time.",
-        parameters: z.object({
+        inputSchema: z.object({
           timezone: z.string().optional().describe("The timezone (e.g., 'America/New_York', 'UTC'). Defaults to UTC."),
         }),
         execute: async ({ timezone }: { timezone?: string }) => getMockTime(timezone),
