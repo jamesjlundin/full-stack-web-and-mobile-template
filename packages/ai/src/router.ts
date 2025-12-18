@@ -1,3 +1,4 @@
+import { agentDefaultV1 } from "./prompts/agent/default.v1";
 import { chatDefaultV1 } from "./prompts/chat/default.v1";
 
 import type { PromptDef } from "./prompts/types";
@@ -29,6 +30,9 @@ const PROMPT_MAPPING: FeatureMapping = {
     // Future channels could be added here:
     // mobile: chatMobileV1,
     // api: chatApiV1,
+  },
+  agent: {
+    default: agentDefaultV1,
   },
   // Future features:
   // summary: { default: summaryDefaultV1 },

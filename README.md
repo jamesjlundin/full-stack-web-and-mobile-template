@@ -125,6 +125,37 @@ This triggers: GitHub Actions → runs migrations → calls Vercel deploy hook �
 
 ---
 
+## Demo Features
+
+This template includes demo features in `app/(demo)/` to showcase capabilities. **Remove these before building your production app.**
+
+### AI Agent (`/agent`)
+
+An interactive AI agent with tool calling. Sign in and visit `/agent` to try it.
+
+Features:
+- Streaming chat responses
+- Tool calling (mock weather and time tools)
+- Rate limiting per user
+
+### Removing Demo Features
+
+Before building your project, run these commands to remove demo code:
+
+```bash
+# Remove demo pages
+rm -rf apps/web/app/\(demo\)
+
+# Remove demo API routes
+rm -rf apps/web/app/api/agent
+
+# Remove agent prompt (optional)
+rm -rf packages/ai/src/prompts/agent
+# Also remove "agent" from PROMPT_MAPPING in packages/ai/src/router.ts
+```
+
+---
+
 ## What's Included
 
 ### Monorepo Architecture
