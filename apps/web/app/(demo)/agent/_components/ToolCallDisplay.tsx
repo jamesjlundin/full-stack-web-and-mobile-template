@@ -37,22 +37,22 @@ export function ToolCallDisplay({ toolCall }: ToolCallDisplayProps) {
             </div>
 
             {/* Tool arguments */}
-            {Object.keys(toolCall.args).length > 0 && (
+            {Object.keys(toolCall.args).length > 0 ? (
               <div className="text-xs text-muted-foreground">
                 {Object.entries(toolCall.args).map(([key, value]) => (
                   <span key={key} className="mr-2">
-                    {key}: <span className="font-mono">{String(value)}</span>
+                    {key}: <span className="font-mono">{formatArgValue(value)}</span>
                   </span>
                 ))}
               </div>
-            )}
+            ) : null}
 
             {/* Tool result */}
-            {isComplete && toolCall.result && (
+            {isComplete && toolCall.result ? (
               <div className="mt-2 p-2 rounded bg-background text-xs font-mono overflow-x-auto">
                 {formatToolResult(toolCall.name, toolCall.result)}
               </div>
-            )}
+            ) : null}
           </div>
         </div>
       </CardContent>
@@ -65,6 +65,16 @@ function formatToolName(name: string): string {
     .split("_")
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join(" ");
+}
+
+function formatArgValue(value: unknown): string {
+  if (value === null || value === undefined) {
+    return "null";
+  }
+  if (typeof value === "object") {
+    return JSON.stringify(value);
+  }
+  return String(value);
 }
 
 function formatToolResult(toolName: string, result: unknown): string {
