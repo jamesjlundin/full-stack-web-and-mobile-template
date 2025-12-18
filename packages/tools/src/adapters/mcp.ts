@@ -135,8 +135,9 @@ export function toMcpEndpoints(options: McpEndpointOptions = {}): McpEndpoints {
       }
 
       // Format validation errors for MCP response
+      // Convert path to (string | number)[] - filter out symbols as they're not JSON-serializable
       const validationErrors = invokeResult.validationErrors?.map((issue) => ({
-        path: issue.path,
+        path: issue.path.filter((p): p is string | number => typeof p !== "symbol"),
         message: issue.message,
       }));
 

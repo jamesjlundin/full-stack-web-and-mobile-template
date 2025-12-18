@@ -19,16 +19,7 @@ export const positiveInt = z.number().int().positive("Must be a positive integer
 export const nonNegativeInt = z.number().int().nonnegative("Must be a non-negative integer");
 
 /** Safe JSON value (no undefined, functions, or symbols) */
-export const safeJson: z.ZodType<
-  string | number | boolean | null | { [key: string]: unknown } | unknown[]
-> = z.union([
-  z.string(),
-  z.number(),
-  z.boolean(),
-  z.null(),
-  z.array(z.lazy(() => safeJson)),
-  z.record(z.lazy(() => safeJson)),
-]);
+export const safeJson = z.unknown();
 
 /** Optional string that defaults to empty */
 export const optionalString = z.string().optional().default("");
@@ -107,128 +98,11 @@ export function defineContract<TIn extends z.ZodTypeAny, TOut extends z.ZodTypeA
 
 /**
  * Convert a Zod schema to JSON Schema format for MCP compatibility.
- * This is a simplified conversion for common patterns.
  * @param schema - Zod schema to convert
  * @returns JSON Schema representation
  */
 export function zodToJsonSchema(schema: z.ZodTypeAny): Record<string, unknown> {
-  // Handle ZodObject
-  if (schema instanceof z.ZodObject) {
-    const shape = schema.shape;
-    const properties: Record<string, unknown> = {};
-    const required: string[] = [];
-
-    for (const [key, value] of Object.entries(shape)) {
-      const fieldSchema = value as z.ZodTypeAny;
-      properties[key] = zodToJsonSchema(fieldSchema);
-
-      // Check if field is required (not optional)
-      if (!(fieldSchema instanceof z.ZodOptional)) {
-        required.push(key);
-      }
-    }
-
-    return {
-      type: "object",
-      properties,
-      ...(required.length > 0 ? { required } : {}),
-    };
-  }
-
-  // Handle ZodArray
-  if (schema instanceof z.ZodArray) {
-    return {
-      type: "array",
-      items: zodToJsonSchema(schema.element),
-    };
-  }
-
-  // Handle ZodString
-  if (schema instanceof z.ZodString) {
-    const checks = schema._def.checks || [];
-    const result: Record<string, unknown> = { type: "string" };
-
-    for (const check of checks) {
-      if (check.kind === "min") {
-        result.minLength = check.value;
-      } else if (check.kind === "max") {
-        result.maxLength = check.value;
-      }
-    }
-
-    return result;
-  }
-
-  // Handle ZodNumber
-  if (schema instanceof z.ZodNumber) {
-    const checks = schema._def.checks || [];
-    const result: Record<string, unknown> = { type: "number" };
-
-    for (const check of checks) {
-      if (check.kind === "int") {
-        result.type = "integer";
-      } else if (check.kind === "min") {
-        result.minimum = check.value;
-      } else if (check.kind === "max") {
-        result.maximum = check.value;
-      }
-    }
-
-    return result;
-  }
-
-  // Handle ZodBoolean
-  if (schema instanceof z.ZodBoolean) {
-    return { type: "boolean" };
-  }
-
-  // Handle ZodNull
-  if (schema instanceof z.ZodNull) {
-    return { type: "null" };
-  }
-
-  // Handle ZodOptional
-  if (schema instanceof z.ZodOptional) {
-    return zodToJsonSchema(schema.unwrap());
-  }
-
-  // Handle ZodDefault
-  if (schema instanceof z.ZodDefault) {
-    const inner = zodToJsonSchema(schema._def.innerType);
-    return { ...inner, default: schema._def.defaultValue() };
-  }
-
-  // Handle ZodUnion
-  if (schema instanceof z.ZodUnion) {
-    const options = schema._def.options as z.ZodTypeAny[];
-    return {
-      oneOf: options.map((opt) => zodToJsonSchema(opt)),
-    };
-  }
-
-  // Handle ZodRecord
-  if (schema instanceof z.ZodRecord) {
-    return {
-      type: "object",
-      additionalProperties: zodToJsonSchema(schema._def.valueType),
-    };
-  }
-
-  // Handle ZodLiteral
-  if (schema instanceof z.ZodLiteral) {
-    return { const: schema._def.value };
-  }
-
-  // Handle ZodEnum
-  if (schema instanceof z.ZodEnum) {
-    return {
-      type: "string",
-      enum: schema._def.values,
-    };
-  }
-
-  // Fallback for unknown schemas
-  return {};
+  return z.toJSONSchema(schema, { target: "draft-07" }) as Record<string, unknown>;
 }
 
 // =============================================================================
@@ -246,7 +120,7 @@ export const ragChunkSchema = z.object({
   /** Similarity/relevance score */
   score: z.number(),
   /** Optional metadata */
-  metadata: z.record(z.unknown()).optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
 });
 
 /**
