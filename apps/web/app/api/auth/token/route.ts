@@ -1,42 +1,22 @@
+import auth from "@acme/auth";
 import { NextResponse } from "next/server";
 
 import { signAuthToken } from "../../../../lib/jwt";
 
-type SignInResponse = {
-  token?: string;
-  user?: { id: string; email: string };
-};
-
-function getAuthBaseURL(): string {
-  const url = process.env.BETTER_AUTH_URL;
-  if (!url) {
-    throw new Error("BETTER_AUTH_URL is not set");
-  }
-  return url;
-}
-
 async function authenticateUser(email: string, password: string) {
-  const authBaseURL = getAuthBaseURL();
-  const response = await fetch(`${authBaseURL}/api/auth/sign-in/email`, {
-    method: "POST",
-    headers: {
-      "content-type": "application/json",
-      origin: authBaseURL,
-    },
-    body: JSON.stringify({ email, password }),
-  });
+  try {
+    const result = await auth.api.signInEmail({
+      body: { email, password },
+    });
 
-  if (!response.ok) {
+    if (!result?.user?.id || !result.user.email) {
+      return null;
+    }
+
+    return { id: result.user.id, email: result.user.email };
+  } catch {
     return null;
   }
-
-  const data = (await response.json().catch(() => null)) as SignInResponse | null;
-
-  if (!data?.user?.id || !data.user.email) {
-    return null;
-  }
-
-  return { id: data.user.id, email: data.user.email };
 }
 
 export async function POST(request: Request) {

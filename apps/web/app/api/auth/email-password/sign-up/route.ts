@@ -1,47 +1,29 @@
-import { NextResponse } from "next/server";
+import { authHandler } from "@acme/auth";
+import { createRateLimiter } from "@acme/security";
 
-function getAuthBaseURL(): string {
-  const url = process.env.BETTER_AUTH_URL;
-  if (!url) {
-    throw new Error("BETTER_AUTH_URL is not set");
-  }
-  return url;
+import { withRateLimit } from "../../../_lib/withRateLimit";
+
+// Rate limiter: 5 requests per 60 seconds per IP
+const authLimiter = createRateLimiter({
+  limit: 5,
+  windowMs: 60_000,
+});
+
+const routeId = "/api/auth/email-password/sign-up";
+
+async function handleSignUp(request: Request) {
+  // Rewrite the request URL to the Better Auth endpoint path
+  const url = new URL(request.url);
+  url.pathname = "/api/auth/sign-up/email";
+
+  const newRequest = new Request(url.toString(), {
+    method: request.method,
+    headers: request.headers,
+    body: request.body,
+    duplex: "half",
+  } as RequestInit);
+
+  return authHandler.POST(newRequest);
 }
 
-export async function POST(request: Request) {
-  const authBaseURL = getAuthBaseURL();
-  const body = await request.text();
-
-  const headers = new Headers({
-    "content-type": "application/json",
-    origin: request.headers.get("origin") ?? authBaseURL,
-  });
-
-  const cookie = request.headers.get("cookie");
-
-  if (cookie) {
-    headers.set("cookie", cookie);
-  }
-
-  const response = await fetch(`${authBaseURL}/api/auth/sign-up/email`, {
-    method: "POST",
-    headers,
-    body,
-  });
-
-  const responseText = await response.text();
-  const proxy = new NextResponse(responseText, {
-    status: response.status,
-    headers: {
-      "content-type": response.headers.get("content-type") ?? "application/json",
-    },
-  });
-
-  response.headers.forEach((value, key) => {
-    if (key.toLowerCase() === "set-cookie") {
-      proxy.headers.append("set-cookie", value);
-    }
-  });
-
-  return proxy;
-}
+export const POST = withRateLimit(routeId, authLimiter, handleSignUp);
