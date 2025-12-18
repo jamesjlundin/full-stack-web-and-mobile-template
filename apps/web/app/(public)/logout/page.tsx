@@ -33,6 +33,8 @@ export default function LogoutPage() {
     try {
       const response = await fetch("/api/auth/sign-out", {
         method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({}),
         credentials: "include",
       });
 
