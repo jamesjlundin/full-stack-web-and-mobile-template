@@ -130,22 +130,13 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Handle protected app routes: existing auth middleware
-  const normalizedPathname = pathname.replace("/(protected)", "");
-  const requiresRewrite = normalizedPathname !== pathname;
-
+  // Handle protected app routes: check authentication
   const authenticated = await isAuthenticated(request);
 
   if (!authenticated) {
     const loginUrl = new URL("/login", request.nextUrl.origin);
     loginUrl.searchParams.set("next", pathname);
     return NextResponse.redirect(loginUrl);
-  }
-
-  if (requiresRewrite) {
-    const url = request.nextUrl.clone();
-    url.pathname = normalizedPathname;
-    return NextResponse.rewrite(url);
   }
 
   return NextResponse.next();

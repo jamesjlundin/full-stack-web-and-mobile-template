@@ -66,7 +66,7 @@ export default async function HomePage() {
                 Welcome back{email ? `, ${email}` : ""}!
               </p>
               <Button size="lg" asChild>
-                <Link href="/app/(protected)/home">Enter App</Link>
+                <Link href="/app/home">Enter App</Link>
               </Button>
             </>
           ) : (

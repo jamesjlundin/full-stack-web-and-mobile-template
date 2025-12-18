@@ -55,7 +55,7 @@ export function Header({ user }: HeaderProps) {
             {isAuthenticated ? (
               <>
                 <Button variant="ghost" asChild>
-                  <Link href="/app/(protected)/home">App</Link>
+                  <Link href="/app/home">App</Link>
                 </Button>
                 <ThemeToggle />
                 <DropdownMenu>
@@ -86,7 +86,7 @@ export function Header({ user }: HeaderProps) {
                     </div>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem asChild>
-                      <Link href="/app/(protected)/home">Dashboard</Link>
+                      <Link href="/app/home">Dashboard</Link>
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <SignOutMenuItem />
@@ -139,13 +139,13 @@ export function Header({ user }: HeaderProps) {
                         </div>
                       </div>
                       <Link
-                        href="/app/(protected)/home"
+                        href="/app/home"
                         className="text-sm font-medium transition-colors hover:text-primary"
                       >
                         App
                       </Link>
                       <Link
-                        href="/app/(protected)/home"
+                        href="/app/home"
                         className="text-sm font-medium transition-colors hover:text-primary"
                       >
                         Dashboard

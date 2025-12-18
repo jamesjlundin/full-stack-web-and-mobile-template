@@ -18,6 +18,7 @@ export function SignOutButton() {
     try {
       const response = await fetch("/api/auth/sign-out", {
         method: "POST",
+        headers: { "Content-Type": "application/json" },
         credentials: "include",
       });
 

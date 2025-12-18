@@ -28,7 +28,7 @@ function RegisterForm() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const nextUrl = searchParams.get("next") || "/app/(protected)/home";
+  const nextUrl = searchParams.get("next") || "/app/home";
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
