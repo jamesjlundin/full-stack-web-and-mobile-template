@@ -3,17 +3,6 @@ import { betterAuth, type Session, type User } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { nextCookies, toNextJsHandler } from "better-auth/next-js";
 
-const secret = process.env.BETTER_AUTH_SECRET;
-const baseURL = process.env.BETTER_AUTH_URL;
-
-if (!secret) {
-  throw new Error("BETTER_AUTH_SECRET is not set");
-}
-
-if (!baseURL) {
-  throw new Error("BETTER_AUTH_URL is not set");
-}
-
 /**
  * Check if dev token echoing is allowed.
  * Returns true if:
@@ -91,40 +80,91 @@ type SessionResponse =
     }
   | null;
 
-export const auth = betterAuth({
-  baseURL,
-  secret,
-  emailAndPassword: {
-    enabled: true,
-    sendResetPassword: async ({ user, url, token }) => {
-      // Store token in dev mode for testing. In production, integrate with SMTP.
-      storeDevToken("reset", user.email, token, url);
-      if (!isDevTokenAllowed()) {
-        // TODO: Implement production SMTP email sending here
-        console.log(`[PROD] Password reset email would be sent to ${user.email}`);
-      }
+// Lazy initialization for auth - env vars are checked at runtime, not build time
+let _auth: ReturnType<typeof betterAuth> | null = null;
+
+function getAuth() {
+  if (_auth) return _auth;
+
+  const secret = process.env.BETTER_AUTH_SECRET;
+  const baseURL = process.env.BETTER_AUTH_URL;
+
+  if (!secret) {
+    throw new Error("BETTER_AUTH_SECRET is not set");
+  }
+
+  if (!baseURL) {
+    throw new Error("BETTER_AUTH_URL is not set");
+  }
+
+  _auth = betterAuth({
+    baseURL,
+    secret,
+    emailAndPassword: {
+      enabled: true,
+      sendResetPassword: async ({ user, url, token }) => {
+        // Store token in dev mode for testing. In production, integrate with SMTP.
+        storeDevToken("reset", user.email, token, url);
+        if (!isDevTokenAllowed()) {
+          // TODO: Implement production SMTP email sending here
+          console.log(`[PROD] Password reset email would be sent to ${user.email}`);
+        }
+      },
     },
-  },
-  emailVerification: {
-    sendVerificationEmail: async ({ user, url, token }) => {
-      // Store token in dev mode for testing. In production, integrate with SMTP.
-      storeDevToken("verify", user.email, token, url);
-      if (!isDevTokenAllowed()) {
-        // TODO: Implement production SMTP email sending here
-        console.log(`[PROD] Verification email would be sent to ${user.email}`);
-      }
+    emailVerification: {
+      sendVerificationEmail: async ({ user, url, token }) => {
+        // Store token in dev mode for testing. In production, integrate with SMTP.
+        storeDevToken("verify", user.email, token, url);
+        if (!isDevTokenAllowed()) {
+          // TODO: Implement production SMTP email sending here
+          console.log(`[PROD] Verification email would be sent to ${user.email}`);
+        }
+      },
+      sendOnSignUp: false, // Don't auto-send on signup - use explicit request endpoint
     },
-    sendOnSignUp: false, // Don't auto-send on signup - use explicit request endpoint
+    database: drizzleAdapter(db, {
+      provider: "pg",
+      schema,
+      usePlural: true,
+    }),
+    plugins: [nextCookies()],
+  });
+
+  return _auth;
+}
+
+// Export auth as a getter to support lazy initialization
+export const auth = new Proxy({} as ReturnType<typeof betterAuth>, {
+  get(_, prop) {
+    return (getAuth() as Record<string | symbol, unknown>)[prop];
   },
-  database: drizzleAdapter(db, {
-    provider: "pg",
-    schema,
-    usePlural: true,
-  }),
-  plugins: [nextCookies()],
 });
 
-export const authHandler = toNextJsHandler(auth);
+// Lazy handler that creates the Next.js handler on first use
+let _authHandler: ReturnType<typeof toNextJsHandler> | null = null;
+
+export const authHandler = {
+  GET: (req: Request) => {
+    if (!_authHandler) _authHandler = toNextJsHandler(getAuth());
+    return _authHandler.GET(req);
+  },
+  POST: (req: Request) => {
+    if (!_authHandler) _authHandler = toNextJsHandler(getAuth());
+    return _authHandler.POST(req);
+  },
+  PUT: (req: Request) => {
+    if (!_authHandler) _authHandler = toNextJsHandler(getAuth());
+    return _authHandler.PUT(req);
+  },
+  PATCH: (req: Request) => {
+    if (!_authHandler) _authHandler = toNextJsHandler(getAuth());
+    return _authHandler.PATCH(req);
+  },
+  DELETE: (req: Request) => {
+    if (!_authHandler) _authHandler = toNextJsHandler(getAuth());
+    return _authHandler.DELETE(req);
+  },
+};
 
 export type CurrentUserResult = {
   headers: Headers | null;

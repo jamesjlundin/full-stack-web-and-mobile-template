@@ -6,6 +6,7 @@
 
 import { sql } from "drizzle-orm";
 
+import type { NeonHttpDatabase } from "drizzle-orm/neon-http";
 import type { NodePgDatabase } from "drizzle-orm/node-postgres";
 
 /**
@@ -41,11 +42,11 @@ export interface SimilarChunk {
 }
 
 /**
- * Database type - accepts any Drizzle NodePgDatabase instance
+ * Database type - accepts either NodePgDatabase or NeonHttpDatabase
  * Using generic Record type for schema flexibility
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-type DbInstance = NodePgDatabase<any>;
+type DbInstance = NodePgDatabase<any> | NeonHttpDatabase<any>;
 
 /**
  * Upsert chunks into the rag_chunks table

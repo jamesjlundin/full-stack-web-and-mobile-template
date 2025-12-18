@@ -12,9 +12,11 @@
     "build": "tsc -p tsconfig.json"
   },
   "dependencies": {
+    "@neondatabase/serverless": "^1.0.0",
     "dotenv": "^17.2.3",
     "drizzle-orm": "^0.45.1",
-    "pg": "^8.11.5"
+    "pg": "^8.11.5",
+    "ws": "^8.18.0"
   },
   "devDependencies": {
     "@types/node": "^25.0.0",

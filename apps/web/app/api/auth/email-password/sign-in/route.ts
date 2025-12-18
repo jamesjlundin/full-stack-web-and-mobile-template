@@ -1,12 +1,15 @@
 import { NextResponse } from "next/server";
 
-const authBaseURL = process.env.BETTER_AUTH_URL as string;
-
-if (!authBaseURL) {
-  throw new Error("BETTER_AUTH_URL is not set");
+function getAuthBaseURL(): string {
+  const url = process.env.BETTER_AUTH_URL;
+  if (!url) {
+    throw new Error("BETTER_AUTH_URL is not set");
+  }
+  return url;
 }
 
 export async function POST(request: Request) {
+  const authBaseURL = getAuthBaseURL();
   const body = await request.text();
 
   const headers = new Headers({
