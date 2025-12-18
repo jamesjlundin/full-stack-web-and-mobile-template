@@ -68,6 +68,9 @@ export default async function HomePage() {
               <Button size="lg" asChild>
                 <Link href="/app/home">Enter App</Link>
               </Button>
+              <Button size="lg" variant="outline" asChild>
+                <Link href="/agent">AI Agent Demo</Link>
+              </Button>
             </>
           ) : (
             <>

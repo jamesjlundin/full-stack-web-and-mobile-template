@@ -1,38 +1,16 @@
-import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
 import { AppShell } from "@/components/layout";
 import { Badge } from "@/components/ui/badge";
+import { getServerSession } from "@/lib/session";
 
 import { AgentChat } from "./_components/AgentChat";
 
 // Skip static generation - this page requires auth check at runtime
 export const dynamic = "force-dynamic";
 
-async function getUser() {
-  const cookieStore = await cookies();
-  const host = process.env.VERCEL_URL || "localhost:3000";
-  const protocol = process.env.NODE_ENV === "production" ? "https" : "http";
-
-  try {
-    const response = await fetch(`${protocol}://${host}/api/me`, {
-      headers: { cookie: cookieStore.toString() },
-      cache: "no-store",
-    });
-
-    if (response.status === 401) {
-      return null;
-    }
-
-    const data = await response.json();
-    return data?.user || null;
-  } catch {
-    return null;
-  }
-}
-
 export default async function AgentDemoPage() {
-  const user = await getUser();
+  const user = await getServerSession();
 
   if (!user) {
     redirect("/login?next=/agent");
