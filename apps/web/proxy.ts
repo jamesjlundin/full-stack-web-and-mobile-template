@@ -117,7 +117,7 @@ async function isAuthenticated(request: NextRequest): Promise<boolean> {
   return response.status !== 401;
 }
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
 
   // Handle API routes: apply security headers and CORS
