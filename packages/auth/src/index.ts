@@ -97,9 +97,19 @@ function getAuth() {
     throw new Error("BETTER_AUTH_URL is not set");
   }
 
+  // Build trusted origins list - always trust baseURL, plus any additional configured origins
+  const trustedOrigins = [baseURL];
+
+  // Add ALLOWED_ORIGIN if configured (for CORS)
+  const allowedOrigin = process.env.ALLOWED_ORIGIN;
+  if (allowedOrigin && !trustedOrigins.includes(allowedOrigin)) {
+    trustedOrigins.push(allowedOrigin);
+  }
+
   _auth = betterAuth({
     baseURL,
     secret,
+    trustedOrigins,
     emailAndPassword: {
       enabled: true,
       sendResetPassword: async ({ user, url, token }) => {
