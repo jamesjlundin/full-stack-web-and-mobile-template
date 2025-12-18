@@ -6,6 +6,9 @@ import { Badge } from "@/components/ui/badge";
 
 import { AgentChat } from "./_components/AgentChat";
 
+// Skip static generation - this page requires auth check at runtime
+export const dynamic = "force-dynamic";
+
 async function getUser() {
   const cookieStore = await cookies();
   const host = process.env.VERCEL_URL || "localhost:3000";
