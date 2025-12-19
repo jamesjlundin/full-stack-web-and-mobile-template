@@ -45,7 +45,7 @@ type AuthContextValue = {
   clearPendingVerification: () => void;
 };
 
-const defaultConfig: AppConfig = {isEmailVerificationRequired: false};
+const defaultConfig: AppConfig = {isEmailVerificationRequired: false, isGoogleAuthEnabled: false};
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 

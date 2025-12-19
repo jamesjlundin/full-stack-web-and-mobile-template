@@ -100,6 +100,11 @@ function getAuth() {
   // Trust the base URL for CORS
   const trustedOrigins = [baseURL];
 
+  // Configure Google OAuth if credentials are present
+  const googleClientId = process.env.GOOGLE_CLIENT_ID;
+  const googleClientSecret = process.env.GOOGLE_CLIENT_SECRET;
+  const isGoogleAuthEnabled = !!(googleClientId && googleClientSecret);
+
   _auth = betterAuth({
     baseURL,
     secret,
@@ -126,6 +131,15 @@ function getAuth() {
       },
       sendOnSignUp: false, // Don't auto-send on signup - use explicit request endpoint
     },
+    // Google OAuth - only enabled if credentials are configured
+    ...(isGoogleAuthEnabled && {
+      socialProviders: {
+        google: {
+          clientId: googleClientId,
+          clientSecret: googleClientSecret,
+        },
+      },
+    }),
     database: drizzleAdapter(db, {
       provider: "pg",
       schema,
@@ -210,6 +224,14 @@ export async function getCurrentUser(request: Request): Promise<CurrentUserResul
     console.error("Failed to read current user", error);
     return null;
   }
+}
+
+/**
+ * Check if Google OAuth is enabled based on environment variables.
+ * Returns true only if both GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET are set.
+ */
+export function isGoogleAuthEnabled(): boolean {
+  return !!(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET);
 }
 
 export default auth;

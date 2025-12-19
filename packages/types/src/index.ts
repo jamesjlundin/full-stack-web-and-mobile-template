@@ -11,4 +11,5 @@ export type User = {
 
 export type AppConfig = {
   isEmailVerificationRequired: boolean;
+  isGoogleAuthEnabled: boolean;
 };

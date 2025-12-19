@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { isGoogleAuthEnabled } from "@acme/auth";
 
 /**
  * Public configuration endpoint.
@@ -7,5 +8,6 @@ import { NextResponse } from "next/server";
 export async function GET() {
   return NextResponse.json({
     isEmailVerificationRequired: !!process.env.RESEND_API_KEY,
+    isGoogleAuthEnabled: isGoogleAuthEnabled(),
   });
 }

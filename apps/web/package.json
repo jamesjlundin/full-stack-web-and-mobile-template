@@ -13,6 +13,7 @@
     "@acme/api-client": "workspace:*",
     "@acme/auth": "workspace:*",
     "@acme/db": "workspace:*",
+    "better-auth": "^1.4.7",
     "@acme/obs": "workspace:*",
     "@acme/rag": "workspace:*",
     "@acme/security": "workspace:*",

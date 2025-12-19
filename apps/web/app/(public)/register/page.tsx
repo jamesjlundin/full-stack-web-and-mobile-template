@@ -2,10 +2,12 @@
 
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { FormEvent, useState, Suspense } from "react";
+import { FormEvent, useState, useEffect, Suspense } from "react";
 import { toast } from "sonner";
 
 import { AppShell } from "@/components/layout";
+import { GoogleSignInButton } from "@/components/auth/google-sign-in-button";
+import { DividerWithText } from "@/components/auth/divider-with-text";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
@@ -27,8 +29,23 @@ function RegisterForm() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [isGoogleAuthEnabled, setIsGoogleAuthEnabled] = useState(false);
 
   const nextUrl = searchParams.get("next") || "/app/home";
+  const googleError = searchParams.get("error") === "google";
+
+  useEffect(() => {
+    fetch("/api/config")
+      .then((res) => res.json())
+      .then((data) => setIsGoogleAuthEnabled(data.isGoogleAuthEnabled ?? false))
+      .catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    if (googleError) {
+      setError("Failed to sign up with Google. Please try again.");
+    }
+  }, [googleError]);
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -95,13 +112,21 @@ function RegisterForm() {
               Enter your email and create a password to get started
             </CardDescription>
           </CardHeader>
+          <CardContent className="space-y-4">
+            {error && (
+              <Alert variant="destructive">
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
+            {isGoogleAuthEnabled && (
+              <>
+                <GoogleSignInButton callbackURL={nextUrl} mode="signup" />
+                <DividerWithText text="or continue with email" />
+              </>
+            )}
+          </CardContent>
           <form onSubmit={handleSubmit}>
-            <CardContent className="space-y-4">
-              {error && (
-                <Alert variant="destructive">
-                  <AlertDescription>{error}</AlertDescription>
-                </Alert>
-              )}
+            <CardContent className="space-y-4 pt-0">
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
                 <Input
