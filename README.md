@@ -651,39 +651,4 @@ No additional configuration needed. The library uses Android Keystore automatica
 
 ---
 
-## Extending the Template
-
-This template is designed to be a starting point. Here are some common ways to extend it:
-
-### Authentication
-
-- **Google OAuth**: Already included! Set `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` to enable "Sign in with Google"
-- **Add more OAuth providers**: Better Auth supports GitHub, Discord, and more. Add providers in `packages/auth/src/index.ts`
-- **Implement RBAC**: Add role columns to the user schema and check roles in middleware
-- **Add MFA/2FA**: Better Auth has plugins for two-factor authentication
-
-### Database
-
-- **Add new models**: Define schemas in `packages/db/src/schema.ts` and generate migrations with `pnpm -C packages/db migrate:generate`
-- **Add CRUD endpoints**: Create new API routes in `apps/web/app/api/`
-
-### Mobile
-
-- **Push notifications**: Add Firebase Cloud Messaging or Apple Push Notifications
-- **Biometric authentication**: Extend `react-native-keychain` to require Face ID/Touch ID for token access
-
-### Observability
-
-- **Logging**: Integrate with services like Axiom, LogTail, or Datadog
-- **Error tracking**: Add Sentry for error monitoring
-- **Analytics**: Add Vercel Analytics, PostHog, or Mixpanel
-
-### Features
-
-- **File uploads**: Add S3/R2 storage integration
-- **Background jobs**: Add a job queue with BullMQ or Inngest
-- **Real-time**: Add WebSocket support with Pusher or Ably
-
----
-
 Happy building!
