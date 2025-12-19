@@ -249,4 +249,4 @@ export const requestVerificationEmail = defaultClient.requestVerificationEmail;
 export const signIn = defaultClient.signIn;
 export const streamChat = defaultClient.streamChat;
 
-export type { AppConfig, ChatChunk, User } from "@acme/types";
+export type { AiModelInfo, AiProviderInfo, AppConfig, ChatChunk, User } from "@acme/types";
