@@ -23,7 +23,7 @@ export function ToolCallDisplay({ toolCall }: ToolCallDisplayProps) {
     <Card className="my-2 bg-muted/50">
       <CardContent className="p-3">
         <div className="flex items-start gap-3">
-          <div className="flex-shrink-0 p-2 rounded-md bg-primary/10">
+          <div className="shrink-0 p-2 rounded-md bg-primary/10">
             <Icon className="h-4 w-4 text-primary" />
           </div>
           <div className="flex-1 min-w-0 space-y-1">
