@@ -8,7 +8,13 @@ function generateId() {
   return Math.random().toString(36).substring(2, 9);
 }
 
-export function useAgentChat() {
+type UseAgentChatOptions = {
+  provider?: string | null;
+  model?: string | null;
+};
+
+export function useAgentChat(options: UseAgentChatOptions = {}) {
+  const { provider, model } = options;
   const [messages, setMessages] = useState<Message[]>([]);
   const [isStreaming, setIsStreaming] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -47,10 +53,23 @@ export function useAgentChat() {
         content: m.content,
       }));
 
+      const requestBody: {
+        messages: { role: string; content: string }[];
+        provider?: string;
+        model?: string;
+      } = { messages: allMessages };
+
+      if (provider) {
+        requestBody.provider = provider;
+      }
+      if (model) {
+        requestBody.model = model;
+      }
+
       const response = await fetch("/api/agent/stream", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: allMessages }),
+        body: JSON.stringify(requestBody),
         credentials: "include",
         signal: abortControllerRef.current.signal,
       });
@@ -172,7 +191,7 @@ export function useAgentChat() {
       setIsStreaming(false);
       abortControllerRef.current = null;
     }
-  }, [messages, isStreaming]);
+  }, [messages, isStreaming, provider, model]);
 
   const stopStreaming = useCallback(() => {
     if (abortControllerRef.current) {

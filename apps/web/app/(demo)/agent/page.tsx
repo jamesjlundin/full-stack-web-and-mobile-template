@@ -6,15 +6,20 @@ import { getServerSession } from "@/lib/session";
 
 import { AgentChat } from "./_components/AgentChat";
 
+import type { AiProviderInfo } from "@acme/api-client";
+
 // Skip static generation - this page requires auth check at runtime
 export const dynamic = "force-dynamic";
 
 export default async function AgentDemoPage() {
-  const { user } = await getServerSession();
+  const { user, config } = await getServerSession();
 
   if (!user) {
     redirect("/login?next=/agent");
   }
+
+  const aiProviders = config.ai?.providers ?? [];
+  const defaultProvider = config.ai?.defaultProvider ?? null;
 
   return (
     <AppShell user={{ email: user.email, name: user.name }}>
@@ -31,7 +36,10 @@ export default async function AgentDemoPage() {
             </p>
           </div>
 
-          <AgentChat />
+          <AgentChat
+            providers={aiProviders as AiProviderInfo[]}
+            defaultProvider={defaultProvider}
+          />
 
           <p className="text-xs text-muted-foreground text-center">
             Rate limited to 20 requests per minute. Weather data is mocked for demo purposes.
