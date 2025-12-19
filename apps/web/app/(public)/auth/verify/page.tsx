@@ -3,7 +3,7 @@
 import { CheckCircle, Mail, RefreshCw } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { FormEvent, Suspense, useEffect, useState } from "react";
+import { FormEvent, Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
 import { AppShell } from "@/components/layout";
@@ -26,15 +26,20 @@ function VerifyEmailForm() {
   const searchParams = useSearchParams();
   const emailParam = searchParams.get("email");
   const sentParam = searchParams.get("sent") === "true";
+  const tokenParam = searchParams.get("token");
 
   const [email, setEmail] = useState(emailParam ?? "");
-  const [token, setToken] = useState("");
+  const [token, setToken] = useState(tokenParam ?? "");
   const [devToken, setDevToken] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [verified, setVerified] = useState(false);
   const [showCheckEmailBanner, setShowCheckEmailBanner] = useState(sentParam);
+  const [autoVerifying, setAutoVerifying] = useState(!!tokenParam);
+
+  // Track if we've already attempted auto-verification
+  const autoVerifyAttempted = useRef(false);
 
   // Update email when query param changes
   useEffect(() => {
@@ -42,6 +47,53 @@ function VerifyEmailForm() {
       setEmail(emailParam);
     }
   }, [emailParam]);
+
+  // Auto-verify function
+  const performVerification = useCallback(async (verifyToken: string) => {
+    setError(null);
+    setMessage(null);
+    setLoading(true);
+
+    try {
+      const response = await fetch("/api/auth/email/verify/confirm", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ token: verifyToken }),
+      });
+
+      const data = await response.json();
+
+      if (data.ok) {
+        setVerified(true);
+        setMessage("Email verified successfully!");
+        toast.success("Email verified successfully");
+        setDevToken(null);
+        setToken("");
+        setShowCheckEmailBanner(false);
+
+        // Redirect to app after a short delay
+        setTimeout(() => {
+          router.push("/app/home");
+        }, 1500);
+      } else {
+        setError(data.error ?? "Failed to verify email. The link may have expired.");
+        setAutoVerifying(false);
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Unexpected error occurred");
+      setAutoVerifying(false);
+    } finally {
+      setLoading(false);
+    }
+  }, [router]);
+
+  // Auto-verify when token is in URL
+  useEffect(() => {
+    if (tokenParam && !autoVerifyAttempted.current && !verified) {
+      autoVerifyAttempted.current = true;
+      performVerification(tokenParam);
+    }
+  }, [tokenParam, verified, performVerification]);
 
   const handleRequestVerification = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -116,39 +168,7 @@ function VerifyEmailForm() {
 
   const handleConfirmVerification = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setError(null);
-    setMessage(null);
-    setLoading(true);
-
-    try {
-      const response = await fetch("/api/auth/email/verify/confirm", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ token }),
-      });
-
-      const data = await response.json();
-
-      if (data.ok) {
-        setVerified(true);
-        setMessage("Email verified successfully!");
-        toast.success("Email verified successfully");
-        setDevToken(null);
-        setToken("");
-        setShowCheckEmailBanner(false);
-
-        // Redirect to app after a short delay
-        setTimeout(() => {
-          router.push("/app/home");
-        }, 1500);
-      } else {
-        setError(data.error ?? "Failed to verify email");
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Unexpected error occurred");
-    } finally {
-      setLoading(false);
-    }
+    await performVerification(token);
   };
 
   return (
@@ -165,8 +185,16 @@ function VerifyEmailForm() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
+            {/* Auto-verifying state */}
+            {autoVerifying && loading && !error && (
+              <div className="flex flex-col items-center justify-center py-8 space-y-4">
+                <Spinner size="lg" />
+                <p className="text-muted-foreground">Verifying your email...</p>
+              </div>
+            )}
+
             {/* Check your email banner */}
-            {showCheckEmailBanner && !verified && (
+            {showCheckEmailBanner && !verified && !autoVerifying && (
               <Alert className="border-blue-500 bg-blue-50 dark:bg-blue-950">
                 <Mail className="h-4 w-4 text-blue-600" />
                 <AlertTitle className="text-blue-800 dark:text-blue-300">
@@ -198,7 +226,7 @@ function VerifyEmailForm() {
               </Alert>
             )}
 
-            {!verified && (
+            {!verified && !(autoVerifying && loading && !error) && (
               <>
                 {/* Request Verification Form */}
                 {!showCheckEmailBanner && (
