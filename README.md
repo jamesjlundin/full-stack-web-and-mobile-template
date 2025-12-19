@@ -46,9 +46,7 @@ Vercel automatically adds these env vars to your project:
 | Variable | Value |
 |----------|-------|
 | `BETTER_AUTH_SECRET` | Random string, 32+ chars (run `openssl rand -base64 32` in terminal) |
-| `BETTER_AUTH_URL` | `https://your-project.vercel.app` (your Vercel URL) |
-| `APP_BASE_URL` | `https://your-project.vercel.app` (same as above) |
-| `ALLOWED_ORIGIN` | `https://your-project.vercel.app` (same as above) |
+| `APP_BASE_URL` | `https://your-project.vercel.app` (your Vercel URL) |
 | `RESEND_API_KEY` | Your Resend API key from step 4 |
 | `MAIL_FROM` | Your verified domain email or `onboarding@resend.dev` |
 
@@ -100,7 +98,6 @@ Edit `.env` with local values:
 ```
 DATABASE_URL=postgres://postgres:postgres@localhost:5432/acme
 BETTER_AUTH_SECRET=local-dev-secret-at-least-32-chars
-BETTER_AUTH_URL=http://localhost:3000
 APP_BASE_URL=http://localhost:3000
 ```
 
@@ -289,14 +286,13 @@ When running `pnpm db:up`, pgweb is available at [http://localhost:8081](http://
 |----------|-------------|
 | `DATABASE_URL` | PostgreSQL connection string (e.g., `postgres://user:pass@host:5432/db`) |
 | `BETTER_AUTH_SECRET` | Secret key for auth tokens (minimum 32 characters) |
-| `BETTER_AUTH_URL` | Base URL for auth (e.g., `https://your-app.vercel.app`) |
+| `APP_BASE_URL` | Base URL for auth and email links (e.g., `https://your-app.vercel.app`) |
 
 ### Application URLs
 
 | Variable | Description |
 |----------|-------------|
 | `NEXT_PUBLIC_API_URL` | Public API URL for client-side requests |
-| `APP_BASE_URL` | Base URL for email links (e.g., verification, password reset) |
 | `PORT` | Server port (default: `3000`) |
 
 ### Email Configuration (Resend)
@@ -313,12 +309,6 @@ When running `pnpm db:up`, pgweb is available at [http://localhost:8081](http://
 |----------|-------------|
 | `OPENAI_API_KEY` | OpenAI API key (optional—uses mock responses if not set) |
 | `AI_MODEL` | Model to use (default: `gpt-4o-mini`) |
-
-### Security & CORS
-
-| Variable | Description |
-|----------|-------------|
-| `ALLOWED_ORIGIN` | Allowed CORS origin in production (e.g., `https://your-app.vercel.app`) |
 
 ### OAuth Providers (Optional)
 

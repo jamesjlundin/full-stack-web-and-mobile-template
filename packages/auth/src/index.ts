@@ -87,24 +87,18 @@ function getAuth() {
   if (_auth) return _auth;
 
   const secret = process.env.BETTER_AUTH_SECRET;
-  const baseURL = process.env.BETTER_AUTH_URL;
+  const baseURL = process.env.APP_BASE_URL;
 
   if (!secret) {
     throw new Error("BETTER_AUTH_SECRET is not set");
   }
 
   if (!baseURL) {
-    throw new Error("BETTER_AUTH_URL is not set");
+    throw new Error("APP_BASE_URL is not set");
   }
 
-  // Build trusted origins list - always trust baseURL, plus any additional configured origins
+  // Trust the base URL for CORS
   const trustedOrigins = [baseURL];
-
-  // Add ALLOWED_ORIGIN if configured (for CORS)
-  const allowedOrigin = process.env.ALLOWED_ORIGIN;
-  if (allowedOrigin && !trustedOrigins.includes(allowedOrigin)) {
-    trustedOrigins.push(allowedOrigin);
-  }
 
   _auth = betterAuth({
     baseURL,

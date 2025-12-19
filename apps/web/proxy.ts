@@ -46,8 +46,8 @@ function getAllowedOrigin(requestOrigin: string | null): string | null {
       return requestOrigin;
     }
   } else {
-    // In production, only allow ALLOWED_ORIGIN from env
-    const allowedOrigin = process.env.ALLOWED_ORIGIN;
+    // In production, only allow APP_BASE_URL origin
+    const allowedOrigin = process.env.APP_BASE_URL;
     if (allowedOrigin && requestOrigin === allowedOrigin) {
       return allowedOrigin;
     }

@@ -16,7 +16,7 @@ The following environment variables are needed:
 |----------|-------------|----------|
 | `DATABASE_URL` | PostgreSQL connection string | Yes |
 | `BETTER_AUTH_SECRET` | Auth secret (min 32 chars) | Yes |
-| `BETTER_AUTH_URL` | Auth service URL (e.g., `http://localhost:3000`) | Yes |
+| `APP_BASE_URL` | App base URL (e.g., `http://localhost:3000`) | Yes |
 | `TEST_BASE_URL` | Base URL for tests (default: `http://localhost:3000`) | No |
 | `OPENAI_API_KEY` | OpenAI API key (optional; mock fallback if absent) | No |
 | `AI_MODEL` | AI model to use (default: `gpt-4o-mini`) | No |
