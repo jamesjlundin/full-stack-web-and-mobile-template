@@ -14,7 +14,11 @@ describe("Auth Cookie Flow", () => {
   let sessionCookies: string[] = [];
 
   it("should sign up a new user", async () => {
-    const response = await postJson("/api/auth/email-password/sign-up", {
+    const response = await postJson<{
+      success?: boolean;
+      requiresVerification?: boolean;
+      devToken?: string;
+    }>("/api/auth/email-password/sign-up", {
       email: testEmail,
       password: testPassword,
       name: "Test User",
@@ -23,6 +27,14 @@ describe("Auth Cookie Flow", () => {
     // Better Auth may return 200 on success
     expect([200, 201]).toContain(response.status);
     expect(response.data).toBeDefined();
+
+    // If verification is required and devToken is provided, verify the email
+    if (response.data.requiresVerification && response.data.devToken) {
+      const verifyResponse = await postJson("/api/auth/email/verify/confirm", {
+        token: response.data.devToken,
+      });
+      expect(verifyResponse.status).toBe(200);
+    }
   });
 
   it("should sign in and receive session cookies", async () => {

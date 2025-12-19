@@ -9,13 +9,25 @@ describe("Auth Token Flow", () => {
 
   it("should create a new user for token tests", async () => {
     // Sign up
-    const signUpResponse = await postJson("/api/auth/email-password/sign-up", {
+    const signUpResponse = await postJson<{
+      success?: boolean;
+      requiresVerification?: boolean;
+      devToken?: string;
+    }>("/api/auth/email-password/sign-up", {
       email: testEmail,
       password: testPassword,
       name: "Token Test User",
     });
 
     expect([200, 201]).toContain(signUpResponse.status);
+
+    // If verification is required and devToken is provided, verify the email
+    if (signUpResponse.data.requiresVerification && signUpResponse.data.devToken) {
+      const verifyResponse = await postJson("/api/auth/email/verify/confirm", {
+        token: signUpResponse.data.devToken,
+      });
+      expect(verifyResponse.status).toBe(200);
+    }
   });
 
   it("should obtain a token via /api/auth/token", async () => {
