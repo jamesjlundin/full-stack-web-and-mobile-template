@@ -1,5 +1,5 @@
-import { NextResponse } from "next/server";
 import { isGoogleAuthEnabled } from "@acme/auth";
+import { NextResponse } from "next/server";
 
 /**
  * Public configuration endpoint.

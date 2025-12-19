@@ -5,9 +5,9 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { FormEvent, useState, useEffect, Suspense } from "react";
 import { toast } from "sonner";
 
-import { AppShell } from "@/components/layout";
-import { GoogleSignInButton } from "@/components/auth/google-sign-in-button";
 import { DividerWithText } from "@/components/auth/divider-with-text";
+import { GoogleSignInButton } from "@/components/auth/google-sign-in-button";
+import { AppShell } from "@/components/layout";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
