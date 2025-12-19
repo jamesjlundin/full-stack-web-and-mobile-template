@@ -18,6 +18,7 @@ describe("Auth Cookie Flow", () => {
       success?: boolean;
       requiresVerification?: boolean;
       devToken?: string;
+      email?: string;
     }>("/api/auth/email-password/sign-up", {
       email: testEmail,
       password: testPassword,
@@ -28,12 +29,33 @@ describe("Auth Cookie Flow", () => {
     expect([200, 201]).toContain(response.status);
     expect(response.data).toBeDefined();
 
-    // If verification is required and devToken is provided, verify the email
-    if (response.data.requiresVerification && response.data.devToken) {
-      const verifyResponse = await postJson("/api/auth/email/verify/confirm", {
-        token: response.data.devToken,
-      });
-      expect(verifyResponse.status).toBe(200);
+    // If verification is required, verify the email
+    if (response.data.requiresVerification) {
+      let devToken = response.data.devToken;
+
+      // If devToken wasn't returned in sign-up, request verification email to get it
+      if (!devToken) {
+        const verifyRequestResponse = await postJson<{ ok: boolean; devToken?: string }>(
+          "/api/auth/email/verify/request",
+          { email: testEmail }
+        );
+        expect(verifyRequestResponse.status).toBe(200);
+        devToken = verifyRequestResponse.data.devToken;
+      }
+
+      // Verify the email with the token
+      if (devToken) {
+        const verifyResponse = await postJson("/api/auth/email/verify/confirm", {
+          token: devToken,
+        });
+        expect(verifyResponse.status).toBe(200);
+      } else {
+        // If no devToken is available, tests cannot proceed - fail with helpful message
+        throw new Error(
+          "Email verification is required but no devToken was provided. " +
+          "Set ALLOW_DEV_TOKENS=true in CI environment for integration tests."
+        );
+      }
     }
   });
 
