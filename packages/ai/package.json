@@ -15,7 +15,10 @@
     "build": "tsc -p tsconfig.build.json"
   },
   "dependencies": {
+    "@ai-sdk/anthropic": "^1.2.12",
+    "@ai-sdk/google": "^1.2.8",
     "@ai-sdk/openai": "^2.0.88",
+    "@ai-sdk/provider": "^1.1.0",
     "ai": "^5.0.115",
     "ajv": "^8.17.1",
     "ajv-formats": "^3.0.1"

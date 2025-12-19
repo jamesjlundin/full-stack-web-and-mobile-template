@@ -1,3 +1,4 @@
+import { getAvailableProviders, getDefaultProvider } from "@acme/ai";
 import { getCurrentUser } from "@acme/auth";
 import { db, schema } from "@acme/db";
 import { eq } from "drizzle-orm";
@@ -5,9 +6,18 @@ import { NextResponse } from "next/server";
 
 import { verifyAuthToken } from "../../../lib/jwt";
 
-const config = {
-  isEmailVerificationRequired: !!process.env.RESEND_API_KEY,
-};
+function getConfig() {
+  const providers = getAvailableProviders();
+  const defaultProvider = getDefaultProvider();
+
+  return {
+    isEmailVerificationRequired: !!process.env.RESEND_API_KEY,
+    ai: {
+      providers,
+      defaultProvider: defaultProvider?.id ?? null,
+    },
+  };
+}
 
 export async function GET(request: Request) {
   const result = await getCurrentUser(request);
@@ -20,7 +30,7 @@ export async function GET(request: Request) {
           email: result.user.email,
           emailVerified: result.user.emailVerified,
         },
-        config,
+        config: getConfig(),
       },
       { status: 200 },
     );
@@ -56,7 +66,7 @@ export async function GET(request: Request) {
             email: payload.email,
             emailVerified: dbUser?.emailVerified ?? false,
           },
-          config,
+          config: getConfig(),
         },
         { status: 200 },
       );

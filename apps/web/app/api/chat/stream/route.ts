@@ -22,32 +22,56 @@ const chatStreamLimiter = createRateLimiter({
 const ajvConfig = configureAjv();
 const _chatResponseValidator = ajvConfig.getValidator("chatResponse");
 
-// Default model and provider configuration
-const DEFAULT_MODEL = "gpt-4o-mini";
-const DEFAULT_PROVIDER = "openai";
-
 async function handleRequest(request: NextRequest) {
-  const model = process.env.AI_MODEL || DEFAULT_MODEL;
-  const provider = DEFAULT_PROVIDER;
+  // Parse request body for provider/model selection
+  let requestProvider: string | undefined;
+  let requestModel: string | undefined;
+  let prompt = "";
+
+  const { searchParams } = request.nextUrl;
+  const promptFromQuery = searchParams.get("prompt");
+  prompt = promptFromQuery ?? "";
+
+  if (request.method === "POST") {
+    const body = await request.json().catch(() => null);
+    if (body) {
+      if (typeof body.prompt === "string") {
+        prompt = body.prompt;
+      }
+      if (typeof body.provider === "string") {
+        requestProvider = body.provider;
+      }
+      if (typeof body.model === "string") {
+        requestModel = body.model;
+      }
+    }
+  }
+
+  // Track provider/model used for logging (will be set after streamChat)
+  let usedProvider = "mock";
+  let usedModel = "mock";
 
   // Wrap the entire request handling in a trace
   const { result: response, error, ctx } = await withTrace(
     "chat.stream",
     async (traceCtx) => {
-      const { searchParams } = request.nextUrl;
-      const promptFromQuery = searchParams.get("prompt");
-
-      let prompt = promptFromQuery ?? "";
-
-      if (request.method === "POST") {
-        const body = await request.json().catch(() => null);
-        if (body && typeof body.prompt === "string") {
-          prompt = body.prompt;
-        }
-      }
-
       // Resolve active prompt for the chat feature
       const activePrompt = selectPrompt("chat");
+
+      // Record LLM call start time
+      const llmStartedAt = Date.now();
+
+      // Stream the chat response with the active system prompt
+      const streamResult = await streamChat({
+        prompt,
+        systemPrompt: activePrompt.content,
+        provider: requestProvider,
+        model: requestModel,
+      });
+
+      // Capture the actual provider/model used
+      usedProvider = streamResult.provider;
+      usedModel = streamResult.model;
 
       // Build version metadata for logging and headers
       const versionMeta = buildVersionMeta({
@@ -56,16 +80,7 @@ async function handleRequest(request: NextRequest) {
         schema_id: schemas.chatResponse.id,
         schema_version: schemas.chatResponse.version,
         rag_config_version: null, // Will be set when RAG is implemented (Step 26)
-        embed_model: model,
-      });
-
-      // Record LLM call start time
-      const llmStartedAt = Date.now();
-
-      // Stream the chat response with the active system prompt
-      const streamResponse = await streamChat({
-        prompt,
-        systemPrompt: activePrompt.content,
+        embed_model: usedModel,
       });
 
       // Record LLM call end time
@@ -75,8 +90,8 @@ async function handleRequest(request: NextRequest) {
       // Note: Token counts are not available from streaming responses without parsing
       // They will be undefined here but can be populated if the response includes usage
       await logLlmCall({
-        provider,
-        model,
+        provider: usedProvider,
+        model: usedModel,
         startedAt: llmStartedAt,
         finishedAt: llmFinishedAt,
         promptVersion: versionMeta.prompt_version,
@@ -90,15 +105,15 @@ async function handleRequest(request: NextRequest) {
       });
 
       // Attach version headers to the response (additive, does not alter streaming)
-      return attachVersionHeaders(streamResponse, versionMeta);
+      return attachVersionHeaders(streamResult.response, versionMeta);
     }
   );
 
   // If an error occurred during tracing, log it and re-throw
   if (error) {
     await logLlmCall({
-      provider,
-      model,
+      provider: usedProvider,
+      model: usedModel,
       startedAt: ctx.startMs,
       finishedAt: Date.now(),
       error: error.message,

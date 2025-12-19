@@ -1,6 +1,5 @@
-import { selectPrompt } from "@acme/ai";
+import { getModel, selectPrompt, validateProviderModel } from "@acme/ai";
 import { createRateLimiter } from "@acme/security";
-import { createOpenAI } from "@ai-sdk/openai";
 import { stepCountIs, streamText } from "ai";
 import { NextRequest } from "next/server";
 import { z } from "zod";
@@ -14,9 +13,6 @@ const agentLimiter = createRateLimiter({
   limit: 20,
   windowMs: 60_000,
 });
-
-// Default model configuration
-const DEFAULT_MODEL = "gpt-4o-mini";
 
 // Mock weather data based on city
 function getMockWeather(city: string) {
@@ -78,15 +74,14 @@ const requestSchema = z.object({
       content: z.string(),
     }),
   ),
+  provider: z.string().optional(),
+  model: z.string().optional(),
 });
 
 async function handleRequest(
   request: NextRequest,
   _userResult: CurrentUserResult,
 ) {
-  const model = process.env.AI_MODEL || DEFAULT_MODEL;
-  const apiKey = process.env.OPENAI_API_KEY;
-
   // Parse request body
   const body = await request.json().catch(() => null);
   const parsed = requestSchema.safeParse(body);
@@ -101,22 +96,30 @@ async function handleRequest(
     );
   }
 
-  const { messages } = parsed.data;
+  const { messages, provider: requestProvider, model: requestModel } = parsed.data;
 
   // Get the agent system prompt
   const activePrompt = selectPrompt("agent");
 
-  // If no API key, return mock streaming response
-  if (!apiKey) {
+  // Validate and normalize provider/model
+  const validated = validateProviderModel(requestProvider, requestModel);
+
+  // If no valid provider available, return mock streaming response
+  if (!validated) {
     return createMockStream(messages);
   }
 
-  // Create OpenAI client
-  const openai = createOpenAI({ apiKey });
+  // Get the language model instance
+  const languageModel = getModel(validated.provider, validated.model);
+
+  // If model creation failed (shouldn't happen after validation), return mock
+  if (!languageModel) {
+    return createMockStream(messages);
+  }
 
   // Stream with tools
   const result = streamText({
-    model: openai(model),
+    model: languageModel,
     system: activePrompt.content,
     messages,
     tools: {
