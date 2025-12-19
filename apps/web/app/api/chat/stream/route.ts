@@ -5,6 +5,9 @@ import {
   buildVersionMeta,
   attachVersionHeaders,
   schemas,
+  getDefaultProvider,
+  validateProviderModel,
+  type ProviderId,
 } from "@acme/ai";
 import { withTrace, logLlmCall } from "@acme/obs";
 import { createRateLimiter } from "@acme/security";
@@ -22,14 +25,7 @@ const chatStreamLimiter = createRateLimiter({
 const ajvConfig = configureAjv();
 const _chatResponseValidator = ajvConfig.getValidator("chatResponse");
 
-// Default model and provider configuration
-const DEFAULT_MODEL = "gpt-4o-mini";
-const DEFAULT_PROVIDER = "openai";
-
 async function handleRequest(request: NextRequest) {
-  const model = process.env.AI_MODEL || DEFAULT_MODEL;
-  const provider = DEFAULT_PROVIDER;
-
   // Wrap the entire request handling in a trace
   const { result: response, error, ctx } = await withTrace(
     "chat.stream",
@@ -38,11 +34,35 @@ async function handleRequest(request: NextRequest) {
       const promptFromQuery = searchParams.get("prompt");
 
       let prompt = promptFromQuery ?? "";
+      let requestedProvider: string | undefined;
+      let requestedModel: string | undefined;
 
       if (request.method === "POST") {
         const body = await request.json().catch(() => null);
         if (body && typeof body.prompt === "string") {
           prompt = body.prompt;
+        }
+        if (body && typeof body.provider === "string") {
+          requestedProvider = body.provider;
+        }
+        if (body && typeof body.model === "string") {
+          requestedModel = body.model;
+        }
+      }
+
+      // Determine provider - use requested, or fall back to default
+      const defaultProvider = getDefaultProvider();
+      const targetProvider = requestedProvider ?? defaultProvider?.id;
+
+      // Validate provider/model if we have a provider
+      let provider: ProviderId | undefined;
+      let model: string | undefined;
+
+      if (targetProvider) {
+        const validation = validateProviderModel(targetProvider, requestedModel);
+        if (validation.valid) {
+          provider = validation.providerId;
+          model = validation.modelId;
         }
       }
 
@@ -66,6 +86,8 @@ async function handleRequest(request: NextRequest) {
       const streamResponse = await streamChat({
         prompt,
         systemPrompt: activePrompt.content,
+        provider,
+        model,
       });
 
       // Record LLM call end time
@@ -75,8 +97,8 @@ async function handleRequest(request: NextRequest) {
       // Note: Token counts are not available from streaming responses without parsing
       // They will be undefined here but can be populated if the response includes usage
       await logLlmCall({
-        provider,
-        model,
+        provider: provider ?? "mock",
+        model: model ?? "mock",
         startedAt: llmStartedAt,
         finishedAt: llmFinishedAt,
         promptVersion: versionMeta.prompt_version,
@@ -97,8 +119,8 @@ async function handleRequest(request: NextRequest) {
   // If an error occurred during tracing, log it and re-throw
   if (error) {
     await logLlmCall({
-      provider,
-      model,
+      provider: "unknown",
+      model: "unknown",
       startedAt: ctx.startMs,
       finishedAt: Date.now(),
       error: error.message,

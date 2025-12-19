@@ -9,6 +9,16 @@ export type SessionUser = {
 
 export type AppConfig = {
   isEmailVerificationRequired: boolean;
+  isGoogleAuthEnabled: boolean;
+  ai: {
+    providers: Array<{
+      id: string;
+      name: string;
+      models: Array<{ id: string; name: string }>;
+      defaultModel: string;
+    }>;
+    defaultProvider: string | null;
+  };
 };
 
 export type SessionResult = {
@@ -28,7 +38,11 @@ export async function getServerSession(): Promise<SessionResult> {
   const host = headersList.get("host") || "localhost:3000";
   const protocol = process.env.NODE_ENV === "production" ? "https" : "http";
 
-  const defaultConfig: AppConfig = { isEmailVerificationRequired: false };
+  const defaultConfig: AppConfig = {
+    isEmailVerificationRequired: false,
+    isGoogleAuthEnabled: false,
+    ai: { providers: [], defaultProvider: null },
+  };
 
   try {
     const response = await fetch(`${protocol}://${host}/api/me`, {

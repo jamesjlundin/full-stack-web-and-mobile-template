@@ -1,6 +1,10 @@
-import { selectPrompt } from "@acme/ai";
+import {
+  getDefaultProvider,
+  getModel,
+  selectPrompt,
+  validateProviderModel,
+} from "@acme/ai";
 import { createRateLimiter } from "@acme/security";
-import { createOpenAI } from "@ai-sdk/openai";
 import { stepCountIs, streamText } from "ai";
 import { NextRequest } from "next/server";
 import { z } from "zod";
@@ -14,9 +18,6 @@ const agentLimiter = createRateLimiter({
   limit: 20,
   windowMs: 60_000,
 });
-
-// Default model configuration
-const DEFAULT_MODEL = "gpt-4o-mini";
 
 // Mock weather data based on city
 function getMockWeather(city: string) {
@@ -78,15 +79,14 @@ const requestSchema = z.object({
       content: z.string(),
     }),
   ),
+  provider: z.string().optional(),
+  model: z.string().optional(),
 });
 
 async function handleRequest(
   request: NextRequest,
   _userResult: CurrentUserResult,
 ) {
-  const model = process.env.AI_MODEL || DEFAULT_MODEL;
-  const apiKey = process.env.OPENAI_API_KEY;
-
   // Parse request body
   const body = await request.json().catch(() => null);
   const parsed = requestSchema.safeParse(body);
@@ -101,22 +101,32 @@ async function handleRequest(
     );
   }
 
-  const { messages } = parsed.data;
+  const { messages, provider: requestedProvider, model: requestedModel } = parsed.data;
+
+  // Determine provider - use requested, or fall back to default
+  const defaultProvider = getDefaultProvider();
+  const targetProvider = requestedProvider ?? defaultProvider?.id;
+
+  // Validate provider/model if we have a provider
+  let languageModel = null;
+  if (targetProvider) {
+    const validation = validateProviderModel(targetProvider, requestedModel);
+    if (validation.valid) {
+      languageModel = getModel(validation.providerId, validation.modelId);
+    }
+  }
 
   // Get the agent system prompt
   const activePrompt = selectPrompt("agent");
 
-  // If no API key, return mock streaming response
-  if (!apiKey) {
+  // If no valid provider/model, return mock streaming response
+  if (!languageModel) {
     return createMockStream(messages);
   }
 
-  // Create OpenAI client
-  const openai = createOpenAI({ apiKey });
-
   // Stream with tools
   const result = streamText({
-    model: openai(model),
+    model: languageModel,
     system: activePrompt.content,
     messages,
     tools: {
@@ -215,7 +225,7 @@ function createMockStream(messages: { role: string; content: string }[]) {
   const encoder = new TextEncoder();
 
   let mockResponse =
-    "I'm a demo agent. In production with an OpenAI API key, I can help with weather and time queries using tools.";
+    "I'm a demo agent. In production with an AI provider API key configured, I can help with weather and time queries using tools.";
 
   // Check if the user asked about weather
   if (lastMessage.includes("weather")) {
