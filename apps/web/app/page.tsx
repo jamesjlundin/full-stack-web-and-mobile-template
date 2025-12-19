@@ -1,9 +1,11 @@
 import { cookies, headers } from "next/headers";
 import Link from "next/link";
+import { Github, Linkedin } from "lucide-react";
 
 import { AppShell } from "@/components/layout";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
 
 interface AuthStatus {
   isAuthenticated: boolean;
@@ -81,6 +83,41 @@ export default async function HomePage() {
             </>
           )}
         </div>
+
+        {/* Creator Branding - Remove this section when using this template */}
+        <div className="mt-16 w-full max-w-md">
+          <Separator className="mb-6" />
+          <div className="flex flex-col items-center gap-3 text-sm text-muted-foreground">
+            <p>
+              Created by{" "}
+              <span className="font-medium text-foreground">James Lundin</span>
+            </p>
+            <p className="text-xs max-w-sm">
+              Full-stack engineer passionate about building modern web and mobile applications
+            </p>
+            <div className="flex items-center gap-4 mt-2">
+              <a
+                href="https://github.com/jamesjlundin"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <Github className="h-5 w-5" />
+                <span>GitHub</span>
+              </a>
+              <a
+                href="https://www.linkedin.com/in/jamesjlundin"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <Linkedin className="h-5 w-5" />
+                <span>LinkedIn</span>
+              </a>
+            </div>
+          </div>
+        </div>
+        {/* End Creator Branding */}
 
       </div>
     </AppShell>
