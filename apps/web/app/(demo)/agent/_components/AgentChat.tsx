@@ -96,45 +96,51 @@ export function AgentChat({ providers, defaultProvider }: AgentChatProps) {
   return (
     <div className="flex flex-col h-[600px] border rounded-lg bg-background">
       {/* Model selector header */}
-      {hasProviders && (
-        <div className="flex items-center gap-2 p-3 border-b bg-muted/30">
-          <span className="text-sm text-muted-foreground">Model:</span>
-          <Select
-            value={selectedProvider ?? undefined}
-            onValueChange={handleProviderChange}
-            disabled={isStreaming}
-          >
-            <SelectTrigger className="w-[140px] h-8 text-sm">
-              <SelectValue placeholder="Provider" />
-            </SelectTrigger>
-            <SelectContent>
-              {providers.map((provider) => (
-                <SelectItem key={provider.id} value={provider.id}>
-                  {provider.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          {currentProvider && (
+      <div className="flex items-center gap-2 p-3 border-b bg-muted/30">
+        <span className="text-sm text-muted-foreground">Model:</span>
+        {hasProviders ? (
+          <>
             <Select
-              value={selectedModel ?? undefined}
-              onValueChange={setSelectedModel}
+              value={selectedProvider ?? undefined}
+              onValueChange={handleProviderChange}
               disabled={isStreaming}
             >
-              <SelectTrigger className="w-[200px] h-8 text-sm">
-                <SelectValue placeholder="Model" />
+              <SelectTrigger className="w-[140px] h-8 text-sm">
+                <SelectValue placeholder="Provider" />
               </SelectTrigger>
               <SelectContent>
-                {currentProvider.models.map((model) => (
-                  <SelectItem key={model.id} value={model.id}>
-                    {model.name}
+                {providers.map((provider) => (
+                  <SelectItem key={provider.id} value={provider.id}>
+                    {provider.name}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
-          )}
-        </div>
-      )}
+            {currentProvider && (
+              <Select
+                value={selectedModel ?? undefined}
+                onValueChange={setSelectedModel}
+                disabled={isStreaming}
+              >
+                <SelectTrigger className="w-[200px] h-8 text-sm">
+                  <SelectValue placeholder="Model" />
+                </SelectTrigger>
+                <SelectContent>
+                  {currentProvider.models.map((model) => (
+                    <SelectItem key={model.id} value={model.id}>
+                      {model.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+          </>
+        ) : (
+          <span className="text-sm text-muted-foreground italic">
+            Mock (no API keys configured)
+          </span>
+        )}
+      </div>
 
       {/* Messages area */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
