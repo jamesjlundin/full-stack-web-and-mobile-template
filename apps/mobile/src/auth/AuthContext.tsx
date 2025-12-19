@@ -1,4 +1,4 @@
-import {createApiClient, type User} from '@acme/api-client';
+import {createApiClient, type AppConfig, type User} from '@acme/api-client';
 import React, {
   PropsWithChildren,
   createContext,
@@ -13,6 +13,11 @@ import {API_BASE} from '../config/api';
 
 import {clearToken, loadToken, saveToken} from './tokenStorage';
 
+type SignUpResult = {
+  requiresVerification: boolean;
+  email: string;
+};
+
 type AuthContextValue = {
   /** The currently authenticated user, or null if not authenticated */
   user: User | null;
@@ -20,15 +25,23 @@ type AuthContextValue = {
   token: string | null;
   /** True while restoring session on app startup */
   loading: boolean;
+  /** App configuration including email verification requirements */
+  config: AppConfig;
+  /** Whether the user needs to verify their email */
+  needsVerification: boolean;
   /** Sign in with email and password */
   signIn: (email: string, password: string) => Promise<void>;
-  /** Create a new account and sign in */
-  signUp: (email: string, password: string) => Promise<void>;
+  /** Create a new account. Returns whether verification is required. */
+  signUp: (email: string, password: string) => Promise<SignUpResult>;
   /** Sign out and clear secure storage */
   signOut: () => Promise<void>;
   /** Re-validate the current session with the server */
   refreshSession: () => Promise<void>;
+  /** Request a verification email to be sent */
+  requestVerificationEmail: (email: string) => Promise<{ok: boolean; error?: string}>;
 };
+
+const defaultConfig: AppConfig = {isEmailVerificationRequired: false};
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
@@ -38,6 +51,13 @@ export function AuthProvider({children}: PropsWithChildren) {
   const [user, setUser] = useState<User | null>(null);
   const [token, setTokenState] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [config, setConfig] = useState<AppConfig>(defaultConfig);
+
+  // Compute whether verification is needed
+  const needsVerification = useMemo(() => {
+    if (!user) return false;
+    return config.isEmailVerificationRequired && !user.emailVerified;
+  }, [user, config.isEmailVerificationRequired]);
 
   /**
    * Bootstrap: On app startup, load token from secure storage
@@ -52,19 +72,30 @@ export function AuthProvider({children}: PropsWithChildren) {
 
         if (!existingToken) {
           // No token stored - user needs to sign in
+          // Still fetch config
+          try {
+            const appConfig = await apiClient.getConfig();
+            if (isMounted) {
+              setConfig(appConfig);
+            }
+          } catch {
+            // Ignore config fetch errors
+          }
           return;
         }
 
         // Validate the token with the server
         try {
-          const existingUser = await apiClient.getMe({token: existingToken});
+          const result = await apiClient.getMe({token: existingToken});
 
-          if (existingUser && isMounted) {
+          if (result.user && isMounted) {
             setTokenState(existingToken);
-            setUser(existingUser);
+            setUser(result.user);
+            setConfig(result.config);
           } else if (isMounted) {
             // Token is invalid - clear it
             await clearToken();
+            setConfig(result.config);
           }
         } catch {
           // API call failed (token expired, server error, etc.)
@@ -112,15 +143,26 @@ export function AuthProvider({children}: PropsWithChildren) {
       // Then update state
       setTokenState(nextToken);
       setUser(nextUser);
+
+      // Fetch latest config
+      try {
+        const result = await apiClient.getMe({token: nextToken});
+        if (result.config) {
+          setConfig(result.config);
+        }
+      } catch {
+        // Ignore - we already have a default config
+      }
     },
     [apiClient],
   );
 
   /**
-   * Create a new account and automatically sign in
+   * Create a new account
+   * Returns whether verification is required
    */
   const signUp = useCallback(
-    async (email: string, password: string) => {
+    async (email: string, password: string): Promise<SignUpResult> => {
       const response = await fetch(`${API_BASE}/api/auth/email-password/sign-up`, {
         method: 'POST',
         headers: {
@@ -138,10 +180,47 @@ export function AuthProvider({children}: PropsWithChildren) {
         );
       }
 
-      // After successful sign-up, sign in
+      const data = await response.json().catch(() => ({}));
+
+      // If verification is required, don't sign in - return the result
+      if (data.requiresVerification) {
+        // Fetch config to update state
+        try {
+          const appConfig = await apiClient.getConfig();
+          setConfig(appConfig);
+        } catch {
+          // Ignore config fetch errors
+        }
+
+        return {
+          requiresVerification: true,
+          email: data.email || email,
+        };
+      }
+
+      // No verification required - sign in
       await signIn(email, password);
+
+      return {
+        requiresVerification: false,
+        email,
+      };
     },
-    [signIn],
+    [apiClient, signIn],
+  );
+
+  /**
+   * Request a verification email
+   */
+  const requestVerificationEmail = useCallback(
+    async (email: string): Promise<{ok: boolean; error?: string}> => {
+      const result = await apiClient.requestVerificationEmail({
+        email,
+        token: token ?? undefined,
+      });
+      return {ok: result.ok, error: result.error};
+    },
+    [apiClient, token],
   );
 
   /**
@@ -171,11 +250,12 @@ export function AuthProvider({children}: PropsWithChildren) {
     }
 
     try {
-      const refreshedUser = await apiClient.getMe({token: currentToken});
+      const result = await apiClient.getMe({token: currentToken});
 
-      if (refreshedUser) {
-        setUser(refreshedUser);
+      if (result.user) {
+        setUser(result.user);
         setTokenState(currentToken);
+        setConfig(result.config);
       } else {
         // Token is no longer valid
         await clearToken();
@@ -195,12 +275,26 @@ export function AuthProvider({children}: PropsWithChildren) {
       user,
       token,
       loading,
+      config,
+      needsVerification,
       signIn,
       signUp,
       signOut,
       refreshSession,
+      requestVerificationEmail,
     }),
-    [loading, refreshSession, signIn, signOut, signUp, token, user],
+    [
+      config,
+      loading,
+      needsVerification,
+      refreshSession,
+      requestVerificationEmail,
+      signIn,
+      signOut,
+      signUp,
+      token,
+      user,
+    ],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

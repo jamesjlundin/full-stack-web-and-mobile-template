@@ -49,6 +49,18 @@ function RegisterForm() {
         return;
       }
 
+      const data = await signupResponse.json().catch(() => ({}));
+
+      // If verification is required, redirect to verify page
+      if (data.requiresVerification) {
+        toast.success("Account created! Please verify your email.");
+        router.push(
+          `/auth/verify?email=${encodeURIComponent(email)}&sent=true`
+        );
+        return;
+      }
+
+      // No verification required - sign in and redirect
       const signinResponse = await fetch("/api/auth/email-password/sign-in", {
         method: "POST",
         headers: { "content-type": "application/json" },
@@ -62,9 +74,9 @@ function RegisterForm() {
         return;
       }
 
-      const data = await signinResponse.json().catch(() => ({}));
+      const signinData = await signinResponse.json().catch(() => ({}));
       setError(
-        data?.message ?? "Signed up but failed to sign in. Please try again."
+        signinData?.message ?? "Signed up but failed to sign in. Please try again."
       );
     } catch (err) {
       setError(err instanceof Error ? err.message : "Unexpected error occurred");

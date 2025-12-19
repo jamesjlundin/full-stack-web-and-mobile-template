@@ -4,19 +4,31 @@ export type SessionUser = {
   id: string;
   email: string;
   name?: string;
+  emailVerified?: boolean;
+};
+
+export type AppConfig = {
+  isEmailVerificationRequired: boolean;
+};
+
+export type SessionResult = {
+  user: SessionUser | null;
+  config: AppConfig;
 };
 
 /**
  * Server-side session check for protected routes.
- * Call this from server components to get the current user.
+ * Call this from server components to get the current user and app config.
  */
-export async function getServerSession(): Promise<SessionUser | null> {
+export async function getServerSession(): Promise<SessionResult> {
   const cookieStore = await cookies();
   const headersList = await headers();
 
   // Get the host for constructing the URL
   const host = headersList.get("host") || "localhost:3000";
   const protocol = process.env.NODE_ENV === "production" ? "https" : "http";
+
+  const defaultConfig: AppConfig = { isEmailVerificationRequired: false };
 
   try {
     const response = await fetch(`${protocol}://${host}/api/me`, {
@@ -27,13 +39,16 @@ export async function getServerSession(): Promise<SessionUser | null> {
     });
 
     if (response.status === 401) {
-      return null;
+      return { user: null, config: defaultConfig };
     }
 
     const data = await response.json();
-    return data?.user ?? null;
+    return {
+      user: data?.user ?? null,
+      config: data?.config ?? defaultConfig,
+    };
   } catch (error) {
     console.error("Failed to fetch session:", error);
-    return null;
+    return { user: null, config: defaultConfig };
   }
 }

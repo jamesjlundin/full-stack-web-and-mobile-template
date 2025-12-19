@@ -1,4 +1,4 @@
-import type { ChatChunk, User } from "@acme/types";
+import type { AppConfig, ChatChunk, User } from "@acme/types";
 
 type ApiClientConfig = {
   baseUrl?: string;
@@ -17,6 +17,28 @@ export type StreamChatParams = {
 
 export type GetMeParams = {
   token?: string;
+};
+
+export type GetMeResult = {
+  user: User | null;
+  config: AppConfig;
+};
+
+export type SignInResult = {
+  token: string;
+  user: User;
+  requiresVerification?: boolean;
+};
+
+export type RequestVerificationParams = {
+  email: string;
+  token?: string;
+};
+
+export type RequestVerificationResult = {
+  ok: boolean;
+  error?: string;
+  devToken?: string;
 };
 
 function resolveUrl(path: string, baseUrl: string) {
@@ -76,7 +98,9 @@ export async function* streamFetch(
 export function createApiClient({ baseUrl = "" }: ApiClientConfig = {}) {
   const buildUrl = (path: string) => resolveUrl(path, baseUrl);
 
-  const getMe = async ({ token }: GetMeParams = {}): Promise<User | null> => {
+  const defaultConfig: AppConfig = { isEmailVerificationRequired: false };
+
+  const getMe = async ({ token }: GetMeParams = {}): Promise<GetMeResult> => {
     const headers: HeadersInit = {};
 
     if (token) {
@@ -86,17 +110,31 @@ export function createApiClient({ baseUrl = "" }: ApiClientConfig = {}) {
     const response = await fetch(buildUrl("/api/me"), { headers });
 
     if (!response.ok) {
-      return null;
+      return { user: null, config: defaultConfig };
     }
 
     const data = (await response.json().catch(() => null)) as
-      | { user?: User }
+      | { user?: User; config?: AppConfig }
       | null;
 
-    return data?.user ?? null;
+    return {
+      user: data?.user ?? null,
+      config: data?.config ?? defaultConfig,
+    };
   };
 
-  const signIn = async ({ email, password }: SignInParams) => {
+  const getConfig = async (): Promise<AppConfig> => {
+    const response = await fetch(buildUrl("/api/config"));
+
+    if (!response.ok) {
+      return defaultConfig;
+    }
+
+    const data = (await response.json().catch(() => null)) as AppConfig | null;
+    return data ?? defaultConfig;
+  };
+
+  const signIn = async ({ email, password }: SignInParams): Promise<SignInResult> => {
     const response = await fetch(buildUrl("/api/auth/token"), {
       method: "POST",
       headers: {
@@ -113,14 +151,43 @@ export function createApiClient({ baseUrl = "" }: ApiClientConfig = {}) {
     }
 
     const payload = (await response.json().catch(() => null)) as
-      | { token?: string; user?: User }
+      | { token?: string; user?: User; requiresVerification?: boolean }
       | null;
 
     if (!payload?.token || !payload.user) {
       throw new Error("Invalid sign-in response");
     }
 
-    return payload;
+    return {
+      token: payload.token,
+      user: payload.user,
+      requiresVerification: payload.requiresVerification,
+    };
+  };
+
+  const requestVerificationEmail = async ({
+    email,
+    token,
+  }: RequestVerificationParams): Promise<RequestVerificationResult> => {
+    const headers: HeadersInit = {
+      "content-type": "application/json",
+    };
+
+    if (token) {
+      headers.Authorization = `Bearer ${token}`;
+    }
+
+    const response = await fetch(buildUrl("/api/auth/email/verify/request"), {
+      method: "POST",
+      headers,
+      body: JSON.stringify({ email }),
+    });
+
+    const data = (await response.json().catch(() => null)) as
+      | RequestVerificationResult
+      | null;
+
+    return data ?? { ok: false, error: "Unknown error" };
   };
 
   const streamChat = async function* ({ prompt, token, signal }: StreamChatParams) {
@@ -143,7 +210,9 @@ export function createApiClient({ baseUrl = "" }: ApiClientConfig = {}) {
   };
 
   return {
+    getConfig,
     getMe,
+    requestVerificationEmail,
     signIn,
     streamChat,
   };
@@ -151,8 +220,10 @@ export function createApiClient({ baseUrl = "" }: ApiClientConfig = {}) {
 
 const defaultClient = createApiClient();
 
+export const getConfig = defaultClient.getConfig;
 export const getMe = defaultClient.getMe;
+export const requestVerificationEmail = defaultClient.requestVerificationEmail;
 export const signIn = defaultClient.signIn;
 export const streamChat = defaultClient.streamChat;
 
-export type { ChatChunk, User } from "@acme/types";
+export type { AppConfig, ChatChunk, User } from "@acme/types";

@@ -6,4 +6,9 @@ export type ChatChunk = {
 export type User = {
   id: string;
   email: string;
+  emailVerified?: boolean;
+};
+
+export type AppConfig = {
+  isEmailVerificationRequired: boolean;
 };

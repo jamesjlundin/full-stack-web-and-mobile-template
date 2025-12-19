@@ -10,6 +10,7 @@ import ResetRequestScreen from './src/screens/ResetRequestScreen';
 import SignInScreen from './src/screens/SignInScreen';
 import SignUpScreen from './src/screens/SignUpScreen';
 import SplashScreen from './src/screens/SplashScreen';
+import VerifyEmailScreen from './src/screens/VerifyEmailScreen';
 
 // ============================================================================
 // Navigation Types
@@ -172,12 +173,13 @@ function AppStack() {
  * Flow:
  * 1. If loading → Show SplashScreen
  * 2. If no user → Show AuthStack
- * 3. If user exists → Show AppStack
+ * 3. If user needs verification → Show VerifyEmailScreen
+ * 4. If user exists and verified → Show AppStack
  *
  * Also handles deep links for password reset.
  */
 function RootNavigator() {
-  const {user, loading} = useAuth();
+  const {user, loading, needsVerification} = useAuth();
   const [deepLinkResetToken, setDeepLinkResetToken] = useState<string | undefined>();
 
   // Handle deep links
@@ -209,7 +211,12 @@ function RootNavigator() {
     return <AuthStack onDeepLinkReset={deepLinkResetToken} />;
   }
 
-  // Show app stack for authenticated users
+  // Show verification screen if user needs to verify email
+  if (needsVerification) {
+    return <VerifyEmailScreen />;
+  }
+
+  // Show app stack for authenticated and verified users
   return <AppStack />;
 }
 

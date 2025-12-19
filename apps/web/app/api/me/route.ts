@@ -1,13 +1,29 @@
 import { getCurrentUser } from "@acme/auth";
+import { db, schema } from "@acme/db";
+import { eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 
 import { verifyAuthToken } from "../../../lib/jwt";
+
+const config = {
+  isEmailVerificationRequired: !!process.env.RESEND_API_KEY,
+};
 
 export async function GET(request: Request) {
   const result = await getCurrentUser(request);
 
   if (result?.user) {
-    const response = NextResponse.json({ user: result.user }, { status: 200 });
+    const response = NextResponse.json(
+      {
+        user: {
+          id: result.user.id,
+          email: result.user.email,
+          emailVerified: result.user.emailVerified,
+        },
+        config,
+      },
+      { status: 200 },
+    );
 
     if (result.headers) {
       result.headers.forEach((value, key) => {
@@ -26,8 +42,22 @@ export async function GET(request: Request) {
     try {
       const payload = await verifyAuthToken(token);
 
+      // Look up user from database to get emailVerified status
+      const [dbUser] = await db
+        .select({ emailVerified: schema.users.emailVerified })
+        .from(schema.users)
+        .where(eq(schema.users.id, payload.sub))
+        .limit(1);
+
       return NextResponse.json(
-        { user: { id: payload.sub, email: payload.email } },
+        {
+          user: {
+            id: payload.sub,
+            email: payload.email,
+            emailVerified: dbUser?.emailVerified ?? false,
+          },
+          config,
+        },
         { status: 200 },
       );
     } catch {

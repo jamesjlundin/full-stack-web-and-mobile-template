@@ -24,8 +24,13 @@ export default function SignUpScreen({onSwitchToSignIn, onSignedUp}: SignUpScree
     setError(null);
 
     try {
-      await signUp(email.trim(), password);
-      onSignedUp();
+      const result = await signUp(email.trim(), password);
+      // If verification is required, the navigation will be handled by RootNavigator
+      // based on needsVerification state. Otherwise, call onSignedUp.
+      if (!result.requiresVerification) {
+        onSignedUp();
+      }
+      // If verification is required, the user state will trigger navigation to VerifyEmailScreen
     } catch (err) {
       if (err instanceof Error) {
         setError(err.message);

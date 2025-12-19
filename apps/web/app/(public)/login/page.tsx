@@ -44,6 +44,15 @@ function LoginForm() {
       });
 
       if (response.ok) {
+        const data = await response.json().catch(() => ({}));
+
+        // If verification is required, redirect to verify page
+        if (data.requiresVerification) {
+          toast.info("Please verify your email to continue");
+          router.push(`/auth/verify?email=${encodeURIComponent(data.email || email)}`);
+          return;
+        }
+
         toast.success("Signed in successfully");
         router.push(nextUrl);
         return;
