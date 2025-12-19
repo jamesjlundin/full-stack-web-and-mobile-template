@@ -27,8 +27,10 @@ type AuthContextValue = {
   loading: boolean;
   /** App configuration including email verification requirements */
   config: AppConfig;
-  /** Whether the user needs to verify their email */
+  /** Whether the user needs to verify their email (authenticated but unverified) */
   needsVerification: boolean;
+  /** Email address pending verification (from sign-up or sign-in of unverified account) */
+  pendingVerificationEmail: string | null;
   /** Sign in with email and password */
   signIn: (email: string, password: string) => Promise<void>;
   /** Create a new account. Returns whether verification is required. */
@@ -39,6 +41,8 @@ type AuthContextValue = {
   refreshSession: () => Promise<void>;
   /** Request a verification email to be sent */
   requestVerificationEmail: (email: string) => Promise<{ok: boolean; error?: string}>;
+  /** Clear the pending verification email (e.g., when going back to sign-in) */
+  clearPendingVerification: () => void;
 };
 
 const defaultConfig: AppConfig = {isEmailVerificationRequired: false};
@@ -52,6 +56,7 @@ export function AuthProvider({children}: PropsWithChildren) {
   const [token, setTokenState] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [config, setConfig] = useState<AppConfig>(defaultConfig);
+  const [pendingVerificationEmail, setPendingVerificationEmail] = useState<string | null>(null);
 
   // Compute whether verification is needed
   const needsVerification = useMemo(() => {
@@ -121,6 +126,7 @@ export function AuthProvider({children}: PropsWithChildren) {
   /**
    * Sign in with email and password
    * Stores token in secure storage and updates state
+   * Throws an error with requiresVerification flag if email not verified
    */
   const signIn = useCallback(
     async (email: string, password: string) => {
@@ -129,13 +135,23 @@ export function AuthProvider({children}: PropsWithChildren) {
         password,
       });
 
+      // Check if verification is required
+      if (!response.success) {
+        // Fetch config to update state
+        try {
+          const appConfig = await apiClient.getConfig();
+          setConfig(appConfig);
+        } catch {
+          // Ignore config fetch errors
+        }
+
+        // Set pending verification email to trigger verification screen
+        setPendingVerificationEmail(response.email);
+        return;
+      }
+
       const nextToken = response.token;
       const nextUser = response.user;
-
-      // These checks are defensive - apiClient.signIn throws if these are missing
-      if (!nextToken || !nextUser) {
-        throw new Error('Invalid sign-in response');
-      }
 
       // Save token to secure storage first
       await saveToken(nextToken);
@@ -236,6 +252,14 @@ export function AuthProvider({children}: PropsWithChildren) {
   }, []);
 
   /**
+   * Clear the pending verification email
+   * Used when navigating away from verification screen
+   */
+  const clearPendingVerification = useCallback(() => {
+    setPendingVerificationEmail(null);
+  }, []);
+
+  /**
    * Refresh/re-validate the current session with the server
    * Useful after app comes to foreground or on network reconnect
    */
@@ -277,16 +301,20 @@ export function AuthProvider({children}: PropsWithChildren) {
       loading,
       config,
       needsVerification,
+      pendingVerificationEmail,
       signIn,
       signUp,
       signOut,
       refreshSession,
       requestVerificationEmail,
+      clearPendingVerification,
     }),
     [
+      clearPendingVerification,
       config,
       loading,
       needsVerification,
+      pendingVerificationEmail,
       refreshSession,
       requestVerificationEmail,
       signIn,

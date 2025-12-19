@@ -179,7 +179,7 @@ function AppStack() {
  * Also handles deep links for password reset.
  */
 function RootNavigator() {
-  const {user, loading, needsVerification} = useAuth();
+  const {user, loading, needsVerification, pendingVerificationEmail} = useAuth();
   const [deepLinkResetToken, setDeepLinkResetToken] = useState<string | undefined>();
 
   // Handle deep links
@@ -204,6 +204,11 @@ function RootNavigator() {
   // Show splash screen while restoring session
   if (loading) {
     return <SplashScreen />;
+  }
+
+  // Show verification screen if sign-in was blocked due to unverified email
+  if (pendingVerificationEmail) {
+    return <VerifyEmailScreen email={pendingVerificationEmail} />;
   }
 
   // Show auth stack if not authenticated

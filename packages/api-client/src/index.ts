@@ -25,9 +25,13 @@ export type GetMeResult = {
 };
 
 export type SignInResult = {
+  success: true;
   token: string;
   user: User;
-  requiresVerification?: boolean;
+} | {
+  success: false;
+  requiresVerification: true;
+  email: string;
 };
 
 export type RequestVerificationParams = {
@@ -143,6 +147,21 @@ export function createApiClient({ baseUrl = "" }: ApiClientConfig = {}) {
       body: JSON.stringify({ email, password }),
     });
 
+    // Handle verification required response (403)
+    if (response.status === 403) {
+      const payload = (await response.json().catch(() => null)) as
+        | { requiresVerification?: boolean; email?: string }
+        | null;
+
+      if (payload?.requiresVerification) {
+        return {
+          success: false,
+          requiresVerification: true,
+          email: payload.email || email,
+        };
+      }
+    }
+
     if (!response.ok) {
       const errorText = await response.text().catch(() => "");
       throw new Error(
@@ -151,7 +170,7 @@ export function createApiClient({ baseUrl = "" }: ApiClientConfig = {}) {
     }
 
     const payload = (await response.json().catch(() => null)) as
-      | { token?: string; user?: User; requiresVerification?: boolean }
+      | { token?: string; user?: User }
       | null;
 
     if (!payload?.token || !payload.user) {
@@ -159,9 +178,9 @@ export function createApiClient({ baseUrl = "" }: ApiClientConfig = {}) {
     }
 
     return {
+      success: true,
       token: payload.token,
       user: payload.user,
-      requiresVerification: payload.requiresVerification,
     };
   };
 

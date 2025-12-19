@@ -3,15 +3,25 @@ import {Button, SafeAreaView, StyleSheet, Text, View} from 'react-native';
 
 import {useAuth} from '../auth/AuthContext';
 
-export default function VerifyEmailScreen() {
-  const {user, signOut, refreshSession, requestVerificationEmail} = useAuth();
+type VerifyEmailScreenProps = {
+  /** Email for unauthenticated verification (from pendingVerificationEmail) */
+  email?: string;
+};
+
+export default function VerifyEmailScreen({email: propEmail}: VerifyEmailScreenProps) {
+  const {user, signOut, refreshSession, requestVerificationEmail, clearPendingVerification} = useAuth();
   const [resending, setResending] = useState(false);
   const [checking, setChecking] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  // Use prop email (from pendingVerificationEmail) or user email
+  const displayEmail = propEmail || user?.email;
+  // User is unauthenticated if we have propEmail but no user
+  const isUnauthenticated = !!propEmail && !user;
+
   const handleResendEmail = useCallback(async () => {
-    if (resending || !user?.email) {
+    if (resending || !displayEmail) {
       return;
     }
 
@@ -20,7 +30,7 @@ export default function VerifyEmailScreen() {
     setMessage(null);
 
     try {
-      const result = await requestVerificationEmail(user.email);
+      const result = await requestVerificationEmail(displayEmail);
       if (result.ok) {
         setMessage('Verification email sent! Check your inbox.');
       } else {
@@ -35,7 +45,7 @@ export default function VerifyEmailScreen() {
     } finally {
       setResending(false);
     }
-  }, [requestVerificationEmail, resending, user?.email]);
+  }, [displayEmail, requestVerificationEmail, resending]);
 
   const handleCheckStatus = useCallback(async () => {
     if (checking) {
@@ -47,9 +57,16 @@ export default function VerifyEmailScreen() {
     setMessage(null);
 
     try {
-      await refreshSession();
-      // If still on this screen after refresh, the user is still not verified
-      // The navigation will handle redirecting if verified
+      if (isUnauthenticated) {
+        // For unauthenticated users, try to sign in again
+        // This will either succeed (if verified) or fail (if still unverified)
+        // We don't have the password here, so just clear and let them sign in again
+        clearPendingVerification();
+      } else {
+        await refreshSession();
+        // If still on this screen after refresh, the user is still not verified
+        // The navigation will handle redirecting if verified
+      }
     } catch (err) {
       if (err instanceof Error) {
         setError(err.message);
@@ -59,11 +76,15 @@ export default function VerifyEmailScreen() {
     } finally {
       setChecking(false);
     }
-  }, [checking, refreshSession]);
+  }, [checking, clearPendingVerification, isUnauthenticated, refreshSession]);
 
   const handleSignOut = useCallback(async () => {
-    await signOut();
-  }, [signOut]);
+    if (isUnauthenticated) {
+      clearPendingVerification();
+    } else {
+      await signOut();
+    }
+  }, [clearPendingVerification, isUnauthenticated, signOut]);
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -75,7 +96,7 @@ export default function VerifyEmailScreen() {
 
         <View style={styles.emailContainer}>
           <Text style={styles.emailLabel}>Email:</Text>
-          <Text style={styles.email}>{user?.email}</Text>
+          <Text style={styles.email}>{displayEmail}</Text>
         </View>
 
         <View style={styles.infoBox}>
@@ -101,13 +122,17 @@ export default function VerifyEmailScreen() {
           />
 
           <Button
-            title={checking ? 'Checking...' : "I've Verified My Email"}
+            title={checking ? 'Checking...' : isUnauthenticated ? "I've Verified - Sign In Again" : "I've Verified My Email"}
             onPress={handleCheckStatus}
             disabled={checking}
           />
 
           <View style={styles.signOutContainer}>
-            <Button title="Sign Out" onPress={handleSignOut} color="#6b7280" />
+            <Button
+              title={isUnauthenticated ? 'Back to Sign In' : 'Sign Out'}
+              onPress={handleSignOut}
+              color="#6b7280"
+            />
           </View>
         </View>
       </View>

@@ -63,18 +63,16 @@ async function handleSignIn(request: Request) {
     const userResult = await getCurrentUser(checkRequest);
     if (userResult?.user && !userResult.user.emailVerified) {
       // User is not verified - return requiresVerification flag
-      // Include set-cookie header so session is still established
-      const jsonResponse = NextResponse.json({
-        success: true,
+      // Do NOT include set-cookie header - no session for unverified users
+      return NextResponse.json({
+        success: false,
         requiresVerification: true,
         email: email ?? userResult.user.email,
       });
-      jsonResponse.headers.set("set-cookie", setCookieHeader);
-      return jsonResponse;
     }
   }
 
-  // User is verified or we couldn't check - return success
+  // User is verified - return success with session cookie
   const jsonResponse = NextResponse.json({
     success: true,
     requiresVerification: false,
