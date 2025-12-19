@@ -63,7 +63,7 @@ function LoginForm() {
   return (
     <AppShell>
       <div className="container flex items-center justify-center min-h-[calc(100vh-3.5rem)] py-12">
-        <Card className="w-full max-w-md">
+        <Card className="w-full max-w-md min-h-[440px]">
           <CardHeader className="space-y-1">
             <CardTitle className="text-2xl font-bold">Sign in</CardTitle>
             <CardDescription>
@@ -144,7 +144,7 @@ function LoginLoading() {
   return (
     <AppShell>
       <div className="container flex items-center justify-center min-h-[calc(100vh-3.5rem)] py-12">
-        <Card className="w-full max-w-md">
+        <Card className="w-full max-w-md min-h-[440px]">
           <CardHeader className="space-y-1">
             <CardTitle className="text-2xl font-bold">Sign in</CardTitle>
             <CardDescription>Loading...</CardDescription>

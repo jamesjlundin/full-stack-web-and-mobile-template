@@ -5,8 +5,6 @@ import { AppShell } from "@/components/layout";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
-const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-
 interface AuthStatus {
   isAuthenticated: boolean;
   email?: string;
@@ -84,19 +82,6 @@ export default async function HomePage() {
           )}
         </div>
 
-        <details className="mt-16 w-full max-w-md">
-          <summary className="cursor-pointer text-sm text-muted-foreground hover:text-foreground transition-colors">
-            Developer info
-          </summary>
-          <div className="mt-3 p-4 rounded-lg bg-muted text-left">
-            <p className="text-sm">
-              API endpoint:{" "}
-              <code className="ml-2 px-2 py-1 rounded bg-background font-mono text-xs">
-                {apiUrl || "Not configured"}
-              </code>
-            </p>
-          </div>
-        </details>
       </div>
     </AppShell>
   );
