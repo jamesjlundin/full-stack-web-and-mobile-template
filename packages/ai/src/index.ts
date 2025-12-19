@@ -1,5 +1,6 @@
-import { createOpenAI } from "@ai-sdk/openai";
 import { streamText } from "ai";
+
+import { getModel, validateProviderModel, type ProviderId } from "./providers";
 
 // Re-export version and routing utilities
 export { selectPrompt, listFeatures, listChannels } from "./router";
@@ -14,13 +15,29 @@ export {
 export { configureAjv, type AjvConfig, type SchemaValidator, type ValidatorResult } from "./ajv";
 export { schemas, type SchemaInfo, type SchemaKey } from "./schemas/index";
 export type { PromptDef } from "./prompts/types";
+export {
+  getAvailableProviders,
+  getDefaultProvider,
+  getModel,
+  isProviderAvailable,
+  validateProviderModel,
+  type ModelInfo,
+  type ProviderConfig,
+  type ProviderId,
+} from "./providers";
 
 type StreamChatParams = {
   prompt: string;
   systemPrompt?: string;
+  provider?: string;
+  model?: string;
 };
 
-type StreamChatResult = Promise<Response>;
+type StreamChatResult = {
+  response: Response;
+  provider: string;
+  model: string;
+};
 
 const MOCK_TOKENS = [
   "Hello",
@@ -32,8 +49,6 @@ const MOCK_TOKENS = [
   "stream.",
 ];
 
-const DEFAULT_MODEL = "gpt-4o-mini";
-
 function buildHeaders() {
   return {
     "Content-Type": "text/event-stream",
@@ -42,7 +57,7 @@ function buildHeaders() {
   };
 }
 
-async function createMockStreamResponse(): StreamChatResult {
+function createMockStreamResponse(): Response {
   const encoder = new TextEncoder();
 
   const stream = new ReadableStream<Uint8Array>({
@@ -62,15 +77,18 @@ async function createMockStreamResponse(): StreamChatResult {
   return new Response(stream, { headers: buildHeaders() });
 }
 
-async function createOpenAIStreamResponse(prompt: string, systemPrompt?: string): StreamChatResult {
-  const apiKey = process.env.OPENAI_API_KEY;
+async function createProviderStreamResponse(
+  providerId: ProviderId,
+  modelId: string,
+  prompt: string,
+  systemPrompt?: string,
+): Promise<Response> {
+  const languageModel = getModel(providerId, modelId);
 
-  if (!apiKey) {
+  if (!languageModel) {
     return createMockStreamResponse();
   }
 
-  const model = process.env.AI_MODEL ?? DEFAULT_MODEL;
-  const client = createOpenAI({ apiKey });
   const encoder = new TextEncoder();
 
   const messages: Array<{ role: "system" | "user"; content: string }> = [];
@@ -80,7 +98,7 @@ async function createOpenAIStreamResponse(prompt: string, systemPrompt?: string)
   messages.push({ role: "user", content: prompt });
 
   const result = await streamText({
-    model: client(model),
+    model: languageModel,
     messages,
   });
 
@@ -106,10 +124,42 @@ async function createOpenAIStreamResponse(prompt: string, systemPrompt?: string)
   return new Response(stream, { headers: buildHeaders() });
 }
 
-export async function streamChat({ prompt, systemPrompt }: StreamChatParams): StreamChatResult {
+export async function streamChat({
+  prompt,
+  systemPrompt,
+  provider,
+  model,
+}: StreamChatParams): Promise<StreamChatResult> {
   if (!prompt) {
-    return new Response("Missing prompt", { status: 400 });
+    return {
+      response: new Response("Missing prompt", { status: 400 }),
+      provider: "mock",
+      model: "mock",
+    };
   }
 
-  return createOpenAIStreamResponse(prompt, systemPrompt);
+  // Validate and normalize provider/model
+  const validated = validateProviderModel(provider, model);
+
+  if (!validated) {
+    // No valid provider available, use mock
+    return {
+      response: createMockStreamResponse(),
+      provider: "mock",
+      model: "mock",
+    };
+  }
+
+  const response = await createProviderStreamResponse(
+    validated.provider,
+    validated.model,
+    prompt,
+    systemPrompt,
+  );
+
+  return {
+    response,
+    provider: validated.provider,
+    model: validated.model,
+  };
 }

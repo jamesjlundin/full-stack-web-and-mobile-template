@@ -102,7 +102,11 @@ export async function* streamFetch(
 export function createApiClient({ baseUrl = "" }: ApiClientConfig = {}) {
   const buildUrl = (path: string) => resolveUrl(path, baseUrl);
 
-  const defaultConfig: AppConfig = { isEmailVerificationRequired: false, isGoogleAuthEnabled: false };
+  const defaultConfig: AppConfig = {
+    isEmailVerificationRequired: false,
+    isGoogleAuthEnabled: false,
+    ai: { providers: [], defaultProvider: null },
+  };
 
   const getMe = async ({ token }: GetMeParams = {}): Promise<GetMeResult> => {
     const headers: HeadersInit = {};

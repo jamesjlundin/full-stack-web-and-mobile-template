@@ -1,3 +1,4 @@
+import { getAvailableProviders, getDefaultProvider } from "@acme/ai";
 import { isGoogleAuthEnabled } from "@acme/auth";
 import { NextResponse } from "next/server";
 
@@ -6,8 +7,15 @@ import { NextResponse } from "next/server";
  * Exposes non-sensitive app configuration to frontend clients.
  */
 export async function GET() {
+  const providers = getAvailableProviders();
+  const defaultProvider = getDefaultProvider();
+
   return NextResponse.json({
     isEmailVerificationRequired: !!process.env.RESEND_API_KEY,
     isGoogleAuthEnabled: isGoogleAuthEnabled(),
+    ai: {
+      providers,
+      defaultProvider: defaultProvider?.id ?? null,
+    },
   });
 }
