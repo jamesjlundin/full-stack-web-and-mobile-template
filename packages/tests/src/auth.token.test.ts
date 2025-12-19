@@ -9,13 +9,47 @@ describe("Auth Token Flow", () => {
 
   it("should create a new user for token tests", async () => {
     // Sign up
-    const signUpResponse = await postJson("/api/auth/email-password/sign-up", {
+    const signUpResponse = await postJson<{
+      success?: boolean;
+      requiresVerification?: boolean;
+      devToken?: string;
+      email?: string;
+    }>("/api/auth/email-password/sign-up", {
       email: testEmail,
       password: testPassword,
       name: "Token Test User",
     });
 
     expect([200, 201]).toContain(signUpResponse.status);
+
+    // If verification is required, verify the email
+    if (signUpResponse.data.requiresVerification) {
+      let devToken = signUpResponse.data.devToken;
+
+      // If devToken wasn't returned in sign-up, request verification email to get it
+      if (!devToken) {
+        const verifyRequestResponse = await postJson<{ ok: boolean; devToken?: string }>(
+          "/api/auth/email/verify/request",
+          { email: testEmail }
+        );
+        expect(verifyRequestResponse.status).toBe(200);
+        devToken = verifyRequestResponse.data.devToken;
+      }
+
+      // Verify the email with the token
+      if (devToken) {
+        const verifyResponse = await postJson("/api/auth/email/verify/confirm", {
+          token: devToken,
+        });
+        expect(verifyResponse.status).toBe(200);
+      } else {
+        // If no devToken is available, tests cannot proceed - fail with helpful message
+        throw new Error(
+          "Email verification is required but no devToken was provided. " +
+          "Set ALLOW_DEV_TOKENS=true in CI environment for integration tests."
+        );
+      }
+    }
   });
 
   it("should obtain a token via /api/auth/token", async () => {

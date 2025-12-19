@@ -36,7 +36,26 @@ Vercel automatically adds these env vars to your project:
 3. Copy the API key
 4. (Optional) Click **"Domains"** → **"Add Domain"** to verify your domain, or use `onboarding@resend.dev` for testing
 
-### 5. Configure Vercel Environment Variables
+### 5. Set Up Google OAuth (Optional)
+
+If you want users to sign in with their Google account:
+
+1. Go to [Google Cloud Console](https://console.cloud.google.com/)
+2. Create a new project (or select an existing one)
+3. Navigate to **"APIs & Services"** → **"Credentials"**
+4. Click **"Create Credentials"** → **"OAuth client ID"**
+5. If prompted, configure the OAuth consent screen first:
+   - Choose **"External"** user type
+   - Fill in app name, user support email, and developer contact email
+   - Add scopes: `email`, `profile`, `openid`
+   - Add test users if in testing mode
+6. Back in Credentials, create OAuth client ID:
+   - Application type: **"Web application"**
+   - Name: Your app name
+   - Authorized redirect URIs: Add `https://your-app.vercel.app/api/auth/callback/google` (and `http://localhost:3000/api/auth/callback/google` for local dev)
+7. Copy the **Client ID** and **Client Secret**
+
+### 6. Configure Vercel Environment Variables
 
 1. In your Vercel project, click **"Settings"** tab → **"Environment Variables"**
 2. Add each variable below (click **"Add"** after each):
@@ -55,15 +74,17 @@ Vercel automatically adds these env vars to your project:
 | Variable | Value |
 |----------|-------|
 | `OPENAI_API_KEY` | For AI chat functionality |
+| `GOOGLE_CLIENT_ID` | Google OAuth client ID from step 5 |
+| `GOOGLE_CLIENT_SECRET` | Google OAuth client secret from step 5 |
 
-### 6. Create Deploy Hook
+### 7. Create Deploy Hook
 
 1. In Vercel, click **"Settings"** → **"Git"** (left sidebar)
 2. Scroll to **"Deploy Hooks"** → click **"Create Hook"**
 3. Name: `GitHub Actions`, Branch: `main` → click **"Create Hook"**
 4. Copy the generated URL
 
-### 7. Disable Auto-Deploy
+### 8. Disable Auto-Deploy
 
 1. In Vercel **"Settings"** → **"Git"**, scroll to **"Ignored Build Step"**
 2. Select **"Custom"** and enter: `exit 0`
@@ -71,7 +92,7 @@ Vercel automatically adds these env vars to your project:
 
 This prevents Vercel from auto-deploying; our GitHub Actions CI/CD handles deployments after running migrations.
 
-### 8. Add GitHub Secrets
+### 9. Add GitHub Secrets
 
 1. Go to your GitHub repo → **"Settings"** tab → **"Secrets and variables"** → **"Actions"**
 2. Click **"New repository secret"** and add each:
@@ -81,11 +102,11 @@ This prevents Vercel from auto-deploying; our GitHub Actions CI/CD handles deplo
 | Secret | Value |
 |--------|-------|
 | `DATABASE_URL` | Copy from Vercel: Settings → Environment Variables → click `DATABASE_URL` to reveal |
-| `VERCEL_DEPLOY_HOOK_URL` | The deploy hook URL from step 6 |
+| `VERCEL_DEPLOY_HOOK_URL` | The deploy hook URL from step 7 |
 
 These secrets allow GitHub Actions to run migrations against your production database and trigger Vercel deployments.
 
-### 9. Clone and Set Up Locally
+### 10. Clone and Set Up Locally
 
 ```bash
 git clone https://github.com/YOUR_USERNAME/YOUR_REPO.git
@@ -101,7 +122,7 @@ BETTER_AUTH_SECRET=local-dev-secret-at-least-32-chars
 APP_BASE_URL=http://localhost:3000
 ```
 
-### 10. Run Locally
+### 11. Run Locally
 
 ```bash
 pnpm db:up              # Start local PostgreSQL (requires Docker)
@@ -109,7 +130,7 @@ pnpm -C packages/db migrate:apply  # Run migrations
 pnpm -C apps/web dev    # Start dev server at localhost:3000
 ```
 
-### 11. Deploy to Production
+### 12. Deploy to Production
 
 ```bash
 git add -A && git commit -m "Initial setup"
@@ -314,6 +335,8 @@ When running `pnpm db:up`, pgweb is available at [http://localhost:8081](http://
 
 | Variable | Description |
 |----------|-------------|
+| `GOOGLE_CLIENT_ID` | Google OAuth client ID (enables "Sign in with Google") |
+| `GOOGLE_CLIENT_SECRET` | Google OAuth client secret |
 | `GITHUB_CLIENT_ID` | GitHub OAuth app client ID |
 | `GITHUB_CLIENT_SECRET` | GitHub OAuth app client secret |
 
@@ -625,40 +648,6 @@ No additional configuration needed. The library uses Android Keystore automatica
 ├── pnpm-workspace.yaml         # pnpm workspace definition
 └── docker-compose.yml          # Local PostgreSQL setup
 ```
-
----
-
-## Extending the Template
-
-This template is designed to be a starting point. Here are some common ways to extend it:
-
-### Authentication
-
-- **Add OAuth providers**: Better Auth supports GitHub, Google, Discord, and more. Add providers in `packages/auth/src/index.ts`
-- **Implement RBAC**: Add role columns to the user schema and check roles in middleware
-- **Add MFA/2FA**: Better Auth has plugins for two-factor authentication
-
-### Database
-
-- **Add new models**: Define schemas in `packages/db/src/schema.ts` and generate migrations with `pnpm -C packages/db migrate:generate`
-- **Add CRUD endpoints**: Create new API routes in `apps/web/app/api/`
-
-### Mobile
-
-- **Push notifications**: Add Firebase Cloud Messaging or Apple Push Notifications
-- **Biometric authentication**: Extend `react-native-keychain` to require Face ID/Touch ID for token access
-
-### Observability
-
-- **Logging**: Integrate with services like Axiom, LogTail, or Datadog
-- **Error tracking**: Add Sentry for error monitoring
-- **Analytics**: Add Vercel Analytics, PostHog, or Mixpanel
-
-### Features
-
-- **File uploads**: Add S3/R2 storage integration
-- **Background jobs**: Add a job queue with BullMQ or Inngest
-- **Real-time**: Add WebSocket support with Pusher or Ably
 
 ---
 
