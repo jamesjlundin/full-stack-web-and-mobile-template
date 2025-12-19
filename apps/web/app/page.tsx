@@ -1,6 +1,6 @@
+import { Github, Linkedin } from "lucide-react";
 import { cookies, headers } from "next/headers";
 import Link from "next/link";
-import { Github, Linkedin } from "lucide-react";
 
 import { AppShell } from "@/components/layout";
 import { Badge } from "@/components/ui/badge";
