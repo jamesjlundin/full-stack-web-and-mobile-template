@@ -10,14 +10,14 @@ import { AgentChat } from "./_components/AgentChat";
 export const dynamic = "force-dynamic";
 
 export default async function AgentDemoPage() {
-  const user = await getServerSession();
+  const { user } = await getServerSession();
 
   if (!user) {
     redirect("/login?next=/agent");
   }
 
   return (
-    <AppShell user={user}>
+    <AppShell user={{ email: user.email, name: user.name }}>
       <div className="container py-8">
         <div className="max-w-3xl mx-auto space-y-6">
           <div className="space-y-2">

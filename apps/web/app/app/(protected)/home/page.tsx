@@ -17,7 +17,7 @@ import { getServerSession } from "../../../../lib/session";
 import { SignOutButton } from "./_components/SignOutButton";
 
 export default async function ProtectedHomePage() {
-  const user = await getServerSession();
+  const { user } = await getServerSession();
 
   const displayName = user?.name || user?.email || "User";
 
