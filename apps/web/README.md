@@ -1,4 +1,4 @@
-# ACME Web
+# Template Web
 
 A Next.js App Router frontend located in `apps/web`.
 

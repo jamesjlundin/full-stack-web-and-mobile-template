@@ -7,8 +7,8 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 
 export const metadata: Metadata = {
-  title: "ACME Web",
-  description: "Web frontend for the ACME stack.",
+  title: "Template",
+  description: "Full-stack web and mobile template.",
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
