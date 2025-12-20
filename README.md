@@ -1,6 +1,6 @@
 # Full-Stack Web & Mobile Template
 
-A production-ready GitHub template for building full-stack applications with a shared codebase across web and mobile platforms. This monorepo provides everything you need to start a new project with authentication, database, API routes, AI chat streaming, and deployment automation—all wired up and ready to go.
+A production-ready GitHub template for building full-stack applications with a shared codebase across web and mobile platforms. This monorepo provides everything you need to start a new project with authentication, database, API routes, AI chat streaming, email sending, and deployment automation—all wired up and ready to go.
 
 ---
 
@@ -29,14 +29,26 @@ Vercel automatically adds these env vars to your project:
 - `POSTGRES_URL`
 - `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_HOST`, `POSTGRES_DATABASE`
 
-### 4. Set Up Resend (Email)
+### 4. Create Upstash Redis
+
+1. In your Vercel project, click the **"Storage"** tab
+2. Click **"Create Database"** → select **"Redis"**
+3. Select **"Upstash"** as provider → click **"Continue"** → **"Create"**
+
+Vercel automatically adds these env vars to your project:
+- `UPSTASH_REDIS_REST_URL`
+- `UPSTASH_REDIS_REST_TOKEN`
+
+### 5. Set Up Resend (Email) (Optional)
+
+If you want email functionality (verification emails, password reset):
 
 1. Go to [resend.com](https://resend.com) and create an account
 2. In the Resend dashboard, click **"API Keys"** → **"Create API Key"**
 3. Copy the API key
 4. (Optional) Click **"Domains"** → **"Add Domain"** to verify your domain, or use `onboarding@resend.dev` for testing
 
-### 5. Set Up Google OAuth (Optional)
+### 6. Set Up Google OAuth (Optional)
 
 If you want users to sign in with their Google account:
 
@@ -55,7 +67,17 @@ If you want users to sign in with their Google account:
    - Authorized redirect URIs: Add `https://your-app.vercel.app/api/auth/callback/google` (and `http://localhost:3000/api/auth/callback/google` for local dev)
 7. Copy the **Client ID** and **Client Secret**
 
-### 6. Configure Vercel Environment Variables
+### 7. Add Custom Domain (Optional)
+
+If you want to use a custom domain instead of the default `.vercel.app` URL:
+
+1. In your Vercel project, click **"Settings"** → **"Domains"**
+2. Enter your domain name and click **"Add"**
+3. If you don't own a domain, click **"Buy"** to purchase one through Vercel
+4. If you own a domain elsewhere, follow the DNS configuration instructions shown
+5. Once configured, update your `APP_BASE_URL` environment variable to use your custom domain
+
+### 8. Configure Vercel Environment Variables
 
 1. In your Vercel project, click **"Settings"** tab → **"Environment Variables"**
 2. Add each variable below (click **"Add"** after each):
@@ -66,15 +88,14 @@ If you want users to sign in with their Google account:
 |----------|-------|
 | `BETTER_AUTH_SECRET` | Random string, 32+ chars (run `openssl rand -base64 32` in terminal) |
 | `APP_BASE_URL` | `https://your-project.vercel.app` (your Vercel URL) |
-| `RESEND_API_KEY` | Your Resend API key from step 4 |
-| `MAIL_FROM` | Your verified domain email or `onboarding@resend.dev` |
 | `CRON_SECRET` | Random string for cron auth (run `openssl rand -hex 32` in terminal) |
 
-**Auto-configured** (set automatically when connecting services via Vercel Marketplace):
+**Auto-configured** (set automatically when connecting storage in steps 3-4):
 
 | Variable | Source |
 |----------|--------|
-| `UPSTASH_REDIS_REST_URL` | Connect Upstash Redis via Storage → Marketplace → Upstash |
+| `DATABASE_URL` | Auto-set when Neon Postgres is connected |
+| `UPSTASH_REDIS_REST_URL` | Auto-set when Upstash Redis is connected |
 | `UPSTASH_REDIS_REST_TOKEN` | Auto-set when Upstash Redis is connected |
 
 **Optional** (add if using these features):
@@ -82,17 +103,19 @@ If you want users to sign in with their Google account:
 | Variable | Value |
 |----------|-------|
 | `OPENAI_API_KEY` | For AI chat functionality |
-| `GOOGLE_CLIENT_ID` | Google OAuth client ID from step 5 |
-| `GOOGLE_CLIENT_SECRET` | Google OAuth client secret from step 5 |
+| `RESEND_API_KEY` | Your Resend API key from step 5 |
+| `MAIL_FROM` | Your verified domain email or `onboarding@resend.dev` |
+| `GOOGLE_CLIENT_ID` | Google OAuth client ID from step 6 |
+| `GOOGLE_CLIENT_SECRET` | Google OAuth client secret from step 6 |
 
-### 7. Create Deploy Hook
+### 9. Create Deploy Hook
 
 1. In Vercel, click **"Settings"** → **"Git"** (left sidebar)
 2. Scroll to **"Deploy Hooks"** → click **"Create Hook"**
 3. Name: `GitHub Actions`, Branch: `main` → click **"Create Hook"**
 4. Copy the generated URL
 
-### 8. Disable Auto-Deploy
+### 10. Disable Auto-Deploy
 
 1. In Vercel **"Settings"** → **"Git"**, scroll to **"Ignored Build Step"**
 2. Select **"Custom"** and enter: `exit 0`
@@ -100,7 +123,7 @@ If you want users to sign in with their Google account:
 
 This prevents Vercel from auto-deploying; our GitHub Actions CI/CD handles deployments after running migrations.
 
-### 9. Add GitHub Secrets
+### 11. Add GitHub Secrets
 
 1. Go to your GitHub repo → **"Settings"** tab → **"Secrets and variables"** → **"Actions"**
 2. Click **"New repository secret"** and add each:
@@ -110,11 +133,11 @@ This prevents Vercel from auto-deploying; our GitHub Actions CI/CD handles deplo
 | Secret | Value |
 |--------|-------|
 | `DATABASE_URL` | Copy from Vercel: Settings → Environment Variables → click `DATABASE_URL` to reveal |
-| `VERCEL_DEPLOY_HOOK_URL` | The deploy hook URL from step 7 |
+| `VERCEL_DEPLOY_HOOK_URL` | The deploy hook URL from step 9 |
 
 These secrets allow GitHub Actions to run migrations against your production database and trigger Vercel deployments.
 
-### 10. Clone and Set Up Locally
+### 12. Clone and Set Up Locally
 
 ```bash
 git clone https://github.com/YOUR_USERNAME/YOUR_REPO.git
@@ -130,7 +153,7 @@ BETTER_AUTH_SECRET=local-dev-secret-at-least-32-chars
 APP_BASE_URL=http://localhost:3000
 ```
 
-### 11. Run Locally
+### 13. Run Locally
 
 ```bash
 pnpm db:up              # Start local PostgreSQL (requires Docker)
@@ -138,7 +161,7 @@ pnpm -C packages/db migrate:apply  # Run migrations
 pnpm -C apps/web dev    # Start dev server at localhost:3000
 ```
 
-### 12. Deploy to Production
+### 14. Deploy to Production
 
 ```bash
 git add -A && git commit -m "Initial setup"
