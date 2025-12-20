@@ -10,7 +10,8 @@
   },
   "dependencies": {
     "@acme/db": "workspace:*",
-    "better-auth": "^1.4.7"
+    "better-auth": "^1.4.7",
+    "jose": "^6.1.3"
   },
   "devDependencies": {
     "@types/node": "^25.0.0",
