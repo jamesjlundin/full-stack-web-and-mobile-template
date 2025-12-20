@@ -21,6 +21,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Spinner } from "@/components/ui/spinner";
+import { getSafeRedirectUrl } from "@/lib/utils";
 
 function LoginForm() {
   const router = useRouter();
@@ -31,7 +32,7 @@ function LoginForm() {
   const [loading, setLoading] = useState(false);
   const [isGoogleAuthEnabled, setIsGoogleAuthEnabled] = useState(false);
 
-  const nextUrl = searchParams.get("next") || "/app/home";
+  const nextUrl = getSafeRedirectUrl(searchParams.get("next"));
   const googleError = searchParams.get("error") === "google";
 
   useEffect(() => {

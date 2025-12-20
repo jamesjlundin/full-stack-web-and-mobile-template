@@ -2,6 +2,8 @@ import { db, schema } from "@acme/db";
 import { betterAuth, type Session, type User } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { nextCookies, toNextJsHandler } from "better-auth/next-js";
+import { eq } from "drizzle-orm";
+import { jwtVerify } from "jose";
 
 /**
  * Check if dev token echoing is allowed.
@@ -105,10 +107,17 @@ function getAuth() {
   const googleClientSecret = process.env.GOOGLE_CLIENT_SECRET;
   const isGoogleAuthEnabled = !!(googleClientId && googleClientSecret);
 
+  // Disable rate limiting when DISABLE_RATE_LIMIT is set (for CI/testing)
+  const disableRateLimit = process.env.DISABLE_RATE_LIMIT === "true";
+
   _auth = betterAuth({
     baseURL,
     secret,
     trustedOrigins,
+    // Disable Better Auth's built-in rate limiting for CI/testing
+    rateLimit: {
+      enabled: !disableRateLimit,
+    },
     emailAndPassword: {
       enabled: true,
       sendResetPassword: async ({ user, url, token }) => {
@@ -191,8 +200,98 @@ export type CurrentUserResult = {
   user: User | null;
 };
 
+/**
+ * Get the JWT secret key for token verification.
+ * Uses the same secret as Better Auth for consistency.
+ */
+let _jwtSecretKey: Uint8Array | null = null;
+
+function getJwtSecretKey(): Uint8Array {
+  if (_jwtSecretKey) return _jwtSecretKey;
+
+  const secret = process.env.BETTER_AUTH_SECRET;
+  if (!secret || secret.length < 32) {
+    throw new Error("BETTER_AUTH_SECRET must be set and at least 32 characters long");
+  }
+  _jwtSecretKey = new TextEncoder().encode(secret);
+  return _jwtSecretKey;
+}
+
+/**
+ * Extract Bearer token from Authorization header.
+ */
+function extractBearerToken(request: Request): string | null {
+  const authHeader = request.headers.get("Authorization");
+  if (!authHeader?.startsWith("Bearer ")) {
+    return null;
+  }
+  const token = authHeader.slice(7).trim();
+  return token || null;
+}
+
+/**
+ * Verify a JWT Bearer token and return the user from the database.
+ */
+async function verifyBearerToken(token: string): Promise<CurrentUserResult | null> {
+  try {
+    const { payload } = await jwtVerify(token, getJwtSecretKey(), { algorithms: ["HS256"] });
+
+    if (!payload.sub || typeof payload.sub !== "string") {
+      return null;
+    }
+
+    // Fetch user from database
+    const [dbUser] = await db
+      .select()
+      .from(schema.users)
+      .where(eq(schema.users.id, payload.sub))
+      .limit(1);
+
+    if (!dbUser) {
+      return null;
+    }
+
+    // Convert to User type expected by Better Auth
+    const user: User = {
+      id: dbUser.id,
+      email: dbUser.email,
+      emailVerified: dbUser.emailVerified ?? false,
+      name: dbUser.name ?? "",
+      image: dbUser.image ?? null,
+      createdAt: dbUser.createdAt,
+      updatedAt: dbUser.updatedAt,
+    };
+
+    return {
+      headers: null,
+      session: null, // No session for Bearer token auth
+      status: 200,
+      user,
+    };
+  } catch {
+    return null;
+  }
+}
+
 export async function getCurrentUser(request: Request): Promise<CurrentUserResult | null> {
   try {
+    // First, check for Bearer token authentication
+    const bearerToken = extractBearerToken(request);
+    if (bearerToken) {
+      const bearerResult = await verifyBearerToken(bearerToken);
+      if (bearerResult) {
+        return bearerResult;
+      }
+      // If Bearer token is invalid, return unauthorized (don't fall through to cookies)
+      return {
+        headers: null,
+        session: null,
+        status: 401,
+        user: null,
+      };
+    }
+
+    // Fall back to session cookie authentication
     const result = (await auth.api.getSession({
       headers: request.headers,
       returnHeaders: true,

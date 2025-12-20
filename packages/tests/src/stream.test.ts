@@ -1,13 +1,77 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, beforeAll } from "vitest";
 
-import { streamText } from "./http.js";
+import { postJson, randomEmail, randomPassword, streamText } from "./http.js";
 
 describe("Chat Stream", () => {
+  const testEmail = randomEmail();
+  const testPassword = randomPassword();
+  let bearerToken: string = "";
+
+  beforeAll(async () => {
+    // Sign up a test user
+    const signUpResponse = await postJson<{
+      success?: boolean;
+      requiresVerification?: boolean;
+      devToken?: string;
+      email?: string;
+    }>("/api/auth/email-password/sign-up", {
+      email: testEmail,
+      password: testPassword,
+      name: "Stream Test User",
+    });
+
+    expect([200, 201]).toContain(signUpResponse.status);
+
+    // If verification is required, verify the email
+    if (signUpResponse.data.requiresVerification) {
+      let devToken = signUpResponse.data.devToken;
+
+      // If devToken wasn't returned in sign-up, request verification email to get it
+      if (!devToken) {
+        const verifyRequestResponse = await postJson<{ ok: boolean; devToken?: string }>(
+          "/api/auth/email/verify/request",
+          { email: testEmail }
+        );
+        expect(verifyRequestResponse.status).toBe(200);
+        devToken = verifyRequestResponse.data.devToken;
+      }
+
+      // Verify the email with the token
+      if (devToken) {
+        const verifyResponse = await postJson("/api/auth/email/verify/confirm", {
+          token: devToken,
+        });
+        expect(verifyResponse.status).toBe(200);
+      } else {
+        throw new Error(
+          "Email verification is required but no devToken was provided. " +
+          "Set ALLOW_DEV_TOKENS=true in CI environment for integration tests."
+        );
+      }
+    }
+
+    // Obtain a bearer token
+    const tokenResponse = await postJson<{ token: string; user: { id: string; email: string } }>(
+      "/api/auth/token",
+      {
+        email: testEmail,
+        password: testPassword,
+      }
+    );
+
+    expect(tokenResponse.status).toBe(200);
+    expect(tokenResponse.data.token).toBeDefined();
+    bearerToken = tokenResponse.data.token;
+  });
+
   it("should stream multiple chunks from /api/chat/stream via POST", async () => {
     const response = await streamText("/api/chat/stream", {
       method: "POST",
       body: JSON.stringify({ prompt: "integration test" }),
       maxChunks: 5,
+      headers: {
+        Authorization: `Bearer ${bearerToken}`,
+      },
     });
 
     expect(response.status).toBe(200);
@@ -35,7 +99,11 @@ describe("Chat Stream", () => {
     const BASE_URL = process.env.TEST_BASE_URL ?? "http://localhost:3000";
     const url = `${BASE_URL}/api/chat/stream?prompt=hello`;
 
-    const response = await fetch(url);
+    const response = await fetch(url, {
+      headers: {
+        Authorization: `Bearer ${bearerToken}`,
+      },
+    });
     expect(response.status).toBe(200);
 
     const contentType = response.headers.get("Content-Type");
@@ -68,6 +136,9 @@ describe("Chat Stream", () => {
       method: "POST",
       body: JSON.stringify({ prompt: "short test" }),
       maxChunks: 20, // Get more chunks to ensure we see the done marker
+      headers: {
+        Authorization: `Bearer ${bearerToken}`,
+      },
     });
 
     expect(response.status).toBe(200);
@@ -80,5 +151,16 @@ describe("Chat Stream", () => {
 
     // Verify we got actual content
     expect(allText.length).toBeGreaterThan(10);
+  });
+
+  it("should return 401 without authentication", async () => {
+    const response = await streamText("/api/chat/stream", {
+      method: "POST",
+      body: JSON.stringify({ prompt: "unauthorized test" }),
+      maxChunks: 1,
+      // No Authorization header
+    });
+
+    expect(response.status).toBe(401);
   });
 });

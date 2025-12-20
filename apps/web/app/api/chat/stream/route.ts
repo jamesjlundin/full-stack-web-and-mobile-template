@@ -10,9 +10,11 @@ import { withTrace, logLlmCall } from "@acme/obs";
 import { createRateLimiter } from "@acme/security";
 import { NextRequest } from "next/server";
 
-import { withRateLimit } from "../../_lib/withRateLimit";
+import { withUserRateLimit } from "../../_lib/withUserRateLimit";
 
-// Rate limiter: 10 requests per 60 seconds per IP
+import type { CurrentUserResult } from "@acme/auth";
+
+// Rate limiter: 10 requests per 60 seconds per user
 const chatStreamLimiter = createRateLimiter({
   limit: 10,
   windowMs: 60_000,
@@ -22,7 +24,10 @@ const chatStreamLimiter = createRateLimiter({
 const ajvConfig = configureAjv();
 const _chatResponseValidator = ajvConfig.getValidator("chatResponse");
 
-async function handleRequest(request: NextRequest) {
+async function handleRequest(
+  request: NextRequest,
+  _user: NonNullable<CurrentUserResult>
+) {
   // Parse request body for provider/model selection
   let requestProvider: string | undefined;
   let requestModel: string | undefined;
@@ -125,5 +130,5 @@ async function handleRequest(request: NextRequest) {
   return response!;
 }
 
-export const GET = withRateLimit("/api/chat/stream", chatStreamLimiter, handleRequest);
-export const POST = withRateLimit("/api/chat/stream", chatStreamLimiter, handleRequest);
+export const GET = withUserRateLimit("/api/chat/stream", chatStreamLimiter, handleRequest);
+export const POST = withUserRateLimit("/api/chat/stream", chatStreamLimiter, handleRequest);

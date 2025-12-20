@@ -29,6 +29,10 @@ jobs:
       APP_BASE_URL: http://localhost:3000
       AI_MODEL: gpt-4o-mini
       # OPENAI_API_KEY not required; stream will use mock fallback if absent
+      # Enable dev token echoing for email verification in tests
+      ALLOW_DEV_TOKENS: true
+      # Disable rate limiting entirely for integration tests
+      DISABLE_RATE_LIMIT: "true"
 
     steps:
       - name: Checkout repository
