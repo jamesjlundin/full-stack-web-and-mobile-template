@@ -33,6 +33,10 @@ jobs:
       RATE_LIMIT_MULTIPLIER: 10
       # Enable dev token echoing for email verification in tests
       ALLOW_DEV_TOKENS: true
+      # Disable Redis rate limiting in CI to use fresh in-memory storage per run
+      # (prevents stale rate limit data from Upstash if secrets are configured)
+      UPSTASH_REDIS_REST_URL: ""
+      UPSTASH_REDIS_REST_TOKEN: ""
 
     steps:
       - name: Checkout repository
