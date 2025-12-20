@@ -1,6 +1,7 @@
 import { Github, Linkedin } from "lucide-react";
 import { cookies, headers } from "next/headers";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 
 import { AppShell } from "@/components/layout";
 import { Badge } from "@/components/ui/badge";
@@ -41,10 +42,15 @@ async function getAuthStatus(): Promise<AuthStatus> {
 }
 
 export default async function HomePage() {
-  const { isAuthenticated, email, name } = await getAuthStatus();
+  const { isAuthenticated } = await getAuthStatus();
+
+  // Redirect logged-in users to the app home page
+  if (isAuthenticated) {
+    redirect("/app/home");
+  }
 
   return (
-    <AppShell user={isAuthenticated ? { email, name } : null}>
+    <AppShell user={null}>
       <div className="container flex flex-col items-center justify-center min-h-[calc(100vh-3.5rem)] py-12 text-center">
         <Badge variant="secondary" className="mb-4">
           Full-Stack Template
@@ -60,28 +66,12 @@ export default async function HomePage() {
         </p>
 
         <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
-          {isAuthenticated ? (
-            <>
-              <p className="w-full text-center text-green-600 dark:text-green-400 mb-2">
-                Welcome back{email ? `, ${email}` : ""}!
-              </p>
-              <Button size="lg" asChild>
-                <Link href="/app/home">Enter App</Link>
-              </Button>
-              <Button size="lg" variant="outline" asChild>
-                <Link href="/agent">AI Agent Demo</Link>
-              </Button>
-            </>
-          ) : (
-            <>
-              <Button size="lg" asChild>
-                <Link href="/register">Create account</Link>
-              </Button>
-              <Button size="lg" variant="outline" asChild>
-                <Link href="/login">Sign in</Link>
-              </Button>
-            </>
-          )}
+          <Button size="lg" asChild>
+            <Link href="/register">Create account</Link>
+          </Button>
+          <Button size="lg" variant="outline" asChild>
+            <Link href="/login">Sign in</Link>
+          </Button>
         </div>
 
         {/* Creator Branding - Remove this section when using this template */}

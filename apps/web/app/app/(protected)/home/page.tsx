@@ -1,4 +1,4 @@
-import { Home, RefreshCw, ArrowLeft } from "lucide-react";
+import { Home, Bot } from "lucide-react";
 import Link from "next/link";
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -52,15 +52,9 @@ export default async function ProtectedHomePage() {
 
             <div className="flex flex-wrap gap-3">
               <Button variant="outline" asChild>
-                <Link href="/">
-                  <ArrowLeft className="mr-2 h-4 w-4" />
-                  Back to Home
-                </Link>
-              </Button>
-              <Button variant="outline" asChild>
-                <Link href="/app/home">
-                  <RefreshCw className="mr-2 h-4 w-4" />
-                  Refresh
+                <Link href="/agent">
+                  <Bot className="mr-2 h-4 w-4" />
+                  AI Agent Demo
                 </Link>
               </Button>
               <SignOutButton />
