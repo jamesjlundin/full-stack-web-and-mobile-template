@@ -10,6 +10,7 @@ import { GoogleSignInButton } from "@/components/auth/google-sign-in-button";
 import { AppShell } from "@/components/layout";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
+import { getSafeRedirectUrl } from "@/lib/utils";
 import {
   Card,
   CardContent,
@@ -31,7 +32,7 @@ function RegisterForm() {
   const [loading, setLoading] = useState(false);
   const [isGoogleAuthEnabled, setIsGoogleAuthEnabled] = useState(false);
 
-  const nextUrl = searchParams.get("next") || "/app/home";
+  const nextUrl = getSafeRedirectUrl(searchParams.get("next"));
   const googleError = searchParams.get("error") === "google";
 
   useEffect(() => {
