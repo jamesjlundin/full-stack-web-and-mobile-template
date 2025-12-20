@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { FormEvent, useState, useEffect, Suspense } from "react";
 import { toast } from "sonner";
 
+import { useUser } from "@/app/_components/useUser";
 import { DividerWithText } from "@/components/auth/divider-with-text";
 import { GoogleSignInButton } from "@/components/auth/google-sign-in-button";
 import { AppShell } from "@/components/layout";
@@ -26,6 +27,7 @@ import { getSafeRedirectUrl } from "@/lib/utils";
 function RegisterForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { user, loading: userLoading } = useUser();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -34,6 +36,13 @@ function RegisterForm() {
 
   const nextUrl = getSafeRedirectUrl(searchParams.get("next"));
   const googleError = searchParams.get("error") === "google";
+
+  // Redirect authenticated users to app home
+  useEffect(() => {
+    if (!userLoading && user) {
+      router.replace("/app/home");
+    }
+  }, [user, userLoading, router]);
 
   useEffect(() => {
     fetch("/api/config")
@@ -102,6 +111,25 @@ function RegisterForm() {
       setLoading(false);
     }
   };
+
+  // Show loading state while checking authentication
+  if (userLoading || user) {
+    return (
+      <AppShell>
+        <div className="container flex items-center justify-center min-h-[calc(100vh-3.5rem)] py-12">
+          <Card className="w-full max-w-md min-h-[440px]">
+            <CardHeader className="space-y-1">
+              <CardTitle className="text-2xl font-bold">Create an account</CardTitle>
+              <CardDescription>Loading...</CardDescription>
+            </CardHeader>
+            <CardContent className="flex justify-center py-8">
+              <Spinner size="lg" />
+            </CardContent>
+          </Card>
+        </div>
+      </AppShell>
+    );
+  }
 
   return (
     <AppShell>
