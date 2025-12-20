@@ -1,7 +1,12 @@
 /**
- * In-memory rate limiter using a sliding window algorithm.
- * Suitable for development; in production consider Redis-backed storage.
+ * Rate limiter with Upstash Redis support for serverless environments.
+ * Falls back to in-memory storage for local development when Redis is not configured.
+ *
+ * @see https://upstash.com/docs/redis/sdks/ratelimit-ts/overview
  */
+
+import { Ratelimit } from "@upstash/ratelimit";
+import { Redis } from "@upstash/redis";
 
 export interface RateLimiterConfig {
   /** Maximum number of requests allowed in the window */
@@ -19,72 +24,163 @@ export interface RateLimitResult {
   resetAt: number;
 }
 
+/**
+ * Check if Upstash Redis is configured via environment variables.
+ */
+function isRedisConfigured(): boolean {
+  return !!(
+    process.env.UPSTASH_REDIS_REST_URL &&
+    process.env.UPSTASH_REDIS_REST_TOKEN
+  );
+}
+
+/**
+ * In-memory storage for fallback when Redis is not available.
+ * Used for local development only.
+ */
 interface WindowEntry {
   timestamps: number[];
 }
 
-/**
- * Creates a rate limiter instance with in-memory storage.
- * Uses a sliding window algorithm to track requests.
- */
-export function createRateLimiter(config: RateLimiterConfig) {
-  const { limit, windowMs } = config;
-  const store = new Map<string, WindowEntry>();
+const inMemoryStore = new Map<string, WindowEntry>();
 
-  // Periodically clean up expired entries to prevent memory leaks
+// Set up cleanup interval for in-memory store (only once)
+let cleanupInitialized = false;
+
+function initializeInMemoryCleanup(windowMs: number) {
+  if (cleanupInitialized) return;
+  cleanupInitialized = true;
+
   const cleanupInterval = setInterval(() => {
     const now = Date.now();
-    for (const [key, entry] of store.entries()) {
-      // Remove timestamps outside the window
+    for (const [key, entry] of inMemoryStore.entries()) {
       entry.timestamps = entry.timestamps.filter((ts) => now - ts < windowMs);
-      // Remove entry if no timestamps remain
       if (entry.timestamps.length === 0) {
-        store.delete(key);
+        inMemoryStore.delete(key);
       }
     }
   }, windowMs);
 
-  // Allow cleanup interval to not keep process alive
   if (cleanupInterval.unref) {
     cleanupInterval.unref();
   }
+}
 
-  /**
-   * Check if a request is allowed for the given key.
-   * @param key Unique identifier (e.g., `${route}:${ip}`)
-   */
+/**
+ * In-memory rate limit check for local development.
+ */
+async function checkInMemory(
+  key: string,
+  limit: number,
+  windowMs: number
+): Promise<RateLimitResult> {
+  initializeInMemoryCleanup(windowMs);
+
+  const now = Date.now();
+  const windowStart = now - windowMs;
+
+  let entry = inMemoryStore.get(key);
+  if (!entry) {
+    entry = { timestamps: [] };
+    inMemoryStore.set(key, entry);
+  }
+
+  entry.timestamps = entry.timestamps.filter((ts) => ts > windowStart);
+
+  const currentCount = entry.timestamps.length;
+  const resetAt = now + windowMs;
+
+  if (currentCount >= limit) {
+    return {
+      allowed: false,
+      remaining: 0,
+      resetAt,
+    };
+  }
+
+  entry.timestamps.push(now);
+
+  return {
+    allowed: true,
+    remaining: limit - currentCount - 1,
+    resetAt,
+  };
+}
+
+// Cache for Ratelimit instances (one per config)
+const rateLimiterCache = new Map<string, Ratelimit>();
+
+/**
+ * Get or create an Upstash Ratelimit instance.
+ * Instances are cached to enable request coalescing and analytics.
+ */
+function getOrCreateRatelimiter(
+  limit: number,
+  windowSeconds: number
+): Ratelimit {
+  const cacheKey = `${limit}:${windowSeconds}`;
+
+  let ratelimiter = rateLimiterCache.get(cacheKey);
+  if (ratelimiter) {
+    return ratelimiter;
+  }
+
+  const redis = Redis.fromEnv();
+
+  ratelimiter = new Ratelimit({
+    redis,
+    limiter: Ratelimit.slidingWindow(limit, `${windowSeconds} s`),
+    analytics: true,
+    prefix: "ratelimit",
+  });
+
+  rateLimiterCache.set(cacheKey, ratelimiter);
+  return ratelimiter;
+}
+
+/**
+ * Creates a rate limiter instance.
+ *
+ * In production (with Upstash Redis configured):
+ * - Uses Redis-backed sliding window algorithm
+ * - Persists across serverless invocations
+ * - Supports distributed rate limiting
+ *
+ * In development (without Redis):
+ * - Falls back to in-memory storage
+ * - Logs a warning on first use
+ * - Suitable for local testing only
+ */
+export function createRateLimiter(config: RateLimiterConfig) {
+  const { limit, windowMs } = config;
+  const windowSeconds = Math.ceil(windowMs / 1000);
+
+  const useRedis = isRedisConfigured();
+
+  // Log once on first check if using fallback
+  let hasLoggedFallback = false;
+
   async function check(key: string): Promise<RateLimitResult> {
-    const now = Date.now();
-    const windowStart = now - windowMs;
-
-    let entry = store.get(key);
-    if (!entry) {
-      entry = { timestamps: [] };
-      store.set(key, entry);
+    // Use in-memory fallback if Redis is not configured
+    if (!useRedis) {
+      if (!hasLoggedFallback) {
+        console.warn(
+          "[RateLimit] Upstash Redis not configured (UPSTASH_REDIS_REST_URL, UPSTASH_REDIS_REST_TOKEN). " +
+            "Using in-memory fallback. This is fine for local development but will NOT work correctly in serverless production."
+        );
+        hasLoggedFallback = true;
+      }
+      return checkInMemory(key, limit, windowMs);
     }
 
-    // Filter out timestamps outside the current window
-    entry.timestamps = entry.timestamps.filter((ts) => ts > windowStart);
-
-    const currentCount = entry.timestamps.length;
-    const resetAt = now + windowMs;
-
-    if (currentCount >= limit) {
-      // Rate limit exceeded
-      return {
-        allowed: false,
-        remaining: 0,
-        resetAt,
-      };
-    }
-
-    // Add current request timestamp
-    entry.timestamps.push(now);
+    // Use Upstash Redis
+    const ratelimiter = getOrCreateRatelimiter(limit, windowSeconds);
+    const { success, remaining, reset } = await ratelimiter.limit(key);
 
     return {
-      allowed: true,
-      remaining: limit - currentCount - 1,
-      resetAt,
+      allowed: success,
+      remaining,
+      resetAt: reset,
     };
   }
 

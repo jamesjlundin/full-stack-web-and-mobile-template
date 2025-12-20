@@ -1,11 +1,16 @@
 import auth from "@acme/auth";
 import { db, schema } from "@acme/db";
+import { createRateLimiter } from "@acme/security";
 import { eq } from "drizzle-orm";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
+import { withRateLimit } from "../../../_lib/withRateLimit";
 import { signAuthToken } from "../../../../lib/jwt";
 
 const isEmailVerificationRequired = !!process.env.RESEND_API_KEY;
+
+// Rate limit: 5 requests per 60 seconds per IP (same as other auth endpoints)
+const tokenLimiter = createRateLimiter({ limit: 5, windowMs: 60_000 });
 
 async function authenticateUser(email: string, password: string) {
   try {
@@ -27,7 +32,7 @@ async function authenticateUser(email: string, password: string) {
   }
 }
 
-export async function POST(request: Request) {
+async function handler(request: NextRequest) {
   let body: unknown;
 
   try {
@@ -78,3 +83,5 @@ export async function POST(request: Request) {
     },
   });
 }
+
+export const POST = withRateLimit("/api/auth/token", tokenLimiter, handler);

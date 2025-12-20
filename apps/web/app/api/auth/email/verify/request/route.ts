@@ -1,7 +1,12 @@
 import { auth, getDevToken, consumeTokenForEmail } from "@acme/auth";
-import { NextResponse } from "next/server";
+import { createRateLimiter } from "@acme/security";
+import { NextRequest, NextResponse } from "next/server";
 
 import { sendVerificationEmail } from "@/app/api/_lib/mailer";
+import { withRateLimit } from "@/app/api/_lib/withRateLimit";
+
+// Rate limit: 3 requests per 60 seconds per IP (stricter to prevent email spam)
+const verifyRequestLimiter = createRateLimiter({ limit: 3, windowMs: 60_000 });
 
 /**
  * POST /api/auth/email/verify/request
@@ -13,7 +18,7 @@ import { sendVerificationEmail } from "@/app/api/_lib/mailer";
  * - PRODUCTION with RESEND_DRY_RUN=1: Logs email payload, returns { ok: true, devNote: "dry_run: email payload logged" }.
  * - PRODUCTION without RESEND_API_KEY: Returns error (email not configured).
  */
-export async function POST(request: Request) {
+async function handler(request: NextRequest) {
   // Check if dev token echoing is allowed (dev mode OR ALLOW_DEV_TOKENS=true for testing)
   const isDevTokenAllowed = process.env.NODE_ENV !== "production" || process.env.ALLOW_DEV_TOKENS === "true";
   const isProduction = process.env.NODE_ENV === "production";
@@ -96,3 +101,5 @@ export async function POST(request: Request) {
     );
   }
 }
+
+export const POST = withRateLimit("/api/auth/email/verify/request", verifyRequestLimiter, handler);

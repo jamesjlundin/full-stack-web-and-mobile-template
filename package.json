@@ -21,7 +21,6 @@
   },
   "devDependencies": {
     "@better-auth/cli": "^1.4.7",
-    "wait-on": "^7.0.1",
     "@eslint/js": "^9.39.1",
     "@types/node": "^25.0.0",
     "@types/pg": "^8.11.10",
@@ -38,10 +37,13 @@
     "tsx": "^4.19.1",
     "turbo": "^2.6.3",
     "typescript": "^5.9.3",
-    "typescript-eslint": "^8.49.0"
+    "typescript-eslint": "^8.49.0",
+    "wait-on": "^7.0.1"
   },
   "dependencies": {
     "@ai-sdk/openai": "^2.0.88",
+    "@upstash/ratelimit": "^2.0.7",
+    "@upstash/redis": "^1.35.8",
     "ai": "^5.0.115"
   }
 }
