@@ -4,8 +4,8 @@ import { createRateLimiter } from "@acme/security";
 import { eq } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
 
-import { withRateLimit } from "../../../_lib/withRateLimit";
 import { signAuthToken } from "../../../../lib/jwt";
+import { withRateLimit } from "../../_lib/withRateLimit";
 
 const isEmailVerificationRequired = !!process.env.RESEND_API_KEY;
 

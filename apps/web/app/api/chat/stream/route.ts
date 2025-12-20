@@ -6,12 +6,13 @@ import {
   attachVersionHeaders,
   schemas,
 } from "@acme/ai";
-import type { CurrentUserResult } from "@acme/auth";
 import { withTrace, logLlmCall } from "@acme/obs";
 import { createRateLimiter } from "@acme/security";
 import { NextRequest } from "next/server";
 
 import { withUserRateLimit } from "../../_lib/withUserRateLimit";
+
+import type { CurrentUserResult } from "@acme/auth";
 
 // Rate limiter: 10 requests per 60 seconds per user
 const chatStreamLimiter = createRateLimiter({
