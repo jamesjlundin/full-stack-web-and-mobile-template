@@ -107,10 +107,17 @@ function getAuth() {
   const googleClientSecret = process.env.GOOGLE_CLIENT_SECRET;
   const isGoogleAuthEnabled = !!(googleClientId && googleClientSecret);
 
+  // Disable rate limiting when DISABLE_RATE_LIMIT is set (for CI/testing)
+  const disableRateLimit = process.env.DISABLE_RATE_LIMIT === "true";
+
   _auth = betterAuth({
     baseURL,
     secret,
     trustedOrigins,
+    // Disable Better Auth's built-in rate limiting for CI/testing
+    rateLimit: {
+      enabled: !disableRateLimit,
+    },
     emailAndPassword: {
       enabled: true,
       sendResetPassword: async ({ user, url, token }) => {
