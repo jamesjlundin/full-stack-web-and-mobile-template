@@ -16,6 +16,14 @@ export interface RateLimiterConfig {
 }
 
 /**
+ * Check if rate limiting should be disabled entirely.
+ * Useful for CI/testing environments.
+ */
+function isRateLimitDisabled(): boolean {
+  return process.env.DISABLE_RATE_LIMIT === "true";
+}
+
+/**
  * Get the rate limit multiplier from environment.
  * Allows CI/testing to use higher limits without changing code.
  * Set RATE_LIMIT_MULTIPLIER=10 to allow 10x more requests.
@@ -175,13 +183,19 @@ export function createRateLimiter(config: RateLimiterConfig) {
   let hasLoggedFallback = false;
 
   async function check(key: string): Promise<RateLimitResult> {
+    // Allow completely disabling rate limiting for CI/testing
+    if (isRateLimitDisabled()) {
+      return {
+        allowed: true,
+        remaining: 999,
+        resetAt: Date.now() + windowMs,
+      };
+    }
+
     // Read multiplier at request time, not build time
     const multiplier = getRateLimitMultiplier();
     const limit = baseLimit * multiplier;
     const useRedis = isRedisConfigured();
-
-    // Debug logging for CI troubleshooting
-    console.log(`[RateLimit] key=${key} baseLimit=${baseLimit} multiplier=${multiplier} limit=${limit} useRedis=${useRedis}`);
 
     // Use in-memory fallback if Redis is not configured
     if (!useRedis) {

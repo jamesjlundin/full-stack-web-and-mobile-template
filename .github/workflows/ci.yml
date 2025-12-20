@@ -29,14 +29,10 @@ jobs:
       APP_BASE_URL: http://localhost:3000
       AI_MODEL: gpt-4o-mini
       # OPENAI_API_KEY not required; stream will use mock fallback if absent
-      # Allow 100x rate limits for integration tests (multiple test suites create users)
-      RATE_LIMIT_MULTIPLIER: "100"
       # Enable dev token echoing for email verification in tests
       ALLOW_DEV_TOKENS: true
-      # Disable Redis rate limiting in CI to use fresh in-memory storage per run
-      # (prevents stale rate limit data from Upstash if secrets are configured)
-      UPSTASH_REDIS_REST_URL: ""
-      UPSTASH_REDIS_REST_TOKEN: ""
+      # Disable rate limiting entirely for integration tests
+      DISABLE_RATE_LIMIT: "true"
 
     steps:
       - name: Checkout repository
