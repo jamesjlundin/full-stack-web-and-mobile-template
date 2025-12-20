@@ -68,6 +68,7 @@ If you want users to sign in with their Google account:
 | `APP_BASE_URL` | `https://your-project.vercel.app` (your Vercel URL) |
 | `RESEND_API_KEY` | Your Resend API key from step 4 |
 | `MAIL_FROM` | Your verified domain email or `onboarding@resend.dev` |
+| `CRON_SECRET` | Random string for cron auth (run `openssl rand -hex 32` in terminal) |
 
 **Optional** (add if using these features):
 
@@ -308,6 +309,7 @@ When running `pnpm db:up`, pgweb is available at [http://localhost:8081](http://
 | `DATABASE_URL` | PostgreSQL connection string (e.g., `postgres://user:pass@host:5432/db`) |
 | `BETTER_AUTH_SECRET` | Secret key for auth tokens (minimum 32 characters) |
 | `APP_BASE_URL` | Base URL for auth and email links (e.g., `https://your-app.vercel.app`) |
+| `CRON_SECRET` | Secret for cron job auth (generate with `openssl rand -hex 32`). Vercel sends this as `Authorization: Bearer` header. |
 
 ### Application URLs
 

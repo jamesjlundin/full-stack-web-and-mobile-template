@@ -1,58 +1,100 @@
+import { timingSafeEqual } from "crypto";
 import { NextResponse } from "next/server";
 
 /**
  * Cron authentication guard utilities
  *
- * Verifies cron requests using dual-accept strategy:
- * 1. x-cron-secret header matches CRON_SECRET env var
- * 2. Vercel Cron header (if available in runtime)
+ * Verifies cron requests using Vercel's official authentication mechanism:
+ * - Authorization: Bearer {CRON_SECRET} header (set automatically by Vercel)
+ * - x-cron-secret header (for manual triggers and local development)
  *
- * Use for all cron route handlers to prevent unauthorized access.
+ * IMPORTANT: The x-vercel-cron header is NOT used for authentication.
+ * It is informational only and can be easily spoofed by attackers.
+ *
+ * @see https://vercel.com/docs/cron-jobs/manage-cron-jobs
  */
 
 /**
- * Default secret for local development (override in production!)
+ * Get the configured cron secret.
+ * Returns null if not configured in production (which will block all cron requests).
  */
-const DEFAULT_CRON_SECRET = "dev-secret";
+function getCronSecret(): string | null {
+  const secret = process.env.CRON_SECRET;
 
-/**
- * Get the configured cron secret
- */
-function getCronSecret(): string {
-  return process.env.CRON_SECRET || DEFAULT_CRON_SECRET;
+  // In production, CRON_SECRET must be set - fail closed
+  if (process.env.NODE_ENV === "production" && !secret) {
+    console.error(
+      "[SECURITY] CRON_SECRET is not set in production. All cron requests will be rejected. " +
+        "Set CRON_SECRET environment variable with: openssl rand -hex 32"
+    );
+    return null;
+  }
+
+  // In development without CRON_SECRET, allow a local-only fallback
+  // This only works for local testing and logs a warning
+  if (!secret) {
+    console.warn(
+      "[DEV] CRON_SECRET not set. Using insecure development fallback. " +
+        "This will NOT work in production."
+    );
+    return "dev-secret-local-only";
+  }
+
+  return secret;
 }
 
 /**
- * Check if request has valid cron authorization
+ * Constant-time string comparison to prevent timing attacks.
+ * Returns false if strings have different lengths or don't match.
+ */
+function secureCompare(a: string, b: string): boolean {
+  if (a.length !== b.length) {
+    return false;
+  }
+  try {
+    return timingSafeEqual(Buffer.from(a, "utf8"), Buffer.from(b, "utf8"));
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Check if request has valid cron authorization.
  *
- * Accepts either:
- * - x-cron-secret header matching CRON_SECRET
- * - Vercel's automatic cron authorization header
+ * Accepts authentication via:
+ * 1. Authorization: Bearer {CRON_SECRET} - Vercel's official method
+ * 2. x-cron-secret: {CRON_SECRET} - For manual triggers and local development
+ *
+ * SECURITY NOTE: The x-vercel-cron header is NOT used for authentication.
+ * While Vercel sets this header to "true" for cron-triggered requests,
+ * it can be trivially spoofed by attackers and provides no security.
+ * Always rely on CRON_SECRET validation.
  *
  * @param request - Incoming request
  * @returns true if authorized, false otherwise
  */
 export function isCronAuthorized(request: Request): boolean {
-  // Check custom cron secret header (for manual triggers and local dev)
-  const cronSecret = request.headers.get("x-cron-secret");
-  if (cronSecret && cronSecret === getCronSecret()) {
-    return true;
+  const cronSecret = getCronSecret();
+
+  // If no secret is configured (production without CRON_SECRET), reject all requests
+  if (!cronSecret) {
+    return false;
   }
 
-  // Check Vercel's automatic cron authorization header
-  // Vercel sets this header automatically for cron-triggered requests
-  const vercelCronAuth = request.headers.get("authorization");
-  const expectedVercelAuth = `Bearer ${getCronSecret()}`;
-  if (vercelCronAuth && vercelCronAuth === expectedVercelAuth) {
-    return true;
+  // Method 1: Check Authorization: Bearer header (Vercel's official method)
+  // Vercel automatically sends: Authorization: Bearer {CRON_SECRET}
+  const authHeader = request.headers.get("authorization");
+  if (authHeader) {
+    const match = authHeader.match(/^Bearer\s+(.+)$/i);
+    const token = match?.[1];
+    if (token && secureCompare(token, cronSecret)) {
+      return true;
+    }
   }
 
-  // Vercel also may set x-vercel-cron header for cron requests
-  // This is set to "true" when the request comes from Vercel Cron
-  const vercelCronHeader = request.headers.get("x-vercel-cron");
-  if (vercelCronHeader === "true") {
-    // Still require CRON_SECRET to be set in production for security
-    // but if x-vercel-cron is present, we know it's from Vercel's scheduler
+  // Method 2: Check x-cron-secret header (for manual triggers and local dev)
+  const customSecret = request.headers.get("x-cron-secret");
+  if (customSecret && secureCompare(customSecret, cronSecret)) {
     return true;
   }
 
@@ -60,7 +102,7 @@ export function isCronAuthorized(request: Request): boolean {
 }
 
 /**
- * Verify cron request and return error response if unauthorized
+ * Verify cron request and return error response if unauthorized.
  *
  * Use at the start of cron route handlers:
  * @example
@@ -98,7 +140,7 @@ export function verifyCronRequest(request: Request): NextResponse | null {
 }
 
 /**
- * Create a standard cron response
+ * Create a standard cron response.
  *
  * @param job - Job name
  * @param data - Additional response data
