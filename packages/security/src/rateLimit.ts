@@ -15,6 +15,18 @@ export interface RateLimiterConfig {
   windowMs: number;
 }
 
+/**
+ * Get the rate limit multiplier from environment.
+ * Allows CI/testing to use higher limits without changing code.
+ * Set RATE_LIMIT_MULTIPLIER=10 to allow 10x more requests.
+ */
+function getRateLimitMultiplier(): number {
+  const multiplier = process.env.RATE_LIMIT_MULTIPLIER;
+  if (!multiplier) return 1;
+  const parsed = parseInt(multiplier, 10);
+  return isNaN(parsed) || parsed < 1 ? 1 : parsed;
+}
+
 export interface RateLimitResult {
   /** Whether the request is allowed */
   allowed: boolean;
@@ -152,7 +164,9 @@ function getOrCreateRatelimiter(
  * - Suitable for local testing only
  */
 export function createRateLimiter(config: RateLimiterConfig) {
-  const { limit, windowMs } = config;
+  const multiplier = getRateLimitMultiplier();
+  const limit = config.limit * multiplier;
+  const windowMs = config.windowMs;
   const windowSeconds = Math.ceil(windowMs / 1000);
 
   const useRedis = isRedisConfigured();
