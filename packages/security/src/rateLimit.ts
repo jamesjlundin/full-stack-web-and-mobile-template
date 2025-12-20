@@ -180,6 +180,9 @@ export function createRateLimiter(config: RateLimiterConfig) {
     const limit = baseLimit * multiplier;
     const useRedis = isRedisConfigured();
 
+    // Debug logging for CI troubleshooting
+    console.log(`[RateLimit] key=${key} baseLimit=${baseLimit} multiplier=${multiplier} limit=${limit} useRedis=${useRedis}`);
+
     // Use in-memory fallback if Redis is not configured
     if (!useRedis) {
       if (!hasLoggedFallback) {
