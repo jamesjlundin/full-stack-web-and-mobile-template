@@ -162,19 +162,24 @@ function getOrCreateRatelimiter(
  * - Falls back to in-memory storage
  * - Logs a warning on first use
  * - Suitable for local testing only
+ *
+ * Note: The RATE_LIMIT_MULTIPLIER env var is read at request time (not build time)
+ * to allow CI/testing to use higher limits without rebuilding.
  */
 export function createRateLimiter(config: RateLimiterConfig) {
-  const multiplier = getRateLimitMultiplier();
-  const limit = config.limit * multiplier;
+  const baseLimit = config.limit;
   const windowMs = config.windowMs;
   const windowSeconds = Math.ceil(windowMs / 1000);
-
-  const useRedis = isRedisConfigured();
 
   // Log once on first check if using fallback
   let hasLoggedFallback = false;
 
   async function check(key: string): Promise<RateLimitResult> {
+    // Read multiplier at request time, not build time
+    const multiplier = getRateLimitMultiplier();
+    const limit = baseLimit * multiplier;
+    const useRedis = isRedisConfigured();
+
     // Use in-memory fallback if Redis is not configured
     if (!useRedis) {
       if (!hasLoggedFallback) {
@@ -198,5 +203,11 @@ export function createRateLimiter(config: RateLimiterConfig) {
     };
   }
 
-  return { check, limit };
+  // Return limit as a getter so it reads the multiplier at access time
+  return {
+    check,
+    get limit() {
+      return baseLimit * getRateLimitMultiplier();
+    },
+  };
 }
