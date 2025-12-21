@@ -28,6 +28,7 @@ function RegisterForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user, loading: userLoading } = useUser();
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -66,7 +67,7 @@ function RegisterForm() {
       const signupResponse = await fetch("/api/auth/email-password/sign-up", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ name, email, password }),
         credentials: "include",
       });
 
@@ -138,7 +139,7 @@ function RegisterForm() {
           <CardHeader className="space-y-1">
             <CardTitle className="text-2xl font-bold">Create an account</CardTitle>
             <CardDescription>
-              Enter your email and create a password to get started
+              Enter your details to create an account
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -156,6 +157,18 @@ function RegisterForm() {
           </CardContent>
           <form onSubmit={handleSubmit}>
             <CardContent className="space-y-4 pt-0">
+              <div className="space-y-2">
+                <Label htmlFor="name">Name</Label>
+                <Input
+                  id="name"
+                  type="text"
+                  placeholder="Your name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  required
+                  autoComplete="name"
+                />
+              </div>
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
                 <Input

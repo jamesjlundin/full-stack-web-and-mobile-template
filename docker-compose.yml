@@ -23,10 +23,5 @@ services:
     ports:
       - "8081:8081"
 
-networks:
-  default:
-    external: true
-    name: host
-
 volumes:
   postgres_data:

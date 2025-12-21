@@ -1,3 +1,4 @@
+import "dotenv/config";
 import { db, schema } from "@acme/db";
 import { betterAuth, type Session, type User } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";

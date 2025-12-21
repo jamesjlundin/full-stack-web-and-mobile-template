@@ -143,15 +143,17 @@ These secrets allow GitHub Actions to run migrations against your production dat
 git clone https://github.com/YOUR_USERNAME/YOUR_REPO.git
 cd YOUR_REPO
 pnpm install
-cp .env.example .env
+pnpm env:init
 ```
 
-Edit `.env` with local values:
+Edit the root `.env` with your local values:
 ```
 DATABASE_URL=postgres://postgres:postgres@localhost:5432/acme
 BETTER_AUTH_SECRET=local-dev-secret-at-least-32-chars
 APP_BASE_URL=http://localhost:3000
 ```
+
+Then re-run `pnpm env:init` to copy your changes to all packages and apps.
 
 ### 13. Run Locally
 
