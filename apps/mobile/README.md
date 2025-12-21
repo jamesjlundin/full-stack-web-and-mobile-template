@@ -1,81 +1,195 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+# Mobile App
 
-# Getting Started
+A React Native mobile application that connects to the backend API for authentication, user management, and AI chat features.
 
->**Note**: Make sure you have completed the [React Native - Environment Setup](https://reactnative.dev/docs/environment-setup) instructions till "Creating a new application" step, before proceeding.
+## Prerequisites
 
-The app automatically points to `http://localhost:3000` on iOS Simulator and `http://10.0.2.2:3000` on Android Emulator for the web API. If you change the backend host, update the `API_BASE` logic in `src/screens/ChatStream.tsx` accordingly.
+Before you begin, ensure you have the following installed:
 
-## Step 1: Start the Metro Server
+- **Node.js** >= 18
+- **pnpm** >= 9.12.3
+- **Ruby** >= 3.0 (recommended: use [rbenv](https://github.com/rbenv/rbenv))
+- **Xcode** (for iOS development) - Mac only
+- **CocoaPods** >= 1.13, < 1.15
+- **Android Studio** (for Android development)
 
-First, you will need to start **Metro**, the JavaScript _bundler_ that ships _with_ React Native.
+## Quick Start
 
-To start Metro, run the following command from the _root_ of your React Native project:
+### 1. Install Dependencies
 
-```bash
-# using npm
-npm start
-
-# OR using Yarn
-yarn start
-```
-
-## Step 2: Start your Application
-
-Let Metro Bundler run in its _own_ terminal. Open a _new_ terminal from the _root_ of your React Native project. Run the following command to start your _Android_ or _iOS_ app:
-
-### For Android
+From the repository root:
 
 ```bash
-# using npm
-npm run android
-
-# OR using Yarn
-yarn android
+pnpm install
 ```
 
-### For iOS
+### 2. Configure Environment
+
+Initialize and configure environment variables:
 
 ```bash
-# using npm
-npm run ios
-
-# OR using Yarn
-yarn ios
+pnpm env:init
 ```
 
-If everything is set up _correctly_, you should see your new app running in your _Android Emulator_ or _iOS Simulator_ shortly provided you have set up your emulator/simulator correctly.
+Edit the root `.env` file with your configuration (see main README for details).
 
-This is one way to run your app — you can also run it directly from within Android Studio and Xcode respectively.
+### 3. Start the Backend API
 
-## Step 3: Modifying your App
+The mobile app requires the backend to be running:
 
-Now that you have successfully run the app, let's modify it.
+```bash
+pnpm dev
+```
 
-1. Open `App.tsx` in your text editor of choice and edit some lines.
-2. For **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Developer Menu** (<kbd>Ctrl</kbd> + <kbd>M</kbd> (on Window and Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (on macOS)) to see your changes!
+This starts the API server at `http://localhost:3000`.
 
-   For **iOS**: Hit <kbd>Cmd ⌘</kbd> + <kbd>R</kbd> in your iOS Simulator to reload the app and see your changes!
+### 4. iOS Setup (Mac only)
 
-## Congratulations! :tada:
+```bash
+cd apps/mobile/ios
 
-You've successfully run and modified your React Native App. :partying_face:
+# Install Ruby dependencies
+bundle install
 
-### Now what?
+# Install CocoaPods dependencies
+bundle exec pod install
+```
 
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [Introduction to React Native](https://reactnative.dev/docs/getting-started).
+### 5. Android Setup
 
-# Troubleshooting
+Android should work out of the box after running `pnpm install`. Make sure you have:
 
-If you can't get this to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
+- Android Studio installed
+- Android SDK configured
+- An Android emulator set up or a physical device connected
 
-# Learn More
+### 6. Start Metro Bundler
 
-To learn more about React Native, take a look at the following resources:
+In a separate terminal:
 
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
+```bash
+cd apps/mobile
+pnpm start
+```
+
+### 7. Run the App
+
+**iOS (Mac only):**
+```bash
+pnpm ios
+```
+
+**Android:**
+```bash
+pnpm android
+```
+
+## API Configuration
+
+The app automatically connects to:
+- **iOS Simulator**: `http://localhost:3000`
+- **Android Emulator**: `http://10.0.2.2:3000`
+
+This is configured in `src/config/api.ts`.
+
+## Troubleshooting
+
+### Ruby Version Issues
+
+If you encounter Ruby-related errors, install a modern Ruby version:
+
+```bash
+# Install rbenv (if not installed)
+brew install rbenv ruby-build
+
+# Add to shell profile
+echo 'eval "$(rbenv init - zsh)"' >> ~/.zshrc
+source ~/.zshrc
+
+# Install Ruby 3.2
+rbenv install 3.2.2
+cd apps/mobile/ios
+rbenv local 3.2.2
+
+# Verify
+ruby --version
+```
+
+### CocoaPods Not Found
+
+Always use `bundle exec` to run pod commands:
+
+```bash
+bundle exec pod install
+```
+
+### Build Errors
+
+1. Clean the build:
+   ```bash
+   # iOS
+   cd ios && rm -rf Pods Podfile.lock && bundle exec pod install
+
+   # Android
+   cd android && ./gradlew clean
+   ```
+
+2. Clear Metro cache:
+   ```bash
+   pnpm start --reset-cache
+   ```
+
+3. Clear watchman:
+   ```bash
+   watchman watch-del-all
+   ```
+
+## Project Structure
+
+```
+apps/mobile/
+├── src/
+│   ├── auth/           # Authentication context and token storage
+│   ├── config/         # API configuration
+│   ├── linking/        # Deep linking setup
+│   └── screens/        # App screens
+├── ios/                # iOS native project
+│   ├── mobile/         # iOS app source
+│   ├── mobile.xcodeproj/
+│   ├── Podfile
+│   └── fastlane/       # iOS deployment automation
+├── android/            # Android native project
+│   ├── app/
+│   └── gradle/
+├── App.tsx             # Root component
+└── index.js            # Entry point
+```
+
+## Features
+
+- Email/password authentication
+- Secure token storage (iOS Keychain / Android Keystore)
+- Email verification flow
+- Password reset with deep links
+- AI chat with streaming responses
+- Account management
+
+## Deep Linking
+
+The app supports deep links for password reset. Configure the URL scheme in:
+
+- **iOS**: `ios/mobile/Info.plist`
+- **Android**: `android/app/src/main/AndroidManifest.xml`
+
+Default scheme: `app-template://`
+
+See `src/linking/README.md` for detailed setup.
+
+## iOS Release
+
+For TestFlight deployment, see `ios-release.md`.
+
+## Learn More
+
+- [React Native Documentation](https://reactnative.dev/docs/getting-started)
+- [React Native Environment Setup](https://reactnative.dev/docs/environment-setup)
