@@ -178,11 +178,11 @@ This triggers: GitHub Actions → runs migrations → calls Vercel deploy hook �
 
 ## Demo Features
 
-This template includes demo features in `app/(demo)/` to showcase capabilities. **Remove these before building your production app.**
+This template includes an AI Agent demo to showcase capabilities. **Remove these before building your production app.**
 
-### AI Agent (`/agent`)
+### AI Agent (`/app/agent`)
 
-An interactive AI agent with tool calling. Sign in and visit `/agent` to try it.
+An interactive AI agent with tool calling. Sign in and visit `/app/agent` to try it.
 
 Features:
 - Streaming chat responses
@@ -194,8 +194,8 @@ Features:
 Before building your project, run these commands to remove demo code:
 
 ```bash
-# Remove demo pages
-rm -rf apps/web/app/\(demo\)
+# Remove demo page
+rm -rf apps/web/app/app/\(protected\)/agent
 
 # Remove demo API routes
 rm -rf apps/web/app/api/agent
@@ -239,18 +239,18 @@ rm -rf packages/ai/src/prompts/agent
 - **Next.js App Router** with server and client components
 - **Middleware-protected routes** with authentication checks
 - **Authentication pages**: login, register, logout, email verification, password reset
-- **API routes**: `/api/me`, `/api/health`, `/api/auth/*`
-- **Streaming chat endpoint** using Vercel AI SDK (`/api/chat/stream`)
+- **API routes**: `/api/me`, `/api/health`, `/api/auth/*`, `/api/agent/stream`
+- **AI Agent endpoint** using Vercel AI SDK with tool calling (`/api/agent/stream`)
 - **Security headers**: CSP, X-Frame-Options, X-Content-Type-Options
 - **CORS configuration** for cross-origin requests
 
 ### Mobile Application Features
 
 - **Bare React Native** app (no Expo)
-- **Authentication flow**: login, register, logout screens
+- **Authentication flow**: welcome, login, register, password reset screens
 - **Token-based session handling** with AuthContext
-- **Protected screens** with automatic auth state management
-- **Streaming chat** integration with the API client
+- **Protected screens** with drawer navigation (home, agent, account)
+- **AI Agent demo** with streaming responses
 
 ### Authentication (Better Auth)
 
@@ -271,7 +271,7 @@ rm -rf packages/ai/src/prompts/agent
 
 ### Backend Features
 
-- **Rate limiting** on auth (5 req/min) and chat (10 req/min) endpoints
+- **Rate limiting** on auth (5 req/min) and agent (10 req/min) endpoints
 - **CORS handling** with origin validation
 - **JWT token generation** for mobile/API clients
 - **Health check endpoint** for monitoring
@@ -315,7 +315,7 @@ The mobile app requires the web app running locally for API access.
 
 **iOS:**
 ```bash
-cd apps/mobile/ios && pod install && cd ..
+cd apps/mobile/ios && bundle exec pod install && cd ..
 pnpm ios
 ```
 
@@ -487,16 +487,20 @@ The mobile app implements a secure authentication flow with protected routes usi
 The mobile app uses a two-stack navigation pattern:
 
 1. **AuthStack** - Screens for unauthenticated users:
+   - `WelcomeScreen` - Landing page with branding
    - `SignInScreen` - Email/password login
-   - `SignUpScreen` - Account registration
+   - `SignUpScreen` - Account registration (with name field)
    - `ResetRequestScreen` - Request password reset
    - `ResetConfirmScreen` - Confirm password reset
 
-2. **AppStack** - Protected screens for authenticated users:
-   - `ChatStream` - AI chat interface
+2. **AppStack** - Protected screens with drawer navigation:
+   - `HomeScreen` - Dashboard with account info
+   - `AgentScreen` - AI Agent demo with streaming
    - `AccountScreen` - User profile and logout
 
 3. **SplashScreen** - Shown during session restoration on app startup
+
+4. **VerifyEmailScreen** - Shown when email verification is required
 
 ### How It Works
 
@@ -582,9 +586,17 @@ export default function NewScreen() {
 
 ```typescript
 // In AppStack type
-type AppStackScreen = 'chat' | 'account' | 'newScreen';
+type AppStackScreen = 'home' | 'agent' | 'account' | 'newScreen';
 
-// In AppStack component, add navigation and rendering
+// Add to MENU_ITEMS for drawer navigation
+const MENU_ITEMS = [
+  {id: 'home', label: 'Dashboard'},
+  {id: 'agent', label: 'AI Agent'},
+  {id: 'account', label: 'Account'},
+  {id: 'newScreen', label: 'New Screen'},
+];
+
+// In AppStack component, add screen rendering in renderScreen()
 ```
 
 The screen is automatically protected—it can only be accessed when `user != null`.
@@ -634,10 +646,9 @@ No additional configuration needed. The library uses Android Keystore automatica
 │   │   │   ├── app/(protected)/ # Protected routes (requires auth)
 │   │   │   ├── api/            # API routes
 │   │   │   │   ├── auth/       # Authentication endpoints
-│   │   │   │   ├── chat/       # Chat streaming endpoint
+│   │   │   │   ├── agent/      # AI Agent streaming endpoint
 │   │   │   │   ├── health/     # Health check
 │   │   │   │   └── me/         # Current user endpoint
-│   │   │   └── chat/           # Public chat page
 │   │   ├── lib/                # Utilities (JWT, hooks)
 │   │   └── middleware.ts       # Auth & security middleware
 │   │
