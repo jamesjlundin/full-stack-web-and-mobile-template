@@ -2,7 +2,7 @@ import { describe, it, expect, beforeAll } from "vitest";
 
 import { postJson, randomEmail, randomPassword, streamText } from "./http.js";
 
-describe("Chat Stream", () => {
+describe("Agent Stream", () => {
   const testEmail = randomEmail();
   const testPassword = randomPassword();
   let bearerToken: string = "";
@@ -64,10 +64,12 @@ describe("Chat Stream", () => {
     bearerToken = tokenResponse.data.token;
   });
 
-  it("should stream multiple chunks from /api/chat/stream via POST", async () => {
-    const response = await streamText("/api/chat/stream", {
+  it("should stream multiple chunks from /api/agent/stream via POST", async () => {
+    const response = await streamText("/api/agent/stream", {
       method: "POST",
-      body: JSON.stringify({ prompt: "integration test" }),
+      body: JSON.stringify({
+        messages: [{ role: "user", content: "integration test" }],
+      }),
       maxChunks: 5,
       headers: {
         Authorization: `Bearer ${bearerToken}`,
@@ -95,46 +97,39 @@ describe("Chat Stream", () => {
     expect(allText).toContain("data:");
   });
 
-  it("should stream chunks from /api/chat/stream via GET", async () => {
-    const BASE_URL = process.env.TEST_BASE_URL ?? "http://localhost:3000";
-    const url = `${BASE_URL}/api/chat/stream?prompt=hello`;
-
-    const response = await fetch(url, {
+  it("should stream weather tool response from /api/agent/stream", async () => {
+    const response = await streamText("/api/agent/stream", {
+      method: "POST",
+      body: JSON.stringify({
+        messages: [{ role: "user", content: "What is the weather in San Francisco?" }],
+      }),
+      maxChunks: 10,
       headers: {
         Authorization: `Bearer ${bearerToken}`,
       },
     });
+
     expect(response.status).toBe(200);
 
     const contentType = response.headers.get("Content-Type");
     expect(contentType).toContain("text/event-stream");
 
-    // Read a few chunks
-    if (response.body) {
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder();
-      const chunks: string[] = [];
+    // Should have received chunks
+    expect(response.chunks.length).toBeGreaterThan(0);
 
-      for (let i = 0; i < 3; i++) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        const text = decoder.decode(value, { stream: true });
-        if (text.trim()) {
-          chunks.push(text);
-        }
-      }
-
-      reader.releaseLock();
-
-      expect(chunks.length).toBeGreaterThan(0);
-      console.log(`GET stream received ${chunks.length} chunks`);
-    }
+    // Log chunks for debugging
+    console.log(`Weather query received ${response.chunks.length} chunks`);
+    response.chunks.forEach((chunk, i) => {
+      console.log(`Chunk ${i + 1}:`, chunk.substring(0, 150));
+    });
   });
 
   it("should include done marker in stream", async () => {
-    const response = await streamText("/api/chat/stream", {
+    const response = await streamText("/api/agent/stream", {
       method: "POST",
-      body: JSON.stringify({ prompt: "short test" }),
+      body: JSON.stringify({
+        messages: [{ role: "user", content: "short test" }],
+      }),
       maxChunks: 20, // Get more chunks to ensure we see the done marker
       headers: {
         Authorization: `Bearer ${bearerToken}`,
@@ -154,9 +149,11 @@ describe("Chat Stream", () => {
   });
 
   it("should return 401 without authentication", async () => {
-    const response = await streamText("/api/chat/stream", {
+    const response = await streamText("/api/agent/stream", {
       method: "POST",
-      body: JSON.stringify({ prompt: "unauthorized test" }),
+      body: JSON.stringify({
+        messages: [{ role: "user", content: "unauthorized test" }],
+      }),
       maxChunks: 1,
       // No Authorization header
     });
