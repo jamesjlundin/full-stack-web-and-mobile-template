@@ -21,7 +21,7 @@ services:
     environment:
       DATABASE_URL: postgres://postgres:postgres@postgres:5432/acme?sslmode=disable
     ports:
-      - "8081:8081"
+      - "8082:8081"
 
 volumes:
   postgres_data:
