@@ -44,9 +44,14 @@ async function handleSignIn(request: Request) {
     return response;
   }
 
-  // If email verification is not required, return success
+  // If email verification is not required, return success with session cookie
   if (!isEmailVerificationRequired) {
-    return NextResponse.json({ success: true, requiresVerification: false });
+    const setCookieHeader = response.headers.get("set-cookie");
+    const jsonResponse = NextResponse.json({ success: true, requiresVerification: false });
+    if (setCookieHeader) {
+      jsonResponse.headers.set("set-cookie", setCookieHeader);
+    }
+    return jsonResponse;
   }
 
   // Check if user is verified by getting the session from the response

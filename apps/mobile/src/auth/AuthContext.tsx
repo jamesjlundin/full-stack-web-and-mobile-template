@@ -34,7 +34,7 @@ type AuthContextValue = {
   /** Sign in with email and password */
   signIn: (email: string, password: string) => Promise<void>;
   /** Create a new account. Returns whether verification is required. */
-  signUp: (email: string, password: string) => Promise<SignUpResult>;
+  signUp: (name: string, email: string, password: string) => Promise<SignUpResult>;
   /** Sign out and clear secure storage */
   signOut: () => Promise<void>;
   /** Re-validate the current session with the server */
@@ -182,13 +182,13 @@ export function AuthProvider({children}: PropsWithChildren) {
    * Returns whether verification is required
    */
   const signUp = useCallback(
-    async (email: string, password: string): Promise<SignUpResult> => {
+    async (name: string, email: string, password: string): Promise<SignUpResult> => {
       const response = await fetch(`${API_BASE}/api/auth/email-password/sign-up`, {
         method: 'POST',
         headers: {
           'content-type': 'application/json',
         },
-        body: JSON.stringify({email, password}),
+        body: JSON.stringify({name, email, password}),
       });
 
       if (!response.ok) {

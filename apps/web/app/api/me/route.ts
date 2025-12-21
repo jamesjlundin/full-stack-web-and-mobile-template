@@ -28,6 +28,7 @@ export async function GET(request: Request) {
         user: {
           id: result.user.id,
           email: result.user.email,
+          name: result.user.name,
           emailVerified: result.user.emailVerified,
         },
         config: getConfig(),
@@ -52,9 +53,12 @@ export async function GET(request: Request) {
     try {
       const payload = await verifyAuthToken(token);
 
-      // Look up user from database to get emailVerified status
+      // Look up user from database to get emailVerified status and name
       const [dbUser] = await db
-        .select({ emailVerified: schema.users.emailVerified })
+        .select({
+          emailVerified: schema.users.emailVerified,
+          name: schema.users.name,
+        })
         .from(schema.users)
         .where(eq(schema.users.id, payload.sub))
         .limit(1);
@@ -64,6 +68,7 @@ export async function GET(request: Request) {
           user: {
             id: payload.sub,
             email: payload.email,
+            name: dbUser?.name ?? undefined,
             emailVerified: dbUser?.emailVerified ?? false,
           },
           config: getConfig(),

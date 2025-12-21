@@ -10,6 +10,7 @@ type SignUpScreenProps = {
 
 export default function SignUpScreen({onSwitchToSignIn, onSignedUp}: SignUpScreenProps) {
   const {signUp} = useAuth();
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -24,7 +25,7 @@ export default function SignUpScreen({onSwitchToSignIn, onSignedUp}: SignUpScree
     setError(null);
 
     try {
-      const result = await signUp(email.trim(), password);
+      const result = await signUp(name.trim(), email.trim(), password);
       // If verification is required, the navigation will be handled by RootNavigator
       // based on needsVerification state. Otherwise, call onSignedUp.
       if (!result.requiresVerification) {
@@ -40,13 +41,24 @@ export default function SignUpScreen({onSwitchToSignIn, onSignedUp}: SignUpScree
     } finally {
       setSubmitting(false);
     }
-  }, [email, onSignedUp, password, signUp, submitting]);
+  }, [name, email, onSignedUp, password, signUp, submitting]);
 
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
         <Text style={styles.title}>Create an Account</Text>
         <Text style={styles.subtitle}>Sign up to start chatting</Text>
+
+        <View style={styles.inputGroup}>
+          <Text style={styles.label}>Name</Text>
+          <TextInput
+            value={name}
+            onChangeText={setName}
+            autoCapitalize="words"
+            placeholder="Your name"
+            style={styles.input}
+          />
+        </View>
 
         <View style={styles.inputGroup}>
           <Text style={styles.label}>Email</Text>

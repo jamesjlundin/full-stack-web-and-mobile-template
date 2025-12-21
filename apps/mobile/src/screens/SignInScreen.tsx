@@ -41,8 +41,8 @@ export default function SignInScreen({onSwitchToSignUp, onSignedIn, onForgotPass
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
-        <Text style={styles.title}>Welcome Back</Text>
-        <Text style={styles.subtitle}>Sign in to continue</Text>
+        <Text style={styles.title}>Sign in</Text>
+        <Text style={styles.subtitle}>Enter your email and password to access your account</Text>
 
         <View style={styles.inputGroup}>
           <Text style={styles.label}>Email</Text>

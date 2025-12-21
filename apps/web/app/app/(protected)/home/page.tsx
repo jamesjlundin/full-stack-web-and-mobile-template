@@ -52,7 +52,7 @@ export default async function ProtectedHomePage() {
 
             <div className="flex flex-wrap gap-3">
               <Button variant="outline" asChild>
-                <Link href="/agent">
+                <Link href="/app/agent">
                   <Bot className="mr-2 h-4 w-4" />
                   AI Agent Demo
                 </Link>

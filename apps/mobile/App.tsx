@@ -1,26 +1,50 @@
-import React, {useCallback, useEffect, useState} from 'react';
-import {Button, SafeAreaView, StyleSheet, View} from 'react-native';
+import React, {useCallback, useEffect, useMemo, useState} from 'react';
+import {StyleSheet, View} from 'react-native';
 
 import {AuthProvider, useAuth} from './src/auth/AuthContext';
+import AppHeader from './src/components/AppHeader';
+import DrawerMenu from './src/components/DrawerMenu';
 import {setupDeepLinkListener, DeepLinkHandler} from './src/linking/DeepLinkHandler';
 import AccountScreen from './src/screens/AccountScreen';
-import ChatStream from './src/screens/ChatStream';
+import AgentScreen from './src/screens/AgentScreen';
+import HomeScreen from './src/screens/HomeScreen';
 import ResetConfirmScreen from './src/screens/ResetConfirmScreen';
 import ResetRequestScreen from './src/screens/ResetRequestScreen';
 import SignInScreen from './src/screens/SignInScreen';
 import SignUpScreen from './src/screens/SignUpScreen';
 import SplashScreen from './src/screens/SplashScreen';
 import VerifyEmailScreen from './src/screens/VerifyEmailScreen';
+import WelcomeScreen from './src/screens/WelcomeScreen';
 
 // ============================================================================
 // Navigation Types
 // ============================================================================
 
 /** Screens available when user is NOT authenticated */
-type AuthStackScreen = 'signIn' | 'signUp' | 'resetRequest' | 'resetConfirm';
+type AuthStackScreen = 'welcome' | 'signIn' | 'signUp' | 'resetRequest' | 'resetConfirm';
 
 /** Screens available when user IS authenticated */
-type AppStackScreen = 'chat' | 'account';
+type AppStackScreen = 'home' | 'agent' | 'account';
+
+// ============================================================================
+// Screen Titles
+// ============================================================================
+
+const SCREEN_TITLES: Record<AppStackScreen, string> = {
+  home: 'Dashboard',
+  agent: 'AI Agent',
+  account: 'Account',
+};
+
+// ============================================================================
+// Menu Items
+// ============================================================================
+
+const MENU_ITEMS = [
+  {id: 'home', label: 'Dashboard'},
+  {id: 'agent', label: 'AI Agent'},
+  {id: 'account', label: 'Account'},
+];
 
 // ============================================================================
 // Auth Stack Navigator
@@ -34,13 +58,14 @@ type AuthStackProps = {
  * AuthStack - Navigation for unauthenticated users
  *
  * Includes:
- * - Sign In screen (default)
+ * - Welcome screen (default)
+ * - Sign In screen
  * - Sign Up screen
  * - Password Reset Request screen
  * - Password Reset Confirm screen
  */
 function AuthStack({onDeepLinkReset}: AuthStackProps) {
-  const [screen, setScreen] = useState<AuthStackScreen>('signIn');
+  const [screen, setScreen] = useState<AuthStackScreen>('welcome');
   const [resetToken, setResetToken] = useState<string | undefined>(onDeepLinkReset);
 
   // Handle deep link reset token from parent
@@ -65,6 +90,15 @@ function AuthStack({onDeepLinkReset}: AuthStackProps) {
     setResetToken(undefined);
     setScreen('signIn');
   }, []);
+
+  if (screen === 'welcome') {
+    return (
+      <WelcomeScreen
+        onCreateAccount={() => setScreen('signUp')}
+        onSignIn={() => setScreen('signIn')}
+      />
+    );
+  }
 
   if (screen === 'signUp') {
     return (
@@ -119,46 +153,75 @@ function AuthStack({onDeepLinkReset}: AuthStackProps) {
 /**
  * AppStack - Navigation for authenticated users
  *
+ * Uses a hamburger menu with slide-out drawer navigation.
+ *
  * Includes:
- * - Chat screen (default)
+ * - Home/Dashboard screen (default)
+ * - Agent screen
  * - Account screen
  *
  * Protected: Only accessible when user != null
  */
 function AppStack() {
-  const [screen, setScreen] = useState<AppStackScreen>('chat');
+  const {user, signOut} = useAuth();
+  const [screen, setScreen] = useState<AppStackScreen>('home');
+  const [drawerVisible, setDrawerVisible] = useState(false);
 
-  const handleSelectChat = useCallback(() => setScreen('chat'), []);
-  const handleSelectAccount = useCallback(() => setScreen('account'), []);
+  const handleOpenDrawer = useCallback(() => setDrawerVisible(true), []);
+  const handleCloseDrawer = useCallback(() => setDrawerVisible(false), []);
+
+  const handleSelectScreen = useCallback((id: string) => {
+    setScreen(id as AppStackScreen);
+  }, []);
+
+  const handleSignOut = useCallback(async () => {
+    await signOut();
+  }, [signOut]);
+
+  const screenTitle = useMemo(() => SCREEN_TITLES[screen], [screen]);
+
+  const renderScreen = () => {
+    switch (screen) {
+      case 'home':
+        return (
+          <HomeScreen
+            onNavigateToAgent={() => setScreen('agent')}
+            onSignOut={handleSignOut}
+          />
+        );
+      case 'agent':
+        return <AgentScreen />;
+      case 'account':
+        return <AccountScreen onNavigateToHome={() => setScreen('home')} />;
+      default:
+        return (
+          <HomeScreen
+            onNavigateToAgent={() => setScreen('agent')}
+            onSignOut={handleSignOut}
+          />
+        );
+    }
+  };
 
   return (
     <View style={styles.root}>
-      {/* Navigation Bar */}
-      <SafeAreaView style={styles.navBar}>
-        <View style={styles.navButtons}>
-          <View style={styles.navButtonWrapper}>
-            <Button
-              title="Chat"
-              onPress={handleSelectChat}
-              disabled={screen === 'chat'}
-            />
-          </View>
-          <View style={styles.navButtonWrapper}>
-            <Button
-              title="Account"
-              onPress={handleSelectAccount}
-              disabled={screen === 'account'}
-            />
-          </View>
-        </View>
-      </SafeAreaView>
+      {/* Header with hamburger menu */}
+      <AppHeader title={screenTitle} onMenuPress={handleOpenDrawer} />
 
       {/* Screen Content */}
-      {screen === 'account' ? (
-        <AccountScreen onNavigateToChat={handleSelectChat} />
-      ) : (
-        <ChatStream />
-      )}
+      {renderScreen()}
+
+      {/* Drawer Menu */}
+      <DrawerMenu
+        visible={drawerVisible}
+        onClose={handleCloseDrawer}
+        items={MENU_ITEMS}
+        activeItem={screen}
+        onSelectItem={handleSelectScreen}
+        onSignOut={handleSignOut}
+        userName={user?.name}
+        userEmail={user?.email}
+      />
     </View>
   );
 }
@@ -254,18 +317,7 @@ function App(): React.JSX.Element {
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-  },
-  navBar: {
-    padding: 12,
-    backgroundColor: '#e2e8f0',
-  },
-  navButtons: {
-    flexDirection: 'row',
-    gap: 12,
-    justifyContent: 'flex-end',
-  },
-  navButtonWrapper: {
-    width: 120,
+    backgroundColor: '#f8fafc',
   },
 });
 
