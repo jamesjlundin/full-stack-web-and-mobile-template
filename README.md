@@ -282,6 +282,7 @@ rm -rf packages/ai/src/prompts/agent
 - **PostgreSQL test service** in CI for realistic testing
 - **Migration-safe deploy workflow**: runs migrations before triggering Vercel
 - **Vercel deploy hook integration** for automated production deployments
+- **iOS TestFlight workflow**: automated builds and uploads via Fastlane + Match
 - **Neon/Postgres compatibility** for serverless database hosting
 
 ---
@@ -297,6 +298,7 @@ rm -rf packages/ai/src/prompts/agent
 
 **Accounts:**
 - GitHub, Vercel (free tier works), Resend (for email)
+- Apple Developer Program ($99/year) for iOS TestFlight deployment
 
 ---
 
@@ -325,6 +327,106 @@ pnpm android
 ```
 
 The mobile app connects to `localhost:3000` (iOS) or `10.0.2.2:3000` (Android emulator).
+
+### iOS TestFlight Deployment
+
+This template includes a GitHub Actions workflow for automated TestFlight deployments. Follow these steps to set it up.
+
+#### Prerequisites
+
+- **Apple Developer Program membership** ($99/year) - [developer.apple.com/programs](https://developer.apple.com/programs/)
+- Access to **App Store Connect** - [appstoreconnect.apple.com](https://appstoreconnect.apple.com)
+
+#### 1. Create Your App in App Store Connect
+
+1. Go to [appstoreconnect.apple.com](https://appstoreconnect.apple.com) → **Apps** → **+ New App**
+2. Select **iOS** platform
+3. Enter app name, bundle ID (must match `APP_IDENTIFIER`), and SKU
+4. Select your team
+
+#### 2. Generate App Store Connect API Key
+
+1. Go to [appstoreconnect.apple.com](https://appstoreconnect.apple.com)
+2. Click **Users and Access** → **Integrations** tab
+3. Select **App Store Connect API** → **Team Keys**
+4. Click **Generate API Key** (or **+** if you already have keys)
+5. Name it (e.g., "CI/CD Key") and select **App Manager** role (sufficient for CI/CD, follows least privilege)
+6. Click **Generate**
+7. Note the **Issuer ID** (shown at top of keys table) and **Key ID** (in table)
+8. Download the `.p8` file immediately — you can only download it **once**
+
+> **Note:** Only Account Holder or Admin can generate Team Keys.
+
+#### 3. Create a Private Git Repository for Certificates (Match)
+
+1. Create a new **private** GitHub repository (e.g., `ios-certificates`)
+2. This stores your encrypted signing certificates and provisioning profiles
+3. Note the SSH URL: `git@github.com:yourorg/ios-certificates.git`
+
+#### 4. Configure GitHub Secrets
+
+Go to your repo → **Settings** → **Secrets and variables** → **Actions** → **New repository secret**
+
+Add these 7 required secrets:
+
+| Secret | Value |
+|--------|-------|
+| `APP_IDENTIFIER` | Your bundle ID (e.g., `com.yourcompany.yourapp`) |
+| `APPLE_TEAM_ID` | Your 10-character Team ID (find at [developer.apple.com/account](https://developer.apple.com/account) → Membership) |
+| `APP_STORE_CONNECT_ISSUER_ID` | From API Keys page (shown above the keys table) |
+| `APP_STORE_CONNECT_KEY_ID` | From API Keys page (in the table) |
+| `APP_STORE_CONNECT_PRIVATE_KEY` | Contents of the `.p8` file |
+| `MATCH_GIT_URL` | `git@github.com:yourorg/ios-certificates.git` |
+| `MATCH_PASSWORD` | A strong password for encrypting certs (generate with `openssl rand -base64 32`) |
+
+#### 5. Update Bundle Identifier in Xcode
+
+Ensure your Xcode project uses the correct bundle identifier:
+
+1. Open `apps/mobile/ios/mobile.xcworkspace` in Xcode
+2. Select the project → **Signing & Capabilities** tab
+3. Set the bundle identifier to match your `APP_IDENTIFIER` secret
+4. Ensure "Automatically manage signing" is enabled
+
+Or edit `apps/mobile/ios/mobile.xcodeproj/project.pbxproj` directly to set `PRODUCT_BUNDLE_IDENTIFIER`.
+
+#### 6. Bootstrap Code Signing (First-Time Only)
+
+Run locally to initialize certificates:
+
+```bash
+cd apps/mobile/ios
+bundle install
+
+# Set environment variables
+export APP_IDENTIFIER="com.yourcompany.yourapp"
+export APPLE_TEAM_ID="XXXXXXXXXX"
+export APP_STORE_CONNECT_ISSUER_ID="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+export APP_STORE_CONNECT_KEY_ID="XXXXXXXXXX"
+export APP_STORE_CONNECT_PRIVATE_KEY="$(cat ~/path/to/AuthKey_XXXXXXXXXX.p8)"
+export MATCH_GIT_URL="git@github.com:yourorg/ios-certificates.git"
+export MATCH_PASSWORD="your-secure-password"
+
+# Initialize certificates and profiles
+bundle exec fastlane ios bootstrap_signing
+```
+
+This creates/syncs your signing certificates to the Match repository.
+
+#### 7. Trigger the Workflow
+
+1. Go to your GitHub repo → **Actions** tab
+2. Select **"iOS TestFlight Upload"** workflow
+3. Click **"Run workflow"** → **"Run workflow"**
+4. Monitor the build progress
+
+Once complete, builds will automatically upload to TestFlight. Invite testers from App Store Connect.
+
+#### Troubleshooting
+
+- **"Path is invalid" error**: Ensure Fastlane paths point to `mobile.xcodeproj`, not directories
+- **Keychain password prompt**: Enter your Mac login password (used to access local Keychain)
+- **Missing secrets**: Run `bundle exec fastlane ios preflight` to check which secrets are missing
 
 ### Database UI
 

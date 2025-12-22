@@ -39,7 +39,7 @@ platform :ios do
     )
 
     enable_automatic_code_signing(
-      path: "apps/mobile/ios",
+      path: "mobile.xcodeproj",
       use_automatic_signing: true
     )
 
@@ -61,11 +61,11 @@ platform :ios do
       is_key_content_base64: false
     )
 
-    cocoapods(project_directory: "apps/mobile/ios")
+    cocoapods(podfile: "Podfile")
 
-    sh("pnpm install")
-    sh("pnpm -C apps/mobile tsc --noEmit || true")
-    sh("pnpm -C apps/mobile eslint . || true")
+    sh("cd ../../../.. && pnpm install")
+    sh("cd ../.. && pnpm tsc --noEmit || true")
+    sh("cd ../.. && pnpm eslint . || true")
 
     build_number = (latest_testflight_build_number(
       api_key: api_key,
@@ -73,13 +73,13 @@ platform :ios do
     ).to_i + 1)
 
     increment_build_number(
-      xcodeproj: "apps/mobile/ios/.xcodeproj",
+      xcodeproj: "mobile.xcodeproj",
       build_number: build_number
     )
 
     gym(
-      project: "apps/mobile/ios/.xcodeproj",
-      scheme: ENV["IOS_SCHEME"] || "Production",
+      project: "mobile.xcodeproj",
+      scheme: ENV["IOS_SCHEME"] || "mobile",
       configuration: "Release",
       export_method: "app-store",
       clean: true
