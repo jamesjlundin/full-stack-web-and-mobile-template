@@ -1,3 +1,5 @@
+require 'securerandom'
+
 default_platform(:ios)
 
 platform :ios do
@@ -61,11 +63,26 @@ platform :ios do
       is_key_content_base64: false
     )
 
+    # CI keychain setup - prevents codesign from hanging waiting for keychain prompt
+    keychain_name = "ci_keychain"
+    keychain_password = SecureRandom.base64(32)
+
+    create_keychain(
+      name: keychain_name,
+      password: keychain_password,
+      default_keychain: true,
+      unlock: true,
+      timeout: 3600,
+      lock_when_sleeps: false
+    )
+
     # Download certificates and provisioning profiles from Match repo
     match(
       api_key: api_key,
       type: "appstore",
-      readonly: true
+      readonly: true,
+      keychain_name: keychain_name,
+      keychain_password: keychain_password
     )
 
     # Note: cocoapods is run in the GitHub Actions workflow before fastlane
@@ -118,5 +135,8 @@ platform :ios do
       distribute_external: false,
       changelog: (ENV["TF_CHANGELOG"] || "Automated upload from CI")
     )
+
+    # Cleanup CI keychain
+    delete_keychain(name: keychain_name) if keychain_name
   end
 end
