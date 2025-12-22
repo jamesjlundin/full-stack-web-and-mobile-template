@@ -99,11 +99,11 @@ platform :ios do
     )
 
     gym(
-      project: "mobile.xcodeproj",
+      workspace: "mobile.xcworkspace",
       scheme: ENV["IOS_SCHEME"] || "mobile",
       configuration: "Release",
       export_method: "app-store",
-      clean: true,
+      clean: false,
       export_options: {
         signingStyle: "manual",
         provisioningProfiles: {
