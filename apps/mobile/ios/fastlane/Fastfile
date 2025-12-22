@@ -61,6 +61,13 @@ platform :ios do
       is_key_content_base64: false
     )
 
+    # Download certificates and provisioning profiles from Match repo
+    match(
+      api_key: api_key,
+      type: "appstore",
+      readonly: true
+    )
+
     cocoapods(podfile: "Podfile")
 
     sh("cd ../../../.. && pnpm install")
