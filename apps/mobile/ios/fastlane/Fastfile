@@ -68,7 +68,8 @@ platform :ios do
       readonly: true
     )
 
-    cocoapods(podfile: "Podfile")
+    # Note: cocoapods is run in the GitHub Actions workflow before fastlane
+    # to avoid duplicate pod install issues
 
     sh("cd ../../../.. && pnpm install")
     sh("cd ../.. && pnpm tsc --noEmit || true")
