@@ -300,7 +300,10 @@ GEM
       xcpretty (~> 0.2, >= 0.0.7)
 
 PLATFORMS
+  arm64-darwin-23
   arm64-darwin-24
+  x86_64-darwin
+  ruby
 
 DEPENDENCIES
   activesupport (>= 6.1.7.5, < 8.0)
