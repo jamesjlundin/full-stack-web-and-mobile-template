@@ -51,4 +51,5 @@ jobs:
       - name: Fastlane upload to TestFlight
         if: ${{ success() }}
         working-directory: apps/mobile/ios
+        timeout-minutes: 45
         run: bundle exec fastlane ios upload_testflight
