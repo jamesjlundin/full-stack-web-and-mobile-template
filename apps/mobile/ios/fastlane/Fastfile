@@ -84,12 +84,31 @@ platform :ios do
       build_number: build_number
     )
 
+    # Match profile name follows pattern: "match AppStore <bundle_id>"
+    profile_name = "match AppStore #{ENV['APP_IDENTIFIER']}"
+
+    # Configure manual code signing with Match profile
+    update_code_signing_settings(
+      use_automatic_signing: false,
+      path: "mobile.xcodeproj",
+      team_id: ENV["APPLE_TEAM_ID"],
+      bundle_identifier: ENV["APP_IDENTIFIER"],
+      profile_name: profile_name,
+      code_sign_identity: "iPhone Distribution"
+    )
+
     gym(
       project: "mobile.xcodeproj",
       scheme: ENV["IOS_SCHEME"] || "mobile",
       configuration: "Release",
       export_method: "app-store",
-      clean: true
+      clean: true,
+      export_options: {
+        signingStyle: "manual",
+        provisioningProfiles: {
+          ENV["APP_IDENTIFIER"] => profile_name
+        }
+      }
     )
 
     pilot(
