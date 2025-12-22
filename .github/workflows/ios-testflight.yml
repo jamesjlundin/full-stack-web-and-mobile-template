@@ -13,8 +13,8 @@ jobs:
       APP_STORE_CONNECT_PRIVATE_KEY: ${{ secrets.APP_STORE_CONNECT_PRIVATE_KEY }}
       MATCH_GIT_URL: ${{ secrets.MATCH_GIT_URL }}
       MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+      MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.MATCH_GIT_BASIC_AUTHORIZATION }}
       APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
-      IOS_SCHEME: Production
     steps:
       - name: Checkout
         uses: actions/checkout@v4

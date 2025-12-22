@@ -1,4 +1,5 @@
 git_url(ENV["MATCH_GIT_URL"])
+git_basic_authorization(ENV["MATCH_GIT_BASIC_AUTHORIZATION"]) if ENV["MATCH_GIT_BASIC_AUTHORIZATION"]
 storage_mode("git")
 type("appstore")
 username(ENV["APPLE_ID"] || "ios-ci@example.com")
