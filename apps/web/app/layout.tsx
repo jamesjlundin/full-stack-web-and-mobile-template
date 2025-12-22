@@ -2,6 +2,7 @@ import "./globals.css";
 
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
+import { GoogleAnalytics } from "@/components/google-analytics";
 
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
@@ -15,6 +16,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
       <body className="font-sans antialiased">
+        <GoogleAnalytics />
         <ThemeProvider
           attribute="class"
           defaultTheme="system"

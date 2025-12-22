@@ -106,6 +106,7 @@ export function createApiClient({ baseUrl = "" }: ApiClientConfig = {}) {
     isEmailVerificationRequired: false,
     isGoogleAuthEnabled: false,
     ai: { providers: [], defaultProvider: null },
+    analytics: { googleAnalyticsId: null },
   };
 
   const getMe = async ({ token }: GetMeParams = {}): Promise<GetMeResult> => {

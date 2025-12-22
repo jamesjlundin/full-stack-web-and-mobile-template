@@ -17,5 +17,8 @@ export async function GET() {
       providers,
       defaultProvider: defaultProvider?.id ?? null,
     },
+    analytics: {
+      googleAnalyticsId: process.env.NEXT_PUBLIC_GA_TRACKING_ID || null,
+    },
   });
 }
