@@ -29,4 +29,7 @@ export type AppConfig = {
     providers: AiProviderInfo[];
     defaultProvider: string | null;
   };
+  analytics: {
+    googleAnalyticsId: string | null;
+  };
 };
