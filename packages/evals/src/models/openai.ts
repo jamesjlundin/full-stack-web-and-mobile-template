@@ -23,68 +23,6 @@ export function hasOpenAIKey(): boolean {
 }
 
 /**
- * Convert JSON Schema to Zod schema dynamically
- */
-async function jsonSchemaToZod(
-  jsonSchema: Record<string, unknown>
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-): Promise<any> {
-  const { z } = await import('zod');
-
-  const properties = jsonSchema.properties as Record<
-    string,
-    { type?: string; enum?: string[]; description?: string }
-  >;
-  const required = (jsonSchema.required as string[]) ?? [];
-
-  if (!properties) {
-    return z.object({}).passthrough();
-  }
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const shape: Record<string, any> = {};
-
-  for (const [key, prop] of Object.entries(properties)) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let schema: any;
-
-    switch (prop.type) {
-      case 'string':
-        if (prop.enum) {
-          schema = z.enum(prop.enum as [string, ...string[]]);
-        } else {
-          schema = z.string();
-        }
-        break;
-      case 'number':
-      case 'integer':
-        schema = z.number();
-        break;
-      case 'boolean':
-        schema = z.boolean();
-        break;
-      case 'array':
-        schema = z.array(z.unknown());
-        break;
-      case 'object':
-        schema = z.object({}).passthrough();
-        break;
-      default:
-        schema = z.unknown();
-    }
-
-    // Make optional if not in required array
-    if (!required.includes(key)) {
-      schema = schema.optional();
-    }
-
-    shape[key] = schema;
-  }
-
-  return z.object(shape);
-}
-
-/**
  * OpenAI model adapter using Vercel AI SDK
  */
 export class OpenAIModel implements ModelAdapter {
@@ -176,15 +114,38 @@ export class OpenAIModel implements ModelAdapter {
         });
 
         // Extract tool calls from result
+        // AI SDK v5 uses result.steps for multi-step, or result.toolCalls for single step
         const toolCalls: ToolCall[] = [];
 
-        if (result.toolCalls && Array.isArray(result.toolCalls)) {
+        // Try to get tool calls from steps first (AI SDK v5 pattern)
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const steps = (result as any).steps;
+        if (steps && Array.isArray(steps)) {
+          for (const step of steps) {
+            if (step.toolCalls && Array.isArray(step.toolCalls)) {
+              for (const tc of step.toolCalls) {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                const toolCall = tc as any;
+                // AI SDK v5 uses 'input' for args
+                const args = toolCall.input ?? toolCall.args ?? {};
+                toolCalls.push({
+                  name: toolCall.toolName ?? toolCall.name,
+                  arguments: args as Record<string, unknown>,
+                });
+              }
+            }
+          }
+        }
+
+        // Fallback: try result.toolCalls directly (older pattern)
+        if (toolCalls.length === 0 && result.toolCalls && Array.isArray(result.toolCalls)) {
           for (const tc of result.toolCalls) {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const toolCall = tc as any;
+            const args = toolCall.input ?? toolCall.args ?? {};
             toolCalls.push({
-              name: toolCall.toolName,
-              arguments: (toolCall.args as Record<string, unknown>) ?? {},
+              name: toolCall.toolName ?? toolCall.name,
+              arguments: args as Record<string, unknown>,
             });
           }
         }
@@ -229,13 +190,13 @@ export class OpenAIModel implements ModelAdapter {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const result: Record<string, any> = {};
 
-    for (const toolDef of tools) {
-      const zodSchema = await jsonSchemaToZod(toolDef.parameters);
+    // Import jsonSchema helper for direct JSON Schema support (AI SDK v5)
+    const { jsonSchema } = await import('ai');
 
+    for (const toolDef of tools) {
       result[toolDef.name] = ai.tool({
         description: toolDef.description,
-        // AI SDK v5 uses inputSchema instead of parameters
-        inputSchema: zodSchema,
+        inputSchema: jsonSchema(toolDef.parameters),
       });
     }
 
