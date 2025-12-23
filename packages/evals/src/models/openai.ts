@@ -130,16 +130,22 @@ export class OpenAIModel implements ModelAdapter {
           },
         ];
 
+        // Use OpenAI's native JSON mode via providerOptions
         const result = await ai.generateText({
           model,
           messages: jsonMessages,
           temperature: options?.temperature ?? 0,
+          providerOptions: {
+            openai: {
+              response_format: { type: 'json_object' },
+            },
+          },
         });
 
         // Try to extract JSON from the response
         let jsonContent = result.text.trim();
 
-        // Remove markdown code blocks if present
+        // Remove markdown code blocks if present (fallback safety)
         if (jsonContent.startsWith('```json')) {
           jsonContent = jsonContent.slice(7);
         } else if (jsonContent.startsWith('```')) {
@@ -178,7 +184,7 @@ export class OpenAIModel implements ModelAdapter {
             const toolCall = tc as any;
             toolCalls.push({
               name: toolCall.toolName,
-              arguments: toolCall.args as Record<string, unknown>,
+              arguments: (toolCall.args as Record<string, unknown>) ?? {},
             });
           }
         }

@@ -134,6 +134,9 @@ export class MockModel implements ModelAdapter {
     const lowerContent = content.toLowerCase();
 
     // Extract schema patterns and generate conforming JSON
+    // Note: Order matters! Check specific patterns before generic ones
+    // (e.g., 'meeting' before 'item' since JSON schemas may contain 'minItems')
+
     if (lowerContent.includes('user') || lowerContent.includes('person')) {
       return {
         content: JSON.stringify({
@@ -146,22 +149,10 @@ export class MockModel implements ModelAdapter {
       };
     }
 
-    if (lowerContent.includes('product') || lowerContent.includes('item')) {
-      return {
-        content: JSON.stringify({
-          id: 'prod_123',
-          name: 'Test Product',
-          price: 99.99,
-          inStock: true,
-          category: 'electronics',
-        }),
-        finishReason: 'stop',
-      };
-    }
-
-    if (lowerContent.includes('event') || lowerContent.includes('meeting')) {
+    // Check for meeting/event BEFORE product/item (schema may contain 'minItems')
+    if (lowerContent.includes('event') || lowerContent.includes('meeting') || lowerContent.includes('attendees')) {
       // Handle nested address object for event schema trap
-      if (lowerContent.includes('address') || lowerContent.includes('location')) {
+      if (lowerContent.includes('address') || lowerContent.includes('"location"')) {
         return {
           content: JSON.stringify({
             title: 'Team Meeting',
@@ -183,11 +174,20 @@ export class MockModel implements ModelAdapter {
           date: '2024-01-15',
           time: '14:00',
           attendees: ['alice@example.com', 'bob@example.com'],
-          location: {
-            street: '123 Main St',
-            city: 'San Francisco',
-            zip: '94102',
-          },
+        }),
+        finishReason: 'stop',
+      };
+    }
+
+    // Use word boundary to avoid matching 'minItems' from JSON schema
+    if (lowerContent.includes('product') || /\bitem\b/.test(lowerContent)) {
+      return {
+        content: JSON.stringify({
+          id: 'prod_123',
+          name: 'Test Product',
+          price: 99.99,
+          inStock: true,
+          category: 'electronics',
         }),
         finishReason: 'stop',
       };

@@ -49,14 +49,23 @@ async function evaluateSchemaCase(
   fixture: SchemaFixture
 ): Promise<CaseResult> {
   try {
+    // Build a prompt that includes the schema so the model knows the exact structure
+    const schemaDescription = JSON.stringify(fixture.schema, null, 2);
+    const promptWithSchema = `${fixture.prompt}
+
+The response must be a JSON object that conforms to this JSON schema:
+${schemaDescription}
+
+Generate a valid JSON object matching this schema.`;
+
     const response = await context.model.generate(
       [
         {
           role: 'system',
           content:
-            'You are a helpful assistant that generates valid JSON. Always respond with valid JSON only, no additional text.',
+            'You are a helpful assistant that generates valid JSON. Always respond with valid JSON only, no additional text. Ensure the JSON matches the provided schema exactly.',
         },
-        { role: 'user', content: fixture.prompt },
+        { role: 'user', content: promptWithSchema },
       ],
       { responseFormat: 'json' }
     );
