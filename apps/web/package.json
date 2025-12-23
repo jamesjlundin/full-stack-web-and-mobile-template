@@ -41,7 +41,8 @@
     "resend": "^4.0.0",
     "sonner": "^2.0.7",
     "tailwind-merge": "^3.4.0",
-    "zod": "^4.2.1"
+    "zod": "^4.2.1",
+    "@vercel/blob": "^0.27.0"
   },
   "devDependencies": {
     "@next/eslint-plugin-next": "16.1.0",

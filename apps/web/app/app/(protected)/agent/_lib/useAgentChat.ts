@@ -1,8 +1,9 @@
 "use client";
 
 import { useCallback, useRef, useState } from "react";
+import { upload } from "@vercel/blob/client";
 
-import type { Message, StreamEvent, ToolCall } from "./types";
+import type { ImagePart, Message, MessagePart, StreamEvent, ToolCall } from "./types";
 
 function generateId() {
   return Math.random().toString(36).substring(2, 9);
@@ -13,48 +14,117 @@ type UseAgentChatOptions = {
   model?: string | null;
 };
 
+type SendMessageOptions = {
+  text: string;
+  images?: File[];
+};
+
 export function useAgentChat(options: UseAgentChatOptions = {}) {
   const { provider, model } = options;
   const [messages, setMessages] = useState<Message[]>([]);
   const [isStreaming, setIsStreaming] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
 
-  const sendMessage = useCallback(async (content: string) => {
-    if (!content.trim() || isStreaming) return;
+  // Upload images to Vercel Blob
+  const uploadImages = useCallback(async (files: File[]): Promise<ImagePart[]> => {
+    const uploadedImages: ImagePart[] = [];
+
+    for (const file of files) {
+      try {
+        const blob = await upload(file.name, file, {
+          access: "public",
+          handleUploadUrl: "/api/upload",
+        });
+
+        uploadedImages.push({
+          type: "image",
+          url: blob.url,
+          alt: file.name,
+        });
+      } catch (err) {
+        console.error("Failed to upload image:", err);
+        throw new Error(`Failed to upload ${file.name}`);
+      }
+    }
+
+    return uploadedImages;
+  }, []);
+
+  // Process /image command
+  const processImageCommand = useCallback((text: string): string => {
+    if (text.startsWith("/image ")) {
+      const prompt = text.slice(7).trim();
+      return `Generate an image: ${prompt}`;
+    }
+    return text;
+  }, []);
+
+  const sendMessage = useCallback(async (options: SendMessageOptions | string) => {
+    // Support both string (legacy) and options object
+    const { text: rawText, images } = typeof options === "string"
+      ? { text: options, images: undefined }
+      : options;
+
+    const text = processImageCommand(rawText.trim());
+    if (!text && (!images || images.length === 0)) return;
+    if (isStreaming) return;
 
     setError(null);
     setIsStreaming(true);
 
-    // Add user message
-    const userMessage: Message = {
-      id: generateId(),
-      role: "user",
-      content: content.trim(),
-    };
-
-    // Add placeholder assistant message
-    const assistantMessage: Message = {
-      id: generateId(),
-      role: "assistant",
-      content: "",
-      toolCalls: [],
-    };
-
-    setMessages((prev) => [...prev, userMessage, assistantMessage]);
-
-    // Create abort controller
-    abortControllerRef.current = new AbortController();
-
     try {
+      // Upload images if provided
+      let imageParts: ImagePart[] = [];
+      if (images && images.length > 0) {
+        setIsUploading(true);
+        try {
+          imageParts = await uploadImages(images);
+        } catch (uploadError) {
+          setError(uploadError instanceof Error ? uploadError.message : "Failed to upload images");
+          setIsStreaming(false);
+          setIsUploading(false);
+          return;
+        }
+        setIsUploading(false);
+      }
+
+      // Build message parts
+      const parts: MessagePart[] = [];
+      if (text) {
+        parts.push({ type: "text", text });
+      }
+      parts.push(...imageParts);
+
+      // Add user message
+      const userMessage: Message = {
+        id: generateId(),
+        role: "user",
+        parts,
+      };
+
+      // Add placeholder assistant message
+      const assistantMessage: Message = {
+        id: generateId(),
+        role: "assistant",
+        parts: [],
+        toolCalls: [],
+      };
+
+      setMessages((prev) => [...prev, userMessage, assistantMessage]);
+
+      // Create abort controller
+      abortControllerRef.current = new AbortController();
+
       // Build message history for API
       const allMessages = [...messages, userMessage].map((m) => ({
         role: m.role,
-        content: m.content,
+        parts: m.parts,
       }));
 
       const requestBody: {
-        messages: { role: string; content: string }[];
+        messages: { role: string; parts: MessagePart[] }[];
         provider?: string;
         model?: string;
       } = { messages: allMessages };
@@ -106,11 +176,38 @@ export function useAgentChat(options: UseAgentChatOptions = {}) {
             switch (event.type) {
               case "text":
                 if (event.text) {
+                  const textToAdd = event.text;
                   setMessages((prev) => {
                     const updated = [...prev];
                     const last = updated[updated.length - 1];
                     if (last && last.role === "assistant") {
-                      last.content += event.text;
+                      // Find or create text part
+                      const textPartIndex = last.parts.findIndex((p) => p.type === "text");
+                      if (textPartIndex >= 0) {
+                        const textPart = last.parts[textPartIndex];
+                        if (textPart.type === "text") {
+                          textPart.text += textToAdd;
+                        }
+                      } else {
+                        last.parts.push({ type: "text", text: textToAdd });
+                      }
+                    }
+                    return updated;
+                  });
+                }
+                break;
+
+              case "image":
+                if (event.url) {
+                  setMessages((prev) => {
+                    const updated = [...prev];
+                    const last = updated[updated.length - 1];
+                    if (last && last.role === "assistant") {
+                      last.parts.push({
+                        type: "image",
+                        url: event.url!,
+                        alt: event.alt,
+                      });
                     }
                     return updated;
                   });
@@ -181,7 +278,7 @@ export function useAgentChat(options: UseAgentChatOptions = {}) {
         setMessages((prev) => {
           const updated = [...prev];
           const last = updated[updated.length - 1];
-          if (last?.role === "assistant" && !last.content && !last.toolCalls?.length) {
+          if (last?.role === "assistant" && last.parts.length === 0 && !last.toolCalls?.length) {
             updated.pop();
           }
           return updated;
@@ -189,9 +286,10 @@ export function useAgentChat(options: UseAgentChatOptions = {}) {
       }
     } finally {
       setIsStreaming(false);
+      setIsUploading(false);
       abortControllerRef.current = null;
     }
-  }, [messages, isStreaming, provider, model]);
+  }, [messages, isStreaming, provider, model, uploadImages, processImageCommand]);
 
   const stopStreaming = useCallback(() => {
     if (abortControllerRef.current) {
@@ -210,6 +308,7 @@ export function useAgentChat(options: UseAgentChatOptions = {}) {
   return {
     messages,
     isStreaming,
+    isUploading,
     error,
     sendMessage,
     stopStreaming,

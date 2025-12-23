@@ -1,11 +1,18 @@
-import { getModel, selectPrompt, validateProviderModel } from "@acme/ai";
+import {
+  executeGenerateImage,
+  getModel,
+  selectPrompt,
+  validateProviderModel,
+} from "@acme/ai";
 import { createRateLimiter } from "@acme/security";
+import { put } from "@vercel/blob";
 import { stepCountIs, streamText } from "ai";
 import { NextRequest } from "next/server";
 import { z } from "zod";
 
 import { withUserRateLimit } from "../../_lib/withUserRateLimit";
 
+import type { CoreMessage, ImagePart, TextPart } from "ai";
 import type { CurrentUserResult } from "@acme/auth";
 
 // Rate limiter: 20 requests per 60 seconds per user
@@ -66,17 +73,78 @@ function getMockTime(timezone?: string) {
   }
 }
 
-// Request body schema
+// Message part schema for multimodal messages
+const messagePartSchema = z.discriminatedUnion("type", [
+  z.object({
+    type: z.literal("text"),
+    text: z.string(),
+  }),
+  z.object({
+    type: z.literal("image"),
+    url: z.string(),
+    alt: z.string().optional(),
+  }),
+]);
+
+// Request body schema - supports both legacy string content and new parts array
 const requestSchema = z.object({
   messages: z.array(
     z.object({
       role: z.enum(["user", "assistant"]),
-      content: z.string(),
+      // Support both legacy string content and new parts array
+      content: z.string().optional(),
+      parts: z.array(messagePartSchema).optional(),
     }),
   ),
   provider: z.string().optional(),
   model: z.string().optional(),
 });
+
+// Convert our message format to AI SDK CoreMessage format
+function convertToAIMessages(
+  messages: Array<{
+    role: "user" | "assistant";
+    content?: string;
+    parts?: Array<{ type: "text"; text: string } | { type: "image"; url: string; alt?: string }>;
+  }>
+): CoreMessage[] {
+  return messages.map((msg): CoreMessage => {
+    // If parts array exists, use it
+    if (msg.parts && msg.parts.length > 0) {
+      const content: Array<TextPart | ImagePart> = msg.parts.map((part) => {
+        if (part.type === "text") {
+          return { type: "text" as const, text: part.text };
+        } else {
+          return { type: "image" as const, image: part.url };
+        }
+      });
+
+      if (msg.role === "user") {
+        return { role: "user" as const, content };
+      } else {
+        // For assistant messages with parts, convert to text-only
+        // since assistant messages don't support image parts in the same way
+        const textContent = msg.parts
+          .filter((p) => p.type === "text")
+          .map((p) => (p as { type: "text"; text: string }).text)
+          .join("");
+        return { role: "assistant" as const, content: textContent };
+      }
+    }
+
+    // Legacy: single string content
+    if (msg.role === "user") {
+      return { role: "user" as const, content: msg.content || "" };
+    } else {
+      return { role: "assistant" as const, content: msg.content || "" };
+    }
+  });
+}
+
+// Generate a unique ID for blob storage
+function generateBlobId(): string {
+  return `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
+}
 
 async function handleRequest(
   request: NextRequest,
@@ -117,11 +185,14 @@ async function handleRequest(
     return createMockStream(messages);
   }
 
+  // Convert messages to AI SDK format
+  const aiMessages = convertToAIMessages(messages);
+
   // Stream with tools
   const result = streamText({
     model: languageModel,
     system: activePrompt.content,
-    messages,
+    messages: aiMessages,
     tools: {
       get_weather: {
         description:
@@ -145,8 +216,52 @@ async function handleRequest(
         execute: async ({ timezone }: { timezone?: string }) =>
           getMockTime(timezone),
       },
+      generate_image: {
+        description:
+          "Generate an image from a text description. Use when the user explicitly asks for an image to be generated or when a message starts with 'Generate an image:'.",
+        inputSchema: z.object({
+          prompt: z.string().describe("Detailed description of the image to generate"),
+          size: z
+            .enum(["1024x1024", "1792x1024", "1024x1792"])
+            .default("1024x1024")
+            .describe("Image dimensions (square, landscape, or portrait)"),
+        }),
+        execute: async (input: { prompt: string; size?: "1024x1024" | "1792x1024" | "1024x1792" }) => {
+          const result = await executeGenerateImage({
+            prompt: input.prompt,
+            size: input.size || "1024x1024",
+          });
+
+          if (!result.success) {
+            return { success: false, error: result.error };
+          }
+
+          // Upload the generated image to Vercel Blob
+          try {
+            const imageBuffer = Buffer.from(result.imageBase64, "base64");
+            const blob = await put(
+              `generated/${generateBlobId()}.png`,
+              imageBuffer,
+              {
+                access: "public",
+                contentType: "image/png",
+              }
+            );
+
+            return {
+              success: true,
+              imageUrl: blob.url,
+              prompt: result.prompt,
+              size: result.size,
+            };
+          } catch (uploadError) {
+            const message = uploadError instanceof Error ? uploadError.message : "Failed to upload image";
+            return { success: false, error: message };
+          }
+        },
+      },
     },
-    stopWhen: stepCountIs(3), // Allow up to 3 steps (tool calls)
+    stopWhen: stepCountIs(5), // Allow up to 5 steps for more complex interactions
   });
 
   // Create SSE stream with tool events
@@ -175,6 +290,30 @@ async function handleRequest(
                 id: part.toolCallId,
                 result: part.output,
               };
+
+              // If this was a successful image generation, also emit an image event
+              if (
+                part.toolName === "generate_image" &&
+                part.output &&
+                typeof part.output === "object" &&
+                "success" in part.output &&
+                part.output.success === true &&
+                "imageUrl" in part.output
+              ) {
+                controller.enqueue(
+                  encoder.encode(`data: ${JSON.stringify(event)}\n\n`),
+                );
+                // Emit the image event
+                const imageEvent = {
+                  type: "image",
+                  url: part.output.imageUrl,
+                  alt: `Generated: ${(part.output as { prompt?: string }).prompt || "image"}`,
+                };
+                controller.enqueue(
+                  encoder.encode(`data: ${JSON.stringify(imageEvent)}\n\n`),
+                );
+                event = null; // Already emitted
+              }
               break;
           }
 
@@ -211,14 +350,24 @@ async function handleRequest(
   });
 }
 
+// Get text content from message (supports both legacy and new format)
+function getMessageText(msg: { content?: string; parts?: Array<{ type: string; text?: string }> }): string {
+  if (msg.parts) {
+    return msg.parts
+      .filter((p) => p.type === "text" && p.text)
+      .map((p) => p.text)
+      .join(" ");
+  }
+  return msg.content || "";
+}
+
 // Mock streaming response when no API key is set
-function createMockStream(messages: { role: string; content: string }[]) {
-  const lastMessage =
-    messages[messages.length - 1]?.content.toLowerCase() || "";
+function createMockStream(messages: Array<{ role: string; content?: string; parts?: Array<{ type: string; text?: string }> }>) {
+  const lastMessage = getMessageText(messages[messages.length - 1] || {}).toLowerCase();
   const encoder = new TextEncoder();
 
   let mockResponse =
-    "I'm a demo agent. In production with an OpenAI API key, I can help with weather and time queries using tools.";
+    "I'm a demo agent. In production with an OpenAI API key, I can help with weather, time queries, and image generation using tools.";
 
   // Check if the user asked about weather
   if (lastMessage.includes("weather")) {
@@ -335,6 +484,63 @@ function createMockStream(messages: { role: string; content: string }[]) {
         controller.enqueue(
           encoder.encode(
             `data: ${JSON.stringify({ type: "text", text: followUp })}\n\n`,
+          ),
+        );
+
+        controller.enqueue(
+          encoder.encode(`data: ${JSON.stringify({ type: "done" })}\n\n`),
+        );
+        controller.close();
+      },
+    });
+
+    return new Response(stream, {
+      headers: {
+        "Content-Type": "text/event-stream",
+        "Cache-Control": "no-cache",
+        Connection: "keep-alive",
+      },
+    });
+  }
+
+  // Check if the user asked for image generation
+  if (
+    lastMessage.includes("generate an image") ||
+    lastMessage.includes("create an image") ||
+    lastMessage.includes("create a picture") ||
+    lastMessage.includes("generate a picture") ||
+    lastMessage.startsWith("/image")
+  ) {
+    mockResponse = `I would generate an image for you, but this requires an OpenAI API key to be configured. In production, I can create images using GPT Image 1.5.`;
+
+    const stream = new ReadableStream({
+      async start(controller) {
+        controller.enqueue(
+          encoder.encode(
+            `data: ${JSON.stringify({
+              type: "tool_call",
+              id: "mock_3",
+              name: "generate_image",
+              args: { prompt: lastMessage, size: "1024x1024" },
+            })}\n\n`,
+          ),
+        );
+
+        await new Promise((r) => setTimeout(r, 500));
+        controller.enqueue(
+          encoder.encode(
+            `data: ${JSON.stringify({
+              type: "tool_result",
+              id: "mock_3",
+              result: { success: false, error: "Mock mode - no API key configured" },
+            })}\n\n`,
+          ),
+        );
+
+        await new Promise((r) => setTimeout(r, 200));
+        controller.enqueue(
+          encoder.encode(
+            `data: ${JSON.stringify({ type: "text", text: mockResponse })}\n\n`,
           ),
         );
 
