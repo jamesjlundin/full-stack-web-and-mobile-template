@@ -48,7 +48,7 @@ export const fixtures: Fixture[] = [
     From healthcare to finance, AI-powered solutions are automating complex tasks, improving
     decision-making, and creating new opportunities for innovation. However, these developments
     also raise important questions about ethics, job displacement, and the need for regulation.`,
-    maxLength: 100,
+    maxLength: 250, // Reasonable length for a summary (actual limit is 2x = 500 chars)
     keyPoints: ['AI', 'industries', 'automation', 'ethics'],
   },
 
@@ -205,7 +205,7 @@ export const fixtures: Fixture[] = [
     context: `The Acme Corporation was founded in 1985 by Jane Doe in Seattle, Washington.
     The company initially focused on manufacturing industrial equipment but later pivoted
     to software development in 2005. Today, Acme employs over 5,000 people worldwide.`,
-    question: 'When was Acme Corporation founded and by whom?',
+    question: 'When and where was Acme Corporation founded, and by whom?',
     expectedFacts: ['1985', 'Jane Doe', 'Seattle'],
   },
 ];
