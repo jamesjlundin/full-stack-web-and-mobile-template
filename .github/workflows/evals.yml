@@ -45,9 +45,8 @@ jobs:
       - name: Run evaluations with mock model (required)
         run: pnpm evals --report=json --model=mock
 
-      - name: Run evaluations with OpenAI (optional)
+      - name: Run evaluations with OpenAI
         if: env.OPENAI_API_KEY != ''
-        continue-on-error: true
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: pnpm evals --report=json --model=openai
@@ -61,7 +60,6 @@ jobs:
             echo "rag_exists=false" >> $GITHUB_OUTPUT
           fi
 
-      - name: Run RAG evaluations (optional)
+      - name: Run RAG evaluations
         if: steps.check-rag.outputs.rag_exists == 'true'
-        continue-on-error: true
         run: pnpm evals --report=json --model=mock --rag

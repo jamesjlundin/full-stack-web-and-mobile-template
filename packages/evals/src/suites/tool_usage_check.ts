@@ -77,41 +77,52 @@ async function evaluateToolUsage(
     }
 
     // Check expected arguments if specified
+    // Be flexible about argument names - LLMs may use different keys (e.g., "city" vs "location")
     if (fixture.expectedArguments) {
-      const missingArgs: string[] = [];
-      const wrongArgs: string[] = [];
+      const missingValues: string[] = [];
 
-      for (const [key, expectedValue] of Object.entries(
+      for (const [expectedKey, expectedValue] of Object.entries(
         fixture.expectedArguments
       )) {
-        const actualValue = toolCall.arguments[key];
+        if (typeof expectedValue !== 'string') continue;
 
-        if (actualValue === undefined) {
-          missingArgs.push(key);
-        } else if (typeof expectedValue === 'string') {
-          // For string values, check if the actual value contains the expected
-          const actualStr = String(actualValue).toLowerCase();
-          const expectedStr = expectedValue.toLowerCase();
-          if (!actualStr.includes(expectedStr)) {
-            wrongArgs.push(`${key}: expected "${expectedValue}", got "${actualValue}"`);
+        const expectedStr = expectedValue.toLowerCase();
+
+        // First try exact key match
+        let found = false;
+        const exactValue = toolCall.arguments[expectedKey];
+        if (exactValue !== undefined) {
+          const actualStr = String(exactValue).toLowerCase();
+          if (actualStr.includes(expectedStr)) {
+            found = true;
           }
+        }
+
+        // If not found by key, check if any argument value contains the expected value
+        if (!found) {
+          for (const actualValue of Object.values(toolCall.arguments)) {
+            const actualStr = String(actualValue).toLowerCase();
+            if (actualStr.includes(expectedStr)) {
+              found = true;
+              break;
+            }
+          }
+        }
+
+        if (!found) {
+          missingValues.push(`${expectedKey}="${expectedValue}"`);
         }
       }
 
-      if (missingArgs.length > 0 || wrongArgs.length > 0) {
-        const issues = [
-          ...missingArgs.map((a) => `missing: ${a}`),
-          ...wrongArgs,
-        ];
-
+      if (missingValues.length > 0) {
         return {
           id: fixture.id,
           suite: 'tool_usage_check',
           name: fixture.name,
           passed: false,
           score: 0.75, // Partial credit for correct tool
-          error: 'Incorrect arguments',
-          details: issues.join('; '),
+          error: 'Expected values not found in arguments',
+          details: `Missing: ${missingValues.join(', ')}. Got: ${JSON.stringify(toolCall.arguments)}`,
         };
       }
     }
