@@ -20,6 +20,7 @@ export default async function AgentDemoPage() {
 
   const aiProviders = config.ai?.providers ?? [];
   const defaultProvider = config.ai?.defaultProvider ?? null;
+  const blobStorageEnabled = config.blobStorageEnabled ?? false;
 
   return (
     <AppShell user={{ email: user.email, name: user.name }}>
@@ -39,6 +40,7 @@ export default async function AgentDemoPage() {
           <AgentChat
             providers={aiProviders as AiProviderInfo[]}
             defaultProvider={defaultProvider}
+            blobStorageEnabled={blobStorageEnabled}
           />
 
           <p className="text-xs text-muted-foreground text-center">

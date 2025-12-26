@@ -105,6 +105,7 @@ export function createApiClient({ baseUrl = "" }: ApiClientConfig = {}) {
   const defaultConfig: AppConfig = {
     isEmailVerificationRequired: false,
     isGoogleAuthEnabled: false,
+    blobStorageEnabled: false,
     ai: { providers: [], defaultProvider: null },
     analytics: { googleAnalyticsId: null },
   };

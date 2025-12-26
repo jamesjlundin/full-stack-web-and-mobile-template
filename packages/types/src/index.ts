@@ -25,6 +25,7 @@ export type AiProviderInfo = {
 export type AppConfig = {
   isEmailVerificationRequired: boolean;
   isGoogleAuthEnabled: boolean;
+  blobStorageEnabled: boolean;
   ai: {
     providers: AiProviderInfo[];
     defaultProvider: string | null;

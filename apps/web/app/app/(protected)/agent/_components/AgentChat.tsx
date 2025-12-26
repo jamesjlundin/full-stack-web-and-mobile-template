@@ -32,12 +32,13 @@ import type { ChangeEvent, FormEvent, KeyboardEvent } from "react";
 type AgentChatProps = {
   providers: AiProviderInfo[];
   defaultProvider: string | null;
+  blobStorageEnabled: boolean;
 };
 
 const ACCEPTED_IMAGE_TYPES = "image/jpeg,image/png,image/webp,image/gif";
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
-export function AgentChat({ providers, defaultProvider }: AgentChatProps) {
+export function AgentChat({ providers, defaultProvider, blobStorageEnabled }: AgentChatProps) {
   // Initialize selected provider/model from defaults
   const [selectedProvider, setSelectedProvider] = useState<string | null>(() => {
     if (defaultProvider && providers.some((p) => p.id === defaultProvider)) {
@@ -199,13 +200,15 @@ export function AgentChat({ providers, defaultProvider }: AgentChatProps) {
             <p className="text-lg font-medium">AI Agent Demo</p>
             <p className="text-sm mt-1">
               {hasProviders
-                ? "Try asking about weather, time, or generate images!"
+                ? blobStorageEnabled
+                  ? "Try asking about weather, time, or generate images!"
+                  : "Try asking about weather or time!"
                 : "No AI providers configured. Using mock responses."}
             </p>
             <div className="mt-4 space-y-1 text-xs">
               <p>&quot;What&apos;s the weather in San Francisco?&quot;</p>
               <p>&quot;What time is it in Tokyo?&quot;</p>
-              <p>&quot;/image a sunset over mountains&quot;</p>
+              {blobStorageEnabled && <p>&quot;/image a sunset over mountains&quot;</p>}
             </div>
           </div>
         )}
@@ -359,44 +362,48 @@ export function AgentChat({ providers, defaultProvider }: AgentChatProps) {
             )}
           </div>
           <div className="flex gap-1">
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="icon"
-                    onClick={() => fileInputRef.current?.click()}
-                    disabled={isStreaming}
-                    className="shrink-0"
-                  >
-                    <Upload className="h-4 w-4" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Upload image</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="icon"
-                    onClick={insertImageCommand}
-                    disabled={isStreaming}
-                    className="shrink-0"
-                  >
-                    <ImagePlus className="h-4 w-4" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Generate image (/image)</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
+            {blobStorageEnabled && (
+              <>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="icon"
+                        onClick={() => fileInputRef.current?.click()}
+                        disabled={isStreaming}
+                        className="shrink-0"
+                      >
+                        <Upload className="h-4 w-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Upload image</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="icon"
+                        onClick={insertImageCommand}
+                        disabled={isStreaming}
+                        className="shrink-0"
+                      >
+                        <ImagePlus className="h-4 w-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Generate image (/image)</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </>
+            )}
             <Button
               type="button"
               variant="outline"

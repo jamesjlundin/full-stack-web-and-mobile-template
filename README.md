@@ -25,6 +25,7 @@ A production-ready GitHub template for building full-stack applications with a s
 3. Select **"Neon"** as provider → click **"Continue"** → **"Create"**
 
 Vercel automatically adds these env vars to your project:
+
 - `DATABASE_URL`
 - `POSTGRES_URL`
 - `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_HOST`, `POSTGRES_DATABASE`
@@ -36,6 +37,7 @@ Vercel automatically adds these env vars to your project:
 3. Select **"Upstash"** as provider → click **"Continue"** → **"Create"**
 
 Vercel automatically adds these env vars to your project:
+
 - `UPSTASH_REDIS_REST_URL`
 - `UPSTASH_REDIS_REST_TOKEN`
 
@@ -76,9 +78,11 @@ If you want image upload and generation features in the AI Agent:
 3. Name it (e.g., "Images") → click **"Create"**
 
 Vercel automatically adds this env var to your project:
+
 - `BLOB_READ_WRITE_TOKEN`
 
 This enables:
+
 - User image uploads in chat
 - AI-generated image storage
 - Image input to vision-capable models
@@ -100,30 +104,30 @@ If you want to use a custom domain instead of the default `.vercel.app` URL:
 
 **Required** (you must add these manually):
 
-| Variable | Value |
-|----------|-------|
+| Variable             | Value                                                                |
+| -------------------- | -------------------------------------------------------------------- |
 | `BETTER_AUTH_SECRET` | Random string, 32+ chars (run `openssl rand -base64 32` in terminal) |
-| `APP_BASE_URL` | `https://your-project.vercel.app` (your Vercel URL) |
-| `CRON_SECRET` | Random string for cron auth (run `openssl rand -hex 32` in terminal) |
+| `APP_BASE_URL`       | `https://your-project.vercel.app` (your Vercel URL)                  |
+| `CRON_SECRET`        | Random string for cron auth (run `openssl rand -hex 32` in terminal) |
 
 **Auto-configured** (set automatically when connecting storage in steps 3-4, 7):
 
-| Variable | Source |
-|----------|--------|
-| `DATABASE_URL` | Auto-set when Neon Postgres is connected |
-| `UPSTASH_REDIS_REST_URL` | Auto-set when Upstash Redis is connected |
-| `UPSTASH_REDIS_REST_TOKEN` | Auto-set when Upstash Redis is connected |
-| `BLOB_READ_WRITE_TOKEN` | Auto-set when Vercel Blob is connected (optional) |
+| Variable                   | Source                                            |
+| -------------------------- | ------------------------------------------------- |
+| `DATABASE_URL`             | Auto-set when Neon Postgres is connected          |
+| `UPSTASH_REDIS_REST_URL`   | Auto-set when Upstash Redis is connected          |
+| `UPSTASH_REDIS_REST_TOKEN` | Auto-set when Upstash Redis is connected          |
+| `BLOB_READ_WRITE_TOKEN`    | Auto-set when Vercel Blob is connected (optional) |
 
 **Optional** (add if using these features):
 
-| Variable | Value |
-|----------|-------|
-| `OPENAI_API_KEY` | For AI chat functionality |
-| `RESEND_API_KEY` | Your Resend API key from step 5 |
-| `MAIL_FROM` | Your verified domain email or `onboarding@resend.dev` |
-| `GOOGLE_CLIENT_ID` | Google OAuth client ID from step 6 |
-| `GOOGLE_CLIENT_SECRET` | Google OAuth client secret from step 6 |
+| Variable               | Value                                                 |
+| ---------------------- | ----------------------------------------------------- |
+| `OPENAI_API_KEY`       | For AI chat functionality                             |
+| `RESEND_API_KEY`       | Your Resend API key from step 5                       |
+| `MAIL_FROM`            | Your verified domain email or `onboarding@resend.dev` |
+| `GOOGLE_CLIENT_ID`     | Google OAuth client ID from step 6                    |
+| `GOOGLE_CLIENT_SECRET` | Google OAuth client secret from step 6                |
 
 ### 10. Create Deploy Hook
 
@@ -147,10 +151,10 @@ This prevents Vercel from auto-deploying; our GitHub Actions CI/CD handles deplo
 
 **Required** (both are needed for CI/CD to work):
 
-| Secret | Value |
-|--------|-------|
-| `DATABASE_URL` | Copy from Vercel: Settings → Environment Variables → click `DATABASE_URL` to reveal |
-| `VERCEL_DEPLOY_HOOK_URL` | The deploy hook URL from step 10 |
+| Secret                   | Value                                                                               |
+| ------------------------ | ----------------------------------------------------------------------------------- |
+| `DATABASE_URL`           | Copy from Vercel: Settings → Environment Variables → click `DATABASE_URL` to reveal |
+| `VERCEL_DEPLOY_HOOK_URL` | The deploy hook URL from step 10                                                    |
 
 These secrets allow GitHub Actions to run migrations against your production database and trigger Vercel deployments.
 
@@ -163,11 +167,11 @@ pnpm install
 pnpm env:init
 ```
 
-Edit the root `.env` with your local values:
-```
-DATABASE_URL=postgres://postgres:postgres@localhost:5432/acme
-BETTER_AUTH_SECRET=local-dev-secret-at-least-32-chars
-APP_BASE_URL=http://localhost:3000
+The `env:init` command creates a `.env` file from `.env.example` with local development defaults pre-configured. The only value you need to set is `BETTER_AUTH_SECRET`:
+
+```bash
+# Generate and set the auth secret (or just use any 32+ character string for local dev)
+echo "BETTER_AUTH_SECRET=$(openssl rand -base64 32)" >> .env
 ```
 
 Then re-run `pnpm env:init` to copy your changes to all packages and apps.
@@ -202,6 +206,7 @@ This template includes an AI Agent demo to showcase capabilities. **Remove these
 An interactive AI agent with tool calling. Sign in and visit `/app/agent` to try it.
 
 Features:
+
 - Streaming chat responses
 - Tool calling (mock weather and time tools)
 - Image upload and vision (requires Vercel Blob)
@@ -236,22 +241,22 @@ rm -rf packages/ai/src/prompts/agent
 
 ### Applications
 
-| App | Technology | Description |
-|-----|------------|-------------|
-| `apps/web` | Next.js 14+ | Server-rendered web app with App Router, middleware, and API routes |
-| `apps/mobile` | React Native | Native iOS/Android app with shared API client |
+| App           | Technology   | Description                                                         |
+| ------------- | ------------ | ------------------------------------------------------------------- |
+| `apps/web`    | Next.js 14+  | Server-rendered web app with App Router, middleware, and API routes |
+| `apps/mobile` | React Native | Native iOS/Android app with shared API client                       |
 
 ### Shared Packages
 
-| Package | Purpose |
-|---------|---------|
-| `packages/db` | Drizzle ORM schema, migrations, and database client |
-| `packages/auth` | Better Auth configuration and helpers |
-| `packages/api-client` | Fetch-based API client with streaming support |
-| `packages/ai` | OpenAI integration with Vercel AI SDK |
-| `packages/security` | Rate limiting utilities |
-| `packages/types` | Shared TypeScript types |
-| `packages/tests` | Integration test suite |
+| Package               | Purpose                                             |
+| --------------------- | --------------------------------------------------- |
+| `packages/db`         | Drizzle ORM schema, migrations, and database client |
+| `packages/auth`       | Better Auth configuration and helpers               |
+| `packages/api-client` | Fetch-based API client with streaming support       |
+| `packages/ai`         | OpenAI integration with Vercel AI SDK               |
+| `packages/security`   | Rate limiting utilities                             |
+| `packages/types`      | Shared TypeScript types                             |
+| `packages/tests`      | Integration test suite                              |
 
 ### Web Application Features
 
@@ -309,13 +314,16 @@ rm -rf packages/ai/src/prompts/agent
 ## Prerequisites
 
 **Required:**
+
 - Node.js 20+, pnpm (`npm install -g pnpm`), Git, Docker
 
 **For mobile development:**
+
 - iOS: Xcode + CocoaPods (`sudo gem install cocoapods`)
 - Android: Android Studio with SDK configured
 
 **Accounts:**
+
 - GitHub, Vercel (free tier works), Resend (for email)
 - Apple Developer Program ($99/year) for iOS TestFlight deployment
 
@@ -326,6 +334,7 @@ rm -rf packages/ai/src/prompts/agent
 ### No Docker?
 
 If Docker is unavailable, install PostgreSQL directly:
+
 ```bash
 sudo ./scripts/setup-postgres.sh
 ```
@@ -335,12 +344,14 @@ sudo ./scripts/setup-postgres.sh
 The mobile app requires the web app running locally for API access.
 
 **iOS:**
+
 ```bash
 cd apps/mobile/ios && bundle exec pod install && cd ..
 pnpm ios
 ```
 
 **Android:**
+
 ```bash
 pnpm android
 ```
@@ -388,15 +399,15 @@ Go to your repo → **Settings** → **Secrets and variables** → **Actions** �
 
 Add these 7 required secrets:
 
-| Secret | Value |
-|--------|-------|
-| `APP_IDENTIFIER` | Your bundle ID (e.g., `com.yourcompany.yourapp`) |
-| `APPLE_TEAM_ID` | Your 10-character Team ID (find at [developer.apple.com/account](https://developer.apple.com/account) → Membership) |
-| `APP_STORE_CONNECT_ISSUER_ID` | From API Keys page (shown above the keys table) |
-| `APP_STORE_CONNECT_KEY_ID` | From API Keys page (in the table) |
-| `APP_STORE_CONNECT_PRIVATE_KEY` | Contents of the `.p8` file |
-| `MATCH_GIT_URL` | `git@github.com:yourorg/ios-certificates.git` |
-| `MATCH_PASSWORD` | A strong password for encrypting certs (generate with `openssl rand -base64 32`) |
+| Secret                          | Value                                                                                                               |
+| ------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| `APP_IDENTIFIER`                | Your bundle ID (e.g., `com.yourcompany.yourapp`)                                                                    |
+| `APPLE_TEAM_ID`                 | Your 10-character Team ID (find at [developer.apple.com/account](https://developer.apple.com/account) → Membership) |
+| `APP_STORE_CONNECT_ISSUER_ID`   | From API Keys page (shown above the keys table)                                                                     |
+| `APP_STORE_CONNECT_KEY_ID`      | From API Keys page (in the table)                                                                                   |
+| `APP_STORE_CONNECT_PRIVATE_KEY` | Contents of the `.p8` file                                                                                          |
+| `MATCH_GIT_URL`                 | `git@github.com:yourorg/ios-certificates.git`                                                                       |
+| `MATCH_PASSWORD`                | A strong password for encrypting certs (generate with `openssl rand -base64 32`)                                    |
 
 #### 5. Update Bundle Identifier in Xcode
 
@@ -457,58 +468,58 @@ When running `pnpm db:up`, pgweb is available at [http://localhost:8081](http://
 
 ### Required Variables
 
-| Variable | Description |
-|----------|-------------|
-| `DATABASE_URL` | PostgreSQL connection string (e.g., `postgres://user:pass@host:5432/db`) |
-| `BETTER_AUTH_SECRET` | Secret key for auth tokens (minimum 32 characters) |
-| `APP_BASE_URL` | Base URL for auth and email links (e.g., `https://your-app.vercel.app`) |
-| `CRON_SECRET` | Secret for cron job auth (generate with `openssl rand -hex 32`). Vercel sends this as `Authorization: Bearer` header. |
-| `UPSTASH_REDIS_REST_URL` | Upstash Redis URL for rate limiting (from Vercel Marketplace → Upstash) |
-| `UPSTASH_REDIS_REST_TOKEN` | Upstash Redis token for rate limiting (auto-set when connected via Vercel) |
+| Variable                   | Description                                                                                                           |
+| -------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| `DATABASE_URL`             | PostgreSQL connection string (e.g., `postgres://user:pass@host:5432/db`)                                              |
+| `BETTER_AUTH_SECRET`       | Secret key for auth tokens (minimum 32 characters)                                                                    |
+| `APP_BASE_URL`             | Base URL for auth and email links (e.g., `https://your-app.vercel.app`)                                               |
+| `CRON_SECRET`              | Secret for cron job auth (generate with `openssl rand -hex 32`). Vercel sends this as `Authorization: Bearer` header. |
+| `UPSTASH_REDIS_REST_URL`   | Upstash Redis URL for rate limiting (from Vercel Marketplace → Upstash)                                               |
+| `UPSTASH_REDIS_REST_TOKEN` | Upstash Redis token for rate limiting (auto-set when connected via Vercel)                                            |
 
 ### Application URLs
 
-| Variable | Description |
-|----------|-------------|
+| Variable              | Description                             |
+| --------------------- | --------------------------------------- |
 | `NEXT_PUBLIC_API_URL` | Public API URL for client-side requests |
-| `PORT` | Server port (default: `3000`) |
+| `PORT`                | Server port (default: `3000`)           |
 
 ### Email Configuration (Resend)
 
-| Variable | Description |
-|----------|-------------|
-| `RESEND_API_KEY` | API key from [Resend](https://resend.com) |
-| `MAIL_FROM` | Sender address (e.g., `"Your App <no-reply@yourdomain.com>"`) |
-| `RESEND_DRY_RUN` | Set to `1` to log emails instead of sending (useful for CI) |
+| Variable         | Description                                                   |
+| ---------------- | ------------------------------------------------------------- |
+| `RESEND_API_KEY` | API key from [Resend](https://resend.com)                     |
+| `MAIL_FROM`      | Sender address (e.g., `"Your App <no-reply@yourdomain.com>"`) |
+| `RESEND_DRY_RUN` | Set to `1` to log emails instead of sending (useful for CI)   |
 
 ### AI/Chat Configuration
 
-| Variable | Description |
-|----------|-------------|
+| Variable         | Description                                              |
+| ---------------- | -------------------------------------------------------- |
 | `OPENAI_API_KEY` | OpenAI API key (optional—uses mock responses if not set) |
-| `AI_MODEL` | Model to use (default: `gpt-4o-mini`) |
+| `AI_MODEL`       | Model to use (default: `gpt-4o-mini`)                    |
 
 ### OAuth Providers (Optional)
 
-| Variable | Description |
-|----------|-------------|
-| `GOOGLE_CLIENT_ID` | Google OAuth client ID (enables "Sign in with Google") |
-| `GOOGLE_CLIENT_SECRET` | Google OAuth client secret |
-| `GITHUB_CLIENT_ID` | GitHub OAuth app client ID |
-| `GITHUB_CLIENT_SECRET` | GitHub OAuth app client secret |
+| Variable               | Description                                            |
+| ---------------------- | ------------------------------------------------------ |
+| `GOOGLE_CLIENT_ID`     | Google OAuth client ID (enables "Sign in with Google") |
+| `GOOGLE_CLIENT_SECRET` | Google OAuth client secret                             |
+| `GITHUB_CLIENT_ID`     | GitHub OAuth app client ID                             |
+| `GITHUB_CLIENT_SECRET` | GitHub OAuth app client secret                         |
 
 ### Development/Testing
 
-| Variable | Description |
-|----------|-------------|
+| Variable           | Description                                                                                       |
+| ------------------ | ------------------------------------------------------------------------------------------------- |
 | `ALLOW_DEV_TOKENS` | Set to `true` to enable token echoing in production builds (testing only—never use in production) |
 
 ### Mobile Deep Linking (Optional)
 
-| Variable | Description |
-|----------|-------------|
-| `MOBILE_APP_SCHEME` | Custom URL scheme for mobile deep links (default: `app-template`) |
-| `MOBILE_DEEP_LINK_ENABLED` | Set to `1` to include mobile deep links in password reset emails |
+| Variable                   | Description                                                       |
+| -------------------------- | ----------------------------------------------------------------- |
+| `MOBILE_APP_SCHEME`        | Custom URL scheme for mobile deep links (default: `app-template`) |
+| `MOBILE_DEEP_LINK_ENABLED` | Set to `1` to include mobile deep links in password reset emails  |
 
 ---
 
@@ -528,10 +539,10 @@ The template includes a complete password reset flow for both web and mobile app
 
 ### API Endpoints
 
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/api/auth/reset/request` | POST | Request password reset (body: `{ email }`) |
-| `/api/auth/reset/confirm` | POST | Confirm password reset (body: `{ token, newPassword }`) |
+| Endpoint                  | Method | Description                                             |
+| ------------------------- | ------ | ------------------------------------------------------- |
+| `/api/auth/reset/request` | POST   | Request password reset (body: `{ email }`)              |
+| `/api/auth/reset/confirm` | POST   | Confirm password reset (body: `{ token, newPassword }`) |
 
 Both endpoints are rate limited to 5 requests per minute per IP.
 
@@ -556,6 +567,7 @@ Both endpoints are rate limited to 5 requests per minute per IP.
 ### Development Mode
 
 In development (`NODE_ENV !== "production"`), password reset tokens are:
+
 1. Logged to the server console
 2. Returned in the API response as `devToken`
 3. Displayed in the UI for easy testing
@@ -573,6 +585,7 @@ When `MOBILE_DEEP_LINK_ENABLED=1`, password reset emails include a mobile deep l
 To enable deep linking in your mobile app:
 
 **iOS**: Add URL scheme to `Info.plist`:
+
 ```xml
 <key>CFBundleURLTypes</key>
 <array>
@@ -586,6 +599,7 @@ To enable deep linking in your mobile app:
 ```
 
 **Android**: Add intent filter to `AndroidManifest.xml`:
+
 ```xml
 <intent-filter>
   <action android:name="android.intent.action.VIEW" />
@@ -661,6 +675,7 @@ await clearToken();
 ```
 
 **Security Features:**
+
 - iOS: Stored in iOS Keychain with `WHEN_UNLOCKED_THIS_DEVICE_ONLY` accessibility
 - Android: Stored in Android Keystore
 - Never stored in plain text or AsyncStorage
@@ -671,12 +686,12 @@ The `AuthProvider` exposes the following via `useAuth()`:
 
 ```typescript
 const {
-  user,           // Current user object or null
-  token,          // Current session token or null
-  loading,        // True while restoring session on startup
-  signIn,         // (email, password) => Promise<void>
-  signUp,         // (email, password) => Promise<void>
-  signOut,        // () => Promise<void>
+  user, // Current user object or null
+  token, // Current session token or null
+  loading, // True while restoring session on startup
+  signIn, // (email, password) => Promise<void>
+  signUp, // (email, password) => Promise<void>
+  signOut, // () => Promise<void>
   refreshSession, // () => Promise<void> - Re-validate current session
 } = useAuth();
 ```
@@ -707,14 +722,14 @@ export default function NewScreen() {
 
 ```typescript
 // In AppStack type
-type AppStackScreen = 'home' | 'agent' | 'account' | 'newScreen';
+type AppStackScreen = "home" | "agent" | "account" | "newScreen";
 
 // Add to MENU_ITEMS for drawer navigation
 const MENU_ITEMS = [
-  {id: 'home', label: 'Dashboard'},
-  {id: 'agent', label: 'AI Agent'},
-  {id: 'account', label: 'Account'},
-  {id: 'newScreen', label: 'New Screen'},
+  { id: "home", label: "Dashboard" },
+  { id: "agent", label: "AI Agent" },
+  { id: "account", label: "Account" },
+  { id: "newScreen", label: "New Screen" },
 ];
 
 // In AppStack component, add screen rendering in renderScreen()
@@ -732,14 +747,14 @@ To add a new auth screen (e.g., onboarding):
 
 ### Session Lifecycle
 
-| Event | Behavior |
-|-------|----------|
-| App Launch | Load token → Validate with server → Set user or clear |
-| Sign In | API call → Save token → Update state → Show AppStack |
-| Sign Up | Create account → Auto sign in → Show AppStack |
-| Sign Out | Clear secure storage → Reset state → Show AuthStack |
-| App Resume | (Optional) Call `refreshSession()` to re-validate |
-| Token Invalid | Clear secure storage → Show AuthStack |
+| Event         | Behavior                                              |
+| ------------- | ----------------------------------------------------- |
+| App Launch    | Load token → Validate with server → Set user or clear |
+| Sign In       | API call → Save token → Update state → Show AppStack  |
+| Sign Up       | Create account → Auto sign in → Show AppStack         |
+| Sign Out      | Clear secure storage → Reset state → Show AuthStack   |
+| App Resume    | (Optional) Call `refreshSession()` to re-validate     |
+| Token Invalid | Clear secure storage → Show AuthStack                 |
 
 ### Native Configuration
 

@@ -10,6 +10,7 @@ export type SessionUser = {
 export type AppConfig = {
   isEmailVerificationRequired: boolean;
   isGoogleAuthEnabled?: boolean;
+  blobStorageEnabled?: boolean;
   ai?: {
     providers: Array<{
       id: string;
@@ -41,6 +42,7 @@ export async function getServerSession(): Promise<SessionResult> {
   const defaultConfig: AppConfig = {
     isEmailVerificationRequired: false,
     isGoogleAuthEnabled: false,
+    blobStorageEnabled: false,
     ai: { providers: [], defaultProvider: null },
   };
 

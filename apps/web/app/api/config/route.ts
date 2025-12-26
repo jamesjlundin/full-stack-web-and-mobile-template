@@ -13,6 +13,7 @@ export async function GET() {
   return NextResponse.json({
     isEmailVerificationRequired: !!process.env.RESEND_API_KEY,
     isGoogleAuthEnabled: isGoogleAuthEnabled(),
+    blobStorageEnabled: !!process.env.BLOB_READ_WRITE_TOKEN,
     ai: {
       providers,
       defaultProvider: defaultProvider?.id ?? null,
