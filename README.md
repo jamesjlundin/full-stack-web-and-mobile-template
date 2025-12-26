@@ -67,7 +67,23 @@ If you want users to sign in with their Google account:
    - Authorized redirect URIs: Add `https://your-app.vercel.app/api/auth/callback/google` (and `http://localhost:3000/api/auth/callback/google` for local dev)
 7. Copy the **Client ID** and **Client Secret**
 
-### 7. Add Custom Domain (Optional)
+### 7. Set Up Vercel Blob Storage (Optional)
+
+If you want image upload and generation features in the AI Agent:
+
+1. In your Vercel project, click the **"Storage"** tab
+2. Click **"Create Database"** → select **"Blob"**
+3. Name it (e.g., "Images") → click **"Create"**
+
+Vercel automatically adds this env var to your project:
+- `BLOB_READ_WRITE_TOKEN`
+
+This enables:
+- User image uploads in chat
+- AI-generated image storage
+- Image input to vision-capable models
+
+### 8. Add Custom Domain (Optional)
 
 If you want to use a custom domain instead of the default `.vercel.app` URL:
 
@@ -77,7 +93,7 @@ If you want to use a custom domain instead of the default `.vercel.app` URL:
 4. If you own a domain elsewhere, follow the DNS configuration instructions shown
 5. Once configured, update your `APP_BASE_URL` environment variable to use your custom domain
 
-### 8. Configure Vercel Environment Variables
+### 9. Configure Vercel Environment Variables
 
 1. In your Vercel project, click **"Settings"** tab → **"Environment Variables"**
 2. Add each variable below (click **"Add"** after each):
@@ -90,13 +106,14 @@ If you want to use a custom domain instead of the default `.vercel.app` URL:
 | `APP_BASE_URL` | `https://your-project.vercel.app` (your Vercel URL) |
 | `CRON_SECRET` | Random string for cron auth (run `openssl rand -hex 32` in terminal) |
 
-**Auto-configured** (set automatically when connecting storage in steps 3-4):
+**Auto-configured** (set automatically when connecting storage in steps 3-4, 7):
 
 | Variable | Source |
 |----------|--------|
 | `DATABASE_URL` | Auto-set when Neon Postgres is connected |
 | `UPSTASH_REDIS_REST_URL` | Auto-set when Upstash Redis is connected |
 | `UPSTASH_REDIS_REST_TOKEN` | Auto-set when Upstash Redis is connected |
+| `BLOB_READ_WRITE_TOKEN` | Auto-set when Vercel Blob is connected (optional) |
 
 **Optional** (add if using these features):
 
@@ -108,14 +125,14 @@ If you want to use a custom domain instead of the default `.vercel.app` URL:
 | `GOOGLE_CLIENT_ID` | Google OAuth client ID from step 6 |
 | `GOOGLE_CLIENT_SECRET` | Google OAuth client secret from step 6 |
 
-### 9. Create Deploy Hook
+### 10. Create Deploy Hook
 
 1. In Vercel, click **"Settings"** → **"Git"** (left sidebar)
 2. Scroll to **"Deploy Hooks"** → click **"Create Hook"**
 3. Name: `GitHub Actions`, Branch: `main` → click **"Create Hook"**
 4. Copy the generated URL
 
-### 10. Disable Auto-Deploy
+### 11. Disable Auto-Deploy
 
 1. In Vercel **"Settings"** → **"Git"**, scroll to **"Ignored Build Step"**
 2. Select **"Custom"** and enter: `exit 0`
@@ -123,7 +140,7 @@ If you want to use a custom domain instead of the default `.vercel.app` URL:
 
 This prevents Vercel from auto-deploying; our GitHub Actions CI/CD handles deployments after running migrations.
 
-### 11. Add GitHub Secrets
+### 12. Add GitHub Secrets
 
 1. Go to your GitHub repo → **"Settings"** tab → **"Secrets and variables"** → **"Actions"**
 2. Click **"New repository secret"** and add each:
@@ -133,11 +150,11 @@ This prevents Vercel from auto-deploying; our GitHub Actions CI/CD handles deplo
 | Secret | Value |
 |--------|-------|
 | `DATABASE_URL` | Copy from Vercel: Settings → Environment Variables → click `DATABASE_URL` to reveal |
-| `VERCEL_DEPLOY_HOOK_URL` | The deploy hook URL from step 9 |
+| `VERCEL_DEPLOY_HOOK_URL` | The deploy hook URL from step 10 |
 
 These secrets allow GitHub Actions to run migrations against your production database and trigger Vercel deployments.
 
-### 12. Clone and Set Up Locally
+### 13. Clone and Set Up Locally
 
 ```bash
 git clone https://github.com/YOUR_USERNAME/YOUR_REPO.git
@@ -155,7 +172,7 @@ APP_BASE_URL=http://localhost:3000
 
 Then re-run `pnpm env:init` to copy your changes to all packages and apps.
 
-### 13. Run Locally
+### 14. Run Locally
 
 ```bash
 pnpm db:up              # Start local PostgreSQL (requires Docker)
@@ -163,7 +180,7 @@ pnpm -C packages/db migrate:apply  # Run migrations
 pnpm -C apps/web dev    # Start dev server at localhost:3000
 ```
 
-### 14. Deploy to Production
+### 15. Deploy to Production
 
 ```bash
 git add -A && git commit -m "Initial setup"
@@ -187,6 +204,8 @@ An interactive AI agent with tool calling. Sign in and visit `/app/agent` to try
 Features:
 - Streaming chat responses
 - Tool calling (mock weather and time tools)
+- Image upload and vision (requires Vercel Blob)
+- Image generation via `/image` command (requires OpenAI API key)
 - Rate limiting per user
 
 ### Removing Demo Features
