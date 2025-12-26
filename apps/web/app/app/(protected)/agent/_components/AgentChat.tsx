@@ -315,70 +315,26 @@ export function AgentChat({ providers, defaultProvider }: AgentChatProps) {
 
       {/* Input area */}
       <div className="border-t p-4">
-        <form onSubmit={handleSubmit} className="flex gap-2">
-          <div className="flex-1 flex flex-col gap-2">
-            <div className="flex gap-2">
-              <Textarea
-                ref={textareaRef}
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={handleKeyDown}
-                placeholder="Ask about weather, time, or use /image to generate..."
-                className="min-h-[44px] max-h-32 resize-none flex-1"
-                rows={1}
-                disabled={isStreaming}
-              />
-              <input
-                type="file"
-                ref={fileInputRef}
-                onChange={handleFileSelect}
-                accept={ACCEPTED_IMAGE_TYPES}
-                multiple
-                className="hidden"
-              />
-            </div>
-          </div>
-          <div className="flex flex-col gap-2">
-            <div className="flex gap-1">
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="icon"
-                      onClick={() => fileInputRef.current?.click()}
-                      disabled={isStreaming}
-                      className="shrink-0"
-                    >
-                      <Upload className="h-4 w-4" />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Upload image</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="icon"
-                      onClick={insertImageCommand}
-                      disabled={isStreaming}
-                      className="shrink-0"
-                    >
-                      <ImagePlus className="h-4 w-4" />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Generate image (/image)</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            </div>
+        <form onSubmit={handleSubmit} className="flex flex-col gap-2">
+          <div className="flex gap-2">
+            <Textarea
+              ref={textareaRef}
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder="Ask about weather, time, or use /image to generate..."
+              className="min-h-[44px] max-h-32 resize-none flex-1"
+              rows={1}
+              disabled={isStreaming}
+            />
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleFileSelect}
+              accept={ACCEPTED_IMAGE_TYPES}
+              multiple
+              className="hidden"
+            />
             {isStreaming ? (
               <Button
                 type="button"
@@ -386,6 +342,7 @@ export function AgentChat({ providers, defaultProvider }: AgentChatProps) {
                 size="icon"
                 onClick={stopStreaming}
                 title="Stop"
+                className="shrink-0"
               >
                 <Square className="h-4 w-4" />
               </Button>
@@ -395,10 +352,51 @@ export function AgentChat({ providers, defaultProvider }: AgentChatProps) {
                 size="icon"
                 disabled={!input.trim() && selectedFiles.length === 0}
                 title="Send"
+                className="shrink-0"
               >
                 <Send className="h-4 w-4" />
               </Button>
             )}
+          </div>
+          <div className="flex gap-1">
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={isStreaming}
+                    className="shrink-0"
+                  >
+                    <Upload className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Upload image</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    onClick={insertImageCommand}
+                    disabled={isStreaming}
+                    className="shrink-0"
+                  >
+                    <ImagePlus className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Generate image (/image)</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
             <Button
               type="button"
               variant="outline"
