@@ -1,7 +1,8 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+// eslint-disable-next-line import/no-unresolved
 import { upload } from "@vercel/blob/client";
+import { useCallback, useRef, useState } from "react";
 
 import type { ImagePart, Message, MessagePart, StreamEvent, ToolCall } from "./types";
 

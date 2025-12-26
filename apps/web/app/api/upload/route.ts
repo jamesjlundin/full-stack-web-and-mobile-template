@@ -1,7 +1,7 @@
+import { auth } from "@acme/auth";
+// eslint-disable-next-line import/no-unresolved
 import { handleUpload, type HandleUploadBody } from "@vercel/blob/client";
 import { NextRequest, NextResponse } from "next/server";
-
-import { auth } from "@acme/auth";
 
 /**
  * Upload API route for Vercel Blob

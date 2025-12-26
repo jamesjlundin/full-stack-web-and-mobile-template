@@ -12,8 +12,8 @@ import { z } from "zod";
 
 import { withUserRateLimit } from "../../_lib/withUserRateLimit";
 
-import type { CoreMessage, ImagePart, TextPart } from "ai";
 import type { CurrentUserResult } from "@acme/auth";
+import type { CoreMessage, ImagePart, TextPart } from "ai";
 
 // Rate limiter: 20 requests per 60 seconds per user
 const agentLimiter = createRateLimiter({
