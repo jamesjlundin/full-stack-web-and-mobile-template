@@ -25,6 +25,13 @@ export {
   type ProviderConfig,
   type ProviderId,
 } from "./providers";
+export {
+  generateImageToolDef,
+  generateImageToolSchema,
+  executeGenerateImage,
+  type GenerateImageInput,
+  type GenerateImageResult,
+} from "./tools";
 
 type StreamChatParams = {
   prompt: string;
