@@ -26,7 +26,16 @@
     "PGUSER",
     "PGPASSWORD",
     "PGDATABASE",
-    "NEON_PROJECT_ID"
+    "NEON_PROJECT_ID",
+    "CRON_SECRET",
+    "KV_URL",
+    "KV_REST_API_READ_ONLY_TOKEN",
+    "KV_REST_API_TOKEN",
+    "KV_REST_API_URL",
+    "REDIS_URL",
+    "GOOGLE_CLIENT_ID",
+    "GOOGLE_CLIENT_SECRET",
+    "BLOB_READ_WRITE_TOKEN"
   ],
   "tasks": {
     "dev": {
