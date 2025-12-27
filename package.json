@@ -42,9 +42,9 @@
     "wait-on": "^7.0.1"
   },
   "dependencies": {
-    "@ai-sdk/openai": "^2.0.88",
+    "@ai-sdk/openai": "^3.0.0",
     "@upstash/ratelimit": "^2.0.7",
     "@upstash/redis": "^1.35.8",
-    "ai": "^5.0.115"
+    "ai": "^6.0.0"
   }
 }

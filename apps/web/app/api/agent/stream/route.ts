@@ -13,7 +13,7 @@ import { z } from "zod";
 import { withUserRateLimit } from "../../_lib/withUserRateLimit";
 
 import type { CurrentUserResult } from "@acme/auth";
-import type { CoreMessage, ImagePart, TextPart } from "ai";
+import type { ModelMessage, ImagePart, TextPart } from "ai";
 
 // Rate limiter: 20 requests per 60 seconds per user
 const agentLimiter = createRateLimiter({
@@ -107,8 +107,8 @@ function convertToAIMessages(
     content?: string;
     parts?: Array<{ type: "text"; text: string } | { type: "image"; url: string; alt?: string }>;
   }>
-): CoreMessage[] {
-  return messages.map((msg): CoreMessage => {
+): ModelMessage[] {
+  return messages.map((msg): ModelMessage => {
     // If parts array exists, use it
     if (msg.parts && msg.parts.length > 0) {
       const content: Array<TextPart | ImagePart> = msg.parts.map((part) => {
