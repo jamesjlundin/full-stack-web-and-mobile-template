@@ -38,7 +38,7 @@
     "ai": "^6.0.0",
     "@ai-sdk/openai": "^3.0.0",
     "drizzle-orm": "^0.45.1",
-    "ulid": "^2.3.0"
+    "ulid": "^3.0.2"
   },
   "devDependencies": {
     "@types/node": "^25.0.0",
