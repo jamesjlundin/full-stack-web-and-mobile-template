@@ -12,6 +12,7 @@ function getConfig() {
 
   return {
     isEmailVerificationRequired: !!process.env.RESEND_API_KEY,
+    blobStorageEnabled: !!process.env.BLOB_READ_WRITE_TOKEN,
     ai: {
       providers,
       defaultProvider: defaultProvider?.id ?? null,
