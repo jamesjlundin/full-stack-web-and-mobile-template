@@ -7,6 +7,7 @@ on: [push, pull_request]
 
 jobs:
   build:
+    name: Validate, Build and Test
     runs-on: ubuntu-latest
 
     services:
