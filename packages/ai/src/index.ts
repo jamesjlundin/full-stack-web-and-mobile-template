@@ -104,7 +104,7 @@ async function createProviderStreamResponse(
   }
   messages.push({ role: "user", content: prompt });
 
-  const result = await streamText({
+  const result = streamText({
     model: languageModel,
     messages,
   });

@@ -1,8 +1,8 @@
 import { openai } from "@ai-sdk/openai";
-import { experimental_generateImage as generateImage } from "ai";
+import { generateImage } from "ai";
 import { z } from "zod";
 
-// Image generation model - using OpenAI's DALL-E 3 (gpt-image-1.5 requires AI SDK 6+)
+// Image generation model - using OpenAI's DALL-E 3
 const IMAGE_MODEL = "dall-e-3";
 
 export const generateImageToolSchema = z.object({

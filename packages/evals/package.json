@@ -22,8 +22,8 @@
     "@types/node": "^25.0.0"
   },
   "peerDependencies": {
-    "@ai-sdk/openai": "^2.0.88",
-    "ai": "^5.0.115",
+    "@ai-sdk/openai": "^3.0.0",
+    "ai": "^6.0.0",
     "@acme/rag": "workspace:*",
     "@acme/db": "workspace:*"
   },

@@ -10,8 +10,8 @@
   },
   "dependencies": {
     "@acme/db": "workspace:*",
-    "dotenv": "^16.5.0",
-    "better-auth": "^1.4.7",
+    "dotenv": "^17.2.3",
+    "better-auth": "^1.4.9",
     "jose": "^6.1.3"
   },
   "devDependencies": {
