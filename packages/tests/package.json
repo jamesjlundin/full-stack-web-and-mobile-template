@@ -5,7 +5,7 @@
   "devDependencies": {
     "vitest": "^4.0.16",
     "set-cookie-parser": "^2.6.0",
-    "wait-on": "^7.0.1",
+    "wait-on": "^9.0.3",
     "@types/set-cookie-parser": "^2.4.7"
   },
   "scripts": {
