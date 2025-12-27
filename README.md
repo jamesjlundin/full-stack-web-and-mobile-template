@@ -1,6 +1,142 @@
 # Full-Stack Web & Mobile Template
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](http://makeapullrequest.com)
+
 A production-ready GitHub template for building full-stack applications with a shared codebase across web and mobile platforms. This monorepo provides everything you need to start a new project with authentication, database, API routes, AI chat streaming, email sending, and deployment automation—all wired up and ready to go.
+
+## Built With
+
+<table>
+  <tr>
+    <td align="center" width="96">
+      <a href="https://nextjs.org">
+        <img src="https://img.shields.io/badge/Next.js-black?style=for-the-badge&logo=next.js&logoColor=white" alt="Next.js"/>
+      </a>
+    </td>
+    <td align="center" width="96">
+      <a href="https://reactnative.dev">
+        <img src="https://img.shields.io/badge/React_Native-20232A?style=for-the-badge&logo=react&logoColor=61DAFB" alt="React Native"/>
+      </a>
+    </td>
+    <td align="center" width="96">
+      <a href="https://react.dev">
+        <img src="https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB" alt="React"/>
+      </a>
+    </td>
+    <td align="center" width="96">
+      <a href="https://www.typescriptlang.org">
+        <img src="https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript"/>
+      </a>
+    </td>
+  </tr>
+  <tr>
+    <td align="center" width="96">
+      <a href="https://vercel.com">
+        <img src="https://img.shields.io/badge/Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white" alt="Vercel"/>
+      </a>
+    </td>
+    <td align="center" width="96">
+      <a href="https://neon.tech">
+        <img src="https://img.shields.io/badge/Neon-00E599?style=for-the-badge&logo=neon&logoColor=black" alt="Neon"/>
+      </a>
+    </td>
+    <td align="center" width="96">
+      <a href="https://orm.drizzle.team">
+        <img src="https://img.shields.io/badge/Drizzle-C5F74F?style=for-the-badge&logo=drizzle&logoColor=black" alt="Drizzle"/>
+      </a>
+    </td>
+    <td align="center" width="96">
+      <a href="https://upstash.com">
+        <img src="https://img.shields.io/badge/Upstash-00E9A3?style=for-the-badge&logo=upstash&logoColor=black" alt="Upstash"/>
+      </a>
+    </td>
+  </tr>
+  <tr>
+    <td align="center" width="96">
+      <a href="https://www.better-auth.com">
+        <img src="https://img.shields.io/badge/Better_Auth-000000?style=for-the-badge&logo=auth0&logoColor=white" alt="Better Auth"/>
+      </a>
+    </td>
+    <td align="center" width="96">
+      <a href="https://openai.com">
+        <img src="https://img.shields.io/badge/OpenAI-412991?style=for-the-badge&logo=openai&logoColor=white" alt="OpenAI"/>
+      </a>
+    </td>
+    <td align="center" width="96">
+      <a href="https://resend.com">
+        <img src="https://img.shields.io/badge/Resend-000000?style=for-the-badge&logo=resend&logoColor=white" alt="Resend"/>
+      </a>
+    </td>
+    <td align="center" width="96">
+      <a href="https://tailwindcss.com">
+        <img src="https://img.shields.io/badge/Tailwind-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white" alt="Tailwind CSS"/>
+      </a>
+    </td>
+  </tr>
+  <tr>
+    <td align="center" width="96">
+      <a href="https://turbo.build">
+        <img src="https://img.shields.io/badge/Turborepo-EF4444?style=for-the-badge&logo=turborepo&logoColor=white" alt="Turborepo"/>
+      </a>
+    </td>
+    <td align="center" width="96">
+      <a href="https://pnpm.io">
+        <img src="https://img.shields.io/badge/pnpm-F69220?style=for-the-badge&logo=pnpm&logoColor=white" alt="pnpm"/>
+      </a>
+    </td>
+    <td align="center" width="96">
+      <a href="https://github.com/features/actions">
+        <img src="https://img.shields.io/badge/GitHub_Actions-2088FF?style=for-the-badge&logo=github-actions&logoColor=white" alt="GitHub Actions"/>
+      </a>
+    </td>
+    <td align="center" width="96">
+      <a href="https://www.docker.com">
+        <img src="https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white" alt="Docker"/>
+      </a>
+    </td>
+  </tr>
+</table>
+
+## Why This Template?
+
+**Stop wasting time on boilerplate.** This template gives you a complete, production-ready foundation so you can focus on building your actual product:
+
+- **One codebase, two platforms** — Share business logic between Next.js web app and React Native mobile app
+- **Auth that just works** — Email/password + OAuth with secure token handling for both web and mobile
+- **AI-ready** — OpenAI integration with streaming, tool calling, and rate limiting built-in
+- **Deploy in minutes** — CI/CD pipeline with automatic migrations and Vercel deployment
+- **Type-safe end-to-end** — TypeScript everywhere with shared types across all packages
+
+## Features at a Glance
+
+| Feature | Description |
+|---------|-------------|
+| **Monorepo Architecture** | pnpm workspaces + Turborepo for fast, cached builds |
+| **Next.js 16 Web App** | App Router, Server Components, Middleware, API Routes |
+| **React Native Mobile** | Bare workflow iOS & Android app with shared API client |
+| **Better Auth** | Email/password + OAuth, sessions for web, JWT for mobile |
+| **PostgreSQL + Drizzle** | Type-safe ORM with auto-generated migrations |
+| **AI Agent Demo** | Streaming chat with tool calling & image generation |
+| **Rate Limiting** | Upstash Redis-powered protection on auth & API routes |
+| **Email Integration** | Resend for verification & password reset emails |
+| **CI/CD Pipeline** | GitHub Actions with tests, migrations, and auto-deploy |
+| **iOS TestFlight** | Fastlane + Match workflow for automated iOS releases |
+
+---
+
+## Table of Contents
+
+- [Quickstart](#quickstart-from-template-to-production)
+- [Demo Features](#demo-features)
+- [What's Included](#whats-included)
+- [Prerequisites](#prerequisites)
+- [Local Development](#local-development-details)
+- [Environment Variables](#environment-variables-reference)
+- [Password Reset Flow](#password-reset-flow)
+- [Mobile Authentication](#mobile-authentication--protected-routes)
+- [Project Structure](#project-structure)
 
 ---
 
@@ -833,5 +969,31 @@ No additional configuration needed. The library uses Android Keystore automatica
 ```
 
 ---
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## GitHub Topics
+
+This repository uses the following topics for discoverability. If you fork this template, consider adding similar topics to your repository:
+
+`nextjs` `react-native` `typescript` `monorepo` `full-stack` `template` `boilerplate` `vercel` `postgresql` `drizzle-orm` `better-auth` `authentication` `ai` `openai` `tailwindcss` `turborepo` `pnpm` `react` `mobile-development` `starter-template`
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
+
+## Support
+
+If you find this template helpful, please consider giving it a star on GitHub!
 
 Happy building!
