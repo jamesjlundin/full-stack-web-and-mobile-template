@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "PreCommit": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "pnpm tsc --noEmit && pnpm eslint ."
+          }
+        ]
+      }
+    ]
+  }
+}
