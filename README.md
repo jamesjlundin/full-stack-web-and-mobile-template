@@ -431,7 +431,7 @@ rm -rf packages/ai/src/prompts/agent
 
 ### Backend Features
 
-- **Rate limiting** on auth (5 req/min) and agent (10 req/min) endpoints
+- **Rate limiting** on auth (5 req/min) and agent (5 req/24h) endpoints
 - **CORS handling** with origin validation
 - **JWT token generation** for mobile/API clients
 - **Health check endpoint** for monitoring

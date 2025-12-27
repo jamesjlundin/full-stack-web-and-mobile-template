@@ -44,7 +44,7 @@ export default async function AgentDemoPage() {
           />
 
           <p className="text-xs text-muted-foreground text-center">
-            Rate limited to 20 requests per minute. Weather data is mocked for demo purposes.
+            Rate limited to 5 requests per 24 hours. Weather data is mocked for demo purposes.
           </p>
         </div>
       </div>

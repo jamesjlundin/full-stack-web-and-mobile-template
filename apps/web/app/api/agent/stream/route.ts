@@ -15,10 +15,10 @@ import { withUserRateLimit } from "../../_lib/withUserRateLimit";
 import type { CurrentUserResult } from "@acme/auth";
 import type { ModelMessage, ImagePart, TextPart } from "ai";
 
-// Rate limiter: 20 requests per 60 seconds per user
+// Rate limiter: 5 requests per 24 hours per user
 const agentLimiter = createRateLimiter({
-  limit: 20,
-  windowMs: 60_000,
+  limit: 5,
+  windowMs: 24 * 60 * 60 * 1000, // 24 hours
 });
 
 // Mock weather data based on city
