@@ -11,23 +11,5 @@
         ]
       }
     ]
-  },
-  "mcpServers": {
-    "context7": {
-      "command": "npx",
-      "args": ["-y", "@upstash/context7-mcp"]
-    },
-    "neon": {
-      "command": "npx",
-      "args": ["-y", "mcp-remote", "https://mcp.neon.tech/sse"]
-    },
-    "eslint": {
-      "command": "npx",
-      "args": ["-y", "@eslint/mcp"]
-    },
-    "playwright": {
-      "command": "npx",
-      "args": ["-y", "@anthropic-ai/mcp-playwright"]
-    }
   }
 }
