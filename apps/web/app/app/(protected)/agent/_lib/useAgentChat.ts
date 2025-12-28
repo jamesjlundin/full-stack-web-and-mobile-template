@@ -178,40 +178,49 @@ export function useAgentChat(options: UseAgentChatOptions = {}) {
               case "text":
                 if (event.text) {
                   const textToAdd = event.text;
-                  setMessages((prev) => {
-                    const updated = [...prev];
-                    const last = updated[updated.length - 1];
-                    if (last && last.role === "assistant") {
-                      // Find or create text part
-                      const textPartIndex = last.parts.findIndex((p) => p.type === "text");
-                      if (textPartIndex >= 0) {
-                        const textPart = last.parts[textPartIndex];
-                        if (textPart.type === "text") {
-                          textPart.text += textToAdd;
-                        }
-                      } else {
-                        last.parts.push({ type: "text", text: textToAdd });
+                  setMessages((prev) =>
+                    prev.map((msg, index) => {
+                      if (index !== prev.length - 1 || msg.role !== "assistant") {
+                        return msg;
                       }
-                    }
-                    return updated;
-                  });
+                      // Find existing text part
+                      const textPartIndex = msg.parts.findIndex((p) => p.type === "text");
+                      if (textPartIndex >= 0) {
+                        return {
+                          ...msg,
+                          parts: msg.parts.map((part, pIndex) =>
+                            pIndex === textPartIndex && part.type === "text"
+                              ? { ...part, text: part.text + textToAdd }
+                              : part
+                          ),
+                        };
+                      } else {
+                        return {
+                          ...msg,
+                          parts: [...msg.parts, { type: "text", text: textToAdd }],
+                        };
+                      }
+                    })
+                  );
                 }
                 break;
 
               case "image":
                 if (event.url) {
-                  setMessages((prev) => {
-                    const updated = [...prev];
-                    const last = updated[updated.length - 1];
-                    if (last && last.role === "assistant") {
-                      last.parts.push({
-                        type: "image",
-                        url: event.url!,
-                        alt: event.alt,
-                      });
-                    }
-                    return updated;
-                  });
+                  setMessages((prev) =>
+                    prev.map((msg, index) => {
+                      if (index !== prev.length - 1 || msg.role !== "assistant") {
+                        return msg;
+                      }
+                      return {
+                        ...msg,
+                        parts: [
+                          ...msg.parts,
+                          { type: "image" as const, url: event.url!, alt: event.alt },
+                        ],
+                      };
+                    })
+                  );
                 }
                 break;
 
@@ -225,14 +234,17 @@ export function useAgentChat(options: UseAgentChatOptions = {}) {
                   };
                   toolCallsMap.set(event.id, toolCall);
 
-                  setMessages((prev) => {
-                    const updated = [...prev];
-                    const last = updated[updated.length - 1];
-                    if (last && last.role === "assistant") {
-                      last.toolCalls = Array.from(toolCallsMap.values());
-                    }
-                    return updated;
-                  });
+                  setMessages((prev) =>
+                    prev.map((msg, index) => {
+                      if (index !== prev.length - 1 || msg.role !== "assistant") {
+                        return msg;
+                      }
+                      return {
+                        ...msg,
+                        toolCalls: Array.from(toolCallsMap.values()),
+                      };
+                    })
+                  );
                 }
                 break;
 
@@ -244,14 +256,17 @@ export function useAgentChat(options: UseAgentChatOptions = {}) {
                     existing.status = "complete";
                     toolCallsMap.set(event.id, existing);
 
-                    setMessages((prev) => {
-                      const updated = [...prev];
-                      const last = updated[updated.length - 1];
-                      if (last && last.role === "assistant") {
-                        last.toolCalls = Array.from(toolCallsMap.values());
-                      }
-                      return updated;
-                    });
+                    setMessages((prev) =>
+                      prev.map((msg, index) => {
+                        if (index !== prev.length - 1 || msg.role !== "assistant") {
+                          return msg;
+                        }
+                        return {
+                          ...msg,
+                          toolCalls: Array.from(toolCallsMap.values()),
+                        };
+                      })
+                    );
                   }
                 }
                 break;
