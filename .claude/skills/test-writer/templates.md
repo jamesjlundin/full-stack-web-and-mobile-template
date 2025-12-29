@@ -21,20 +21,28 @@ describe('{Feature} API', () => {
     });
 
     it('validates request body', async () => {
-      const response = await http.post('/api/{path}', {}, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await http.post(
+        '/api/{path}',
+        {},
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        },
+      );
       expect(response.status).toBe(400);
       const data = await response.json();
       expect(data.error).toBeDefined();
     });
 
     it('succeeds with valid input', async () => {
-      const response = await http.post('/api/{path}', {
-        field: 'valid value',
-      }, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await http.post(
+        '/api/{path}',
+        {
+          field: 'valid value',
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        },
+      );
       expect(response.status).toBe(200);
       const data = await response.json();
       expect(data.success).toBe(true);
@@ -71,9 +79,12 @@ describe('{Feature} with DB', () => {
     token = await getTestToken();
 
     // Create test data
-    const [item] = await db.insert(schema.items).values({
-      name: 'Test Item',
-    }).returning();
+    const [item] = await db
+      .insert(schema.items)
+      .values({
+        name: 'Test Item',
+      })
+      .returning();
     testItemId = item.id;
   });
 
@@ -188,14 +199,18 @@ describe('Rate Limiting: /api/{path}', () => {
     // Make requests up to limit
     for (let i = 0; i < 15; i++) {
       requests.push(
-        http.post('/api/{path}', { data: i }, {
-          headers: { Authorization: `Bearer ${token}` },
-        })
+        http.post(
+          '/api/{path}',
+          { data: i },
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          },
+        ),
       );
     }
 
     const responses = await Promise.all(requests);
-    const statuses = responses.map(r => r.status);
+    const statuses = responses.map((r) => r.status);
 
     // Some should succeed, some should be rate limited
     expect(statuses).toContain(200);
@@ -215,14 +230,18 @@ describe('Streaming: /api/{path}', () => {
   it('returns SSE stream', async () => {
     const token = await getTestToken();
 
-    const response = await http.post('/api/{path}', {
-      message: 'test',
-    }, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        Accept: 'text/event-stream',
+    const response = await http.post(
+      '/api/{path}',
+      {
+        message: 'test',
       },
-    });
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: 'text/event-stream',
+        },
+      },
+    );
 
     expect(response.status).toBe(200);
     expect(response.headers.get('content-type')).toContain('text/event-stream');

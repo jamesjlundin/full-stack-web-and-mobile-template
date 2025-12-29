@@ -1,5 +1,12 @@
 import React from 'react';
-import {Button, SafeAreaView, ScrollView, StyleSheet, Text, View} from 'react-native';
+import {
+  Button,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 
 import {useAuth} from '../auth/AuthContext';
 
@@ -32,7 +39,9 @@ export default function HomeScreen({
         <View style={styles.card}>
           <View style={styles.cardHeader}>
             <Text style={styles.cardTitle}>Account Information</Text>
-            <Text style={styles.cardDescription}>Your current session details</Text>
+            <Text style={styles.cardDescription}>
+              Your current session details
+            </Text>
           </View>
 
           <View style={styles.alertBox}>
@@ -86,6 +95,11 @@ const styles = StyleSheet.create({
     borderColor: '#e2e8f0',
   },
   alertTitle: {fontSize: 14, fontWeight: '600', color: '#0f172a'},
-  alertDescription: {fontSize: 16, fontWeight: '500', color: '#0f172a', marginTop: 4},
+  alertDescription: {
+    fontSize: 16,
+    fontWeight: '500',
+    color: '#0f172a',
+    marginTop: 4,
+  },
   buttonGroup: {gap: 12},
 });

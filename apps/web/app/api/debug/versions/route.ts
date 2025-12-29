@@ -1,6 +1,6 @@
-import { selectPrompt, buildVersionMeta, schemas } from "@acme/ai";
-import { getCurrentUser } from "@acme/auth";
-import { NextRequest, NextResponse } from "next/server";
+import { selectPrompt, buildVersionMeta, schemas } from '@acme/ai';
+import { getCurrentUser } from '@acme/auth';
+import { NextRequest, NextResponse } from 'next/server';
 
 /**
  * Debug endpoint to return current resolved versions for the "chat" feature.
@@ -24,20 +24,23 @@ import { NextRequest, NextResponse } from "next/server";
  */
 export async function GET(request: NextRequest) {
   // In production, require authentication to access debug info
-  const isProduction = process.env.NODE_ENV === "production";
+  const isProduction = process.env.NODE_ENV === 'production';
 
   if (isProduction) {
     const userResult = await getCurrentUser(request);
 
     if (!userResult?.user) {
       return NextResponse.json(
-        { error: "unauthorized", message: "Authentication required in production" },
-        { status: 401 }
+        {
+          error: 'unauthorized',
+          message: 'Authentication required in production',
+        },
+        { status: 401 },
       );
     }
   }
 
-  const activePrompt = selectPrompt("chat");
+  const activePrompt = selectPrompt('chat');
 
   const versionMeta = buildVersionMeta({
     prompt_id: activePrompt.id,

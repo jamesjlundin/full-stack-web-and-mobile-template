@@ -1,5 +1,5 @@
-import { verifyCronRequest, cronResponse } from "@/lib/cronAuth";
-import { runHeartbeat } from "@/server/jobs";
+import { verifyCronRequest, cronResponse } from '@/lib/cronAuth';
+import { runHeartbeat } from '@/server/jobs';
 
 /**
  * GET /api/cron/heartbeat

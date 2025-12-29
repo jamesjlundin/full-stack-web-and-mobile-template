@@ -1,6 +1,6 @@
-import setCookieParser from "set-cookie-parser";
+import setCookieParser from 'set-cookie-parser';
 
-const BASE_URL = process.env.TEST_BASE_URL ?? "http://localhost:3000";
+const BASE_URL = process.env.TEST_BASE_URL ?? 'http://localhost:3000';
 
 export interface RequestOptions {
   headers?: Record<string, string>;
@@ -18,10 +18,10 @@ export interface JsonResponse<T = unknown> {
  * Build the full URL from a path
  */
 function buildUrl(path: string): string {
-  if (path.startsWith("http")) {
+  if (path.startsWith('http')) {
     return path;
   }
-  return `${BASE_URL}${path.startsWith("/") ? path : `/${path}`}`;
+  return `${BASE_URL}${path.startsWith('/') ? path : `/${path}`}`;
 }
 
 /**
@@ -29,10 +29,10 @@ function buildUrl(path: string): string {
  */
 function buildHeaders(opts?: RequestOptions): Headers {
   const headers = new Headers();
-  headers.set("Content-Type", "application/json");
+  headers.set('Content-Type', 'application/json');
 
   if (opts?.cookies) {
-    headers.set("Cookie", opts.cookies);
+    headers.set('Cookie', opts.cookies);
   }
 
   if (opts?.headers) {
@@ -48,14 +48,12 @@ function buildHeaders(opts?: RequestOptions): Headers {
  * Parse Set-Cookie headers and return cookie string for subsequent requests
  */
 export function parseCookies(response: Response): string[] {
-  const setCookieHeader = response.headers.get("set-cookie");
+  const setCookieHeader = response.headers.get('set-cookie');
   if (!setCookieHeader) {
     return [];
   }
 
-  const cookies = setCookieParser.parse(
-    setCookieParser.splitCookiesString(setCookieHeader)
-  );
+  const cookies = setCookieParser.parse(setCookieParser.splitCookiesString(setCookieHeader));
   return cookies.map((c) => `${c.name}=${c.value}`);
 }
 
@@ -63,7 +61,7 @@ export function parseCookies(response: Response): string[] {
  * Convert cookie array to cookie header string
  */
 export function cookiesToString(cookies: string[]): string {
-  return cookies.join("; ");
+  return cookies.join('; ');
 }
 
 /**
@@ -72,13 +70,13 @@ export function cookiesToString(cookies: string[]): string {
 export async function postJson<T = unknown>(
   path: string,
   body: unknown,
-  opts?: RequestOptions
+  opts?: RequestOptions,
 ): Promise<JsonResponse<T>> {
   const url = buildUrl(path);
   const headers = buildHeaders(opts);
 
   const response = await fetch(url, {
-    method: "POST",
+    method: 'POST',
     headers,
     body: JSON.stringify(body),
   });
@@ -99,15 +97,15 @@ export async function postJson<T = unknown>(
  */
 export async function getJson<T = unknown>(
   path: string,
-  opts?: RequestOptions
+  opts?: RequestOptions,
 ): Promise<JsonResponse<T>> {
   const url = buildUrl(path);
   const headers = buildHeaders(opts);
   // Remove Content-Type for GET requests
-  headers.delete("Content-Type");
+  headers.delete('Content-Type');
 
   const response = await fetch(url, {
-    method: "GET",
+    method: 'GET',
     headers,
   });
 
@@ -127,7 +125,7 @@ export async function getJson<T = unknown>(
  */
 export async function options(
   path: string,
-  customHeaders?: Record<string, string>
+  customHeaders?: Record<string, string>,
 ): Promise<{
   status: number;
   headers: Headers;
@@ -142,7 +140,7 @@ export async function options(
   }
 
   const response = await fetch(url, {
-    method: "OPTIONS",
+    method: 'OPTIONS',
     headers,
   });
 
@@ -157,7 +155,7 @@ export async function options(
  */
 export async function streamText(
   path: string,
-  init?: RequestInit & { maxChunks?: number }
+  init?: RequestInit & { maxChunks?: number },
 ): Promise<{
   status: number;
   chunks: string[];
@@ -169,7 +167,7 @@ export async function streamText(
   const response = await fetch(url, {
     ...init,
     headers: {
-      "Content-Type": "application/json",
+      'Content-Type': 'application/json',
       ...init?.headers,
     },
   });

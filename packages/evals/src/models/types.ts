@@ -32,10 +32,7 @@ export interface Message {
  */
 export interface ModelAdapter {
   name: string;
-  generate(
-    messages: Message[],
-    options?: GenerateOptions
-  ): Promise<ModelResponse>;
+  generate(messages: Message[], options?: GenerateOptions): Promise<ModelResponse>;
 }
 
 /**

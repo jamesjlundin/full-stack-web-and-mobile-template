@@ -2,10 +2,10 @@
 
 ## Test Locations
 
-| Type              | Location                          | Command                      |
-|-------------------|-----------------------------------|------------------------------|
-| Integration tests | `packages/tests/src/*.test.ts`    | `pnpm test:integration`      |
-| Mobile unit tests | `apps/mobile/__tests__/`          | `pnpm -C apps/mobile test`   |
+| Type              | Location                       | Command                    |
+| ----------------- | ------------------------------ | -------------------------- |
+| Integration tests | `packages/tests/src/*.test.ts` | `pnpm test:integration`    |
+| Mobile unit tests | `apps/mobile/__tests__/`       | `pnpm -C apps/mobile test` |
 
 ## Running Integration Tests
 
@@ -22,6 +22,7 @@ pnpm test:integration
 ```
 
 Or run in CI mode (server starts automatically):
+
 ```bash
 pnpm -C apps/web build
 pnpm -C apps/web start &
@@ -58,15 +59,16 @@ describe('my feature', () => {
 ## CI Test Environment
 
 CI sets these env vars automatically:
+
 - `ALLOW_DEV_TOKENS=true` - Enables test token echoing
 - `DISABLE_RATE_LIMIT=true` - Disables rate limiting
 - `DATABASE_URL` - Points to CI Postgres service
 
 ## Common Issues
 
-| Problem                     | Solution                                      |
-|-----------------------------|-----------------------------------------------|
-| Tests fail on connection    | Ensure web server is running on port 3000     |
-| Auth tests fail             | Check `BETTER_AUTH_SECRET` is set             |
-| Rate limit errors           | Set `DISABLE_RATE_LIMIT=true` in test env     |
-| DB not found                | Run `pnpm db:up` and `migrate:apply`          |
+| Problem                  | Solution                                  |
+| ------------------------ | ----------------------------------------- |
+| Tests fail on connection | Ensure web server is running on port 3000 |
+| Auth tests fail          | Check `BETTER_AUTH_SECRET` is set         |
+| Rate limit errors        | Set `DISABLE_RATE_LIMIT=true` in test env |
+| DB not found             | Run `pnpm db:up` and `migrate:apply`      |

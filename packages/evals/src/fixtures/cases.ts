@@ -30,12 +30,7 @@ export const fixtures: Fixture[] = [
     description: 'Request for a definition or explanation',
     category: 'qa',
     question: 'What is machine learning?',
-    acceptablePatterns: [
-      /machine\s*learning/i,
-      /algorithm/i,
-      /data/i,
-      /pattern/i,
-    ],
+    acceptablePatterns: [/machine\s*learning/i, /algorithm/i, /data/i, /pattern/i],
   },
 
   // Summarization Cases

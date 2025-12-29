@@ -1,5 +1,12 @@
 {
   "extends": "./packages/config/tsconfig.base.json",
-  "include": ["packages/db/**/*", "packages/auth/**/*", "packages/ai/**/*", "packages/evals/**/*", "packages/obs/**/*", "packages/rag/**/*"],
+  "include": [
+    "packages/db/**/*",
+    "packages/auth/**/*",
+    "packages/ai/**/*",
+    "packages/evals/**/*",
+    "packages/obs/**/*",
+    "packages/rag/**/*"
+  ],
   "exclude": ["node_modules", "dist", "build", "coverage"]
 }

@@ -19,10 +19,7 @@ export interface RetrievedChunk {
 /**
  * Function type for retrieving chunks from a RAG system
  */
-export type RetrievalFn = (
-  query: string,
-  k: number
-) => Promise<RetrievedChunk[]>;
+export type RetrievalFn = (query: string, k: number) => Promise<RetrievedChunk[]>;
 
 /**
  * RAG module interface when loaded
@@ -49,7 +46,7 @@ export interface RagScoringResult {
 export function calculatePrecisionAtK(
   retrieved: RetrievedChunk[],
   relevantIds: Set<string>,
-  k: number
+  k: number,
 ): number {
   const topK = retrieved.slice(0, k);
   const relevantCount = topK.filter((chunk) => relevantIds.has(chunk.id)).length;
@@ -63,7 +60,7 @@ export function calculatePrecisionAtK(
 export function calculateRecallAtK(
   retrieved: RetrievedChunk[],
   relevantIds: Set<string>,
-  k: number
+  k: number,
 ): number {
   const topK = retrieved.slice(0, k);
   const relevantCount = topK.filter((chunk) => relevantIds.has(chunk.id)).length;
@@ -76,7 +73,7 @@ export function calculateRecallAtK(
  */
 export function calculateContextFaithfulness(
   answer: string,
-  retrievedChunks: RetrievedChunk[]
+  retrievedChunks: RetrievedChunk[],
 ): number {
   // Simple heuristic: check if key terms from answer appear in context
   if (retrievedChunks.length === 0) {
@@ -115,7 +112,7 @@ export function scoreRagResults(
   retrieved: RetrievedChunk[],
   relevantIds: Set<string>,
   answer: string,
-  k: number
+  k: number,
 ): RagScoringResult {
   return {
     precisionAtK: calculatePrecisionAtK(retrieved, relevantIds, k),
@@ -167,12 +164,19 @@ export async function loadRag(): Promise<RagModule | null> {
     // Create the retrieve function that matches our interface
     const retrieve: RetrievalFn = async (query: string, k: number) => {
       const result = await ragModule.ragQuery(dbModule.db, { query, k });
-      return result.chunks.map((chunk: { id: string; text: string; score: number; metadata?: Record<string, unknown> }) => ({
-        id: chunk.id,
-        content: chunk.text,
-        score: chunk.score,
-        metadata: chunk.metadata,
-      }));
+      return result.chunks.map(
+        (chunk: {
+          id: string;
+          text: string;
+          score: number;
+          metadata?: Record<string, unknown>;
+        }) => ({
+          id: chunk.id,
+          content: chunk.text,
+          score: chunk.score,
+          metadata: chunk.metadata,
+        }),
+      );
     };
 
     console.log('RAG module loaded successfully');
@@ -180,7 +184,10 @@ export async function loadRag(): Promise<RagModule | null> {
   } catch (err) {
     // Only log actual errors, not module-not-found which is expected
     const errorMessage = err instanceof Error ? err.message : String(err);
-    if (!errorMessage.includes('Cannot find module') && !errorMessage.includes('MODULE_NOT_FOUND')) {
+    if (
+      !errorMessage.includes('Cannot find module') &&
+      !errorMessage.includes('MODULE_NOT_FOUND')
+    ) {
       console.warn('Failed to load RAG package:', errorMessage);
     } else {
       console.warn('RAG package not available yet');

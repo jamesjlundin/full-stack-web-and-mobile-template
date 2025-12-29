@@ -3,9 +3,4 @@
  */
 
 export * from './types.js';
-export {
-  fixtures,
-  getFixturesByCategory,
-  getFixtureById,
-  getAllFixtures,
-} from './cases.js';
+export { fixtures, getFixturesByCategory, getFixtureById, getAllFixtures } from './cases.js';

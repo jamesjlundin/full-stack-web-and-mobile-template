@@ -1,5 +1,5 @@
-import { auth } from "@acme/auth";
-import { NextResponse } from "next/server";
+import { auth } from '@acme/auth';
+import { NextResponse } from 'next/server';
 
 /**
  * POST /api/auth/password/reset/confirm
@@ -12,18 +12,12 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { token, newPassword } = body;
 
-    if (!token || typeof token !== "string") {
-      return NextResponse.json(
-        { ok: false, error: "Token is required" },
-        { status: 400 }
-      );
+    if (!token || typeof token !== 'string') {
+      return NextResponse.json({ ok: false, error: 'Token is required' }, { status: 400 });
     }
 
-    if (!newPassword || typeof newPassword !== "string") {
-      return NextResponse.json(
-        { ok: false, error: "New password is required" },
-        { status: 400 }
-      );
+    if (!newPassword || typeof newPassword !== 'string') {
+      return NextResponse.json({ ok: false, error: 'New password is required' }, { status: 400 });
     }
 
     // Call Better Auth's reset password API
@@ -33,11 +27,8 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ ok: true });
   } catch (error) {
-    console.error("[password/reset/confirm] Error:", error);
-    const message = error instanceof Error ? error.message : "Unknown error";
-    return NextResponse.json(
-      { ok: false, error: message },
-      { status: 400 }
-    );
+    console.error('[password/reset/confirm] Error:', error);
+    const message = error instanceof Error ? error.message : 'Unknown error';
+    return NextResponse.json({ ok: false, error: message }, { status: 400 });
   }
 }

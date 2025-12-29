@@ -1,16 +1,16 @@
-"use client";
+'use client';
 
-import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
-import { FormEvent, useState, useEffect, Suspense } from "react";
-import { toast } from "sonner";
+import Link from 'next/link';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { FormEvent, useState, useEffect, Suspense } from 'react';
+import { toast } from 'sonner';
 
-import { useUser } from "@/app/_components/useUser";
-import { DividerWithText } from "@/components/auth/divider-with-text";
-import { GoogleSignInButton } from "@/components/auth/google-sign-in-button";
-import { AppShell } from "@/components/layout";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Button } from "@/components/ui/button";
+import { useUser } from '@/app/_components/useUser';
+import { DividerWithText } from '@/components/auth/divider-with-text';
+import { GoogleSignInButton } from '@/components/auth/google-sign-in-button';
+import { AppShell } from '@/components/layout';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
@@ -18,35 +18,35 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Spinner } from "@/components/ui/spinner";
-import { getSafeRedirectUrl } from "@/lib/utils";
+} from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Spinner } from '@/components/ui/spinner';
+import { getSafeRedirectUrl } from '@/lib/utils';
 
 function RegisterForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user, loading: userLoading } = useUser();
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [isGoogleAuthEnabled, setIsGoogleAuthEnabled] = useState(false);
 
-  const nextUrl = getSafeRedirectUrl(searchParams.get("next"));
-  const googleError = searchParams.get("error") === "google";
+  const nextUrl = getSafeRedirectUrl(searchParams.get('next'));
+  const googleError = searchParams.get('error') === 'google';
 
   // Redirect authenticated users to app home
   useEffect(() => {
     if (!userLoading && user) {
-      router.replace("/app/home");
+      router.replace('/app/home');
     }
   }, [user, userLoading, router]);
 
   useEffect(() => {
-    fetch("/api/config")
+    fetch('/api/config')
       .then((res) => res.json())
       .then((data) => setIsGoogleAuthEnabled(data.isGoogleAuthEnabled ?? false))
       .catch(() => {});
@@ -54,7 +54,7 @@ function RegisterForm() {
 
   useEffect(() => {
     if (googleError) {
-      setError("Failed to sign up with Google. Please try again.");
+      setError('Failed to sign up with Google. Please try again.');
     }
   }, [googleError]);
 
@@ -64,16 +64,16 @@ function RegisterForm() {
     setLoading(true);
 
     try {
-      const signupResponse = await fetch("/api/auth/email-password/sign-up", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
+      const signupResponse = await fetch('/api/auth/email-password/sign-up', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ name, email, password }),
-        credentials: "include",
+        credentials: 'include',
       });
 
       if (!signupResponse.ok) {
         const data = await signupResponse.json().catch(() => ({}));
-        setError(data?.message ?? "Unable to sign up. Please try again.");
+        setError(data?.message ?? 'Unable to sign up. Please try again.');
         return;
       }
 
@@ -81,33 +81,29 @@ function RegisterForm() {
 
       // If verification is required, redirect to verify page
       if (data.requiresVerification) {
-        toast.success("Account created! Please verify your email.");
-        router.push(
-          `/auth/verify?email=${encodeURIComponent(email)}&sent=true`
-        );
+        toast.success('Account created! Please verify your email.');
+        router.push(`/auth/verify?email=${encodeURIComponent(email)}&sent=true`);
         return;
       }
 
       // No verification required - sign in and redirect
-      const signinResponse = await fetch("/api/auth/email-password/sign-in", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
+      const signinResponse = await fetch('/api/auth/email-password/sign-in', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ email, password }),
-        credentials: "include",
+        credentials: 'include',
       });
 
       if (signinResponse.ok) {
-        toast.success("Account created successfully");
+        toast.success('Account created successfully');
         router.push(nextUrl);
         return;
       }
 
       const signinData = await signinResponse.json().catch(() => ({}));
-      setError(
-        signinData?.message ?? "Signed up but failed to sign in. Please try again."
-      );
+      setError(signinData?.message ?? 'Signed up but failed to sign in. Please try again.');
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Unexpected error occurred");
+      setError(err instanceof Error ? err.message : 'Unexpected error occurred');
     } finally {
       setLoading(false);
     }
@@ -138,9 +134,7 @@ function RegisterForm() {
         <Card className="w-full max-w-md min-h-[440px]">
           <CardHeader className="space-y-1">
             <CardTitle className="text-2xl font-bold">Create an account</CardTitle>
-            <CardDescription>
-              Enter your details to create an account
-            </CardDescription>
+            <CardDescription>Enter your details to create an account</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             {error && (
@@ -196,14 +190,11 @@ function RegisterForm() {
             <CardFooter className="flex flex-col space-y-4">
               <Button type="submit" className="w-full" disabled={loading}>
                 {loading && <Spinner size="sm" className="mr-2" />}
-                {loading ? "Creating account..." : "Create account"}
+                {loading ? 'Creating account...' : 'Create account'}
               </Button>
               <p className="text-sm text-center text-muted-foreground">
-                Already have an account?{" "}
-                <Link
-                  href="/login"
-                  className="text-primary underline-offset-4 hover:underline"
-                >
+                Already have an account?{' '}
+                <Link href="/login" className="text-primary underline-offset-4 hover:underline">
                   Sign in
                 </Link>
               </p>

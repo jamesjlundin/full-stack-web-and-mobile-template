@@ -1,13 +1,13 @@
-export type MessageRole = "user" | "assistant";
+export type MessageRole = 'user' | 'assistant';
 
 // Message parts for multimodal content
 export type TextPart = {
-  type: "text";
+  type: 'text';
   text: string;
 };
 
 export type ImagePart = {
-  type: "image";
+  type: 'image';
   url: string;
   alt?: string;
 };
@@ -26,10 +26,10 @@ export interface ToolCall {
   name: string;
   args: Record<string, unknown>;
   result?: unknown;
-  status: "pending" | "complete" | "error";
+  status: 'pending' | 'complete' | 'error';
 }
 
-export type StreamEventType = "text" | "image" | "tool_call" | "tool_result" | "done" | "error";
+export type StreamEventType = 'text' | 'image' | 'tool_call' | 'tool_result' | 'done' | 'error';
 
 export interface StreamEvent {
   type: StreamEventType;
@@ -46,25 +46,21 @@ export interface StreamEvent {
 // Helper to get text content from a message
 export function getMessageText(message: Message): string {
   return message.parts
-    .filter((part): part is TextPart => part.type === "text")
+    .filter((part): part is TextPart => part.type === 'text')
     .map((part) => part.text)
-    .join("");
+    .join('');
 }
 
 // Helper to get images from a message
 export function getMessageImages(message: Message): ImagePart[] {
-  return message.parts.filter((part): part is ImagePart => part.type === "image");
+  return message.parts.filter((part): part is ImagePart => part.type === 'image');
 }
 
 // Helper to create a text-only message
-export function createTextMessage(
-  role: MessageRole,
-  text: string,
-  id?: string
-): Message {
+export function createTextMessage(role: MessageRole, text: string, id?: string): Message {
   return {
     id: id || Math.random().toString(36).substring(2, 9),
     role,
-    parts: [{ type: "text", text }],
+    parts: [{ type: 'text', text }],
   };
 }

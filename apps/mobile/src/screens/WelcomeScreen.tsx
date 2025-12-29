@@ -14,7 +14,10 @@ type WelcomeScreenProps = {
   onSignIn: () => void;
 };
 
-export default function WelcomeScreen({onCreateAccount, onSignIn}: WelcomeScreenProps) {
+export default function WelcomeScreen({
+  onCreateAccount,
+  onSignIn,
+}: WelcomeScreenProps) {
   const handleGitHubPress = () => {
     Linking.openURL('https://github.com/jamesjlundin');
   };
@@ -59,11 +62,15 @@ export default function WelcomeScreen({onCreateAccount, onSignIn}: WelcomeScreen
             applications
           </Text>
           <View style={styles.socialLinks}>
-            <TouchableOpacity style={styles.socialLink} onPress={handleGitHubPress}>
+            <TouchableOpacity
+              style={styles.socialLink}
+              onPress={handleGitHubPress}>
               <Text style={styles.socialIcon}>{'</>'}</Text>
               <Text style={styles.socialText}>GitHub</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.socialLink} onPress={handleLinkedInPress}>
+            <TouchableOpacity
+              style={styles.socialLink}
+              onPress={handleLinkedInPress}>
               <Text style={styles.socialIcon}>in</Text>
               <Text style={styles.socialText}>LinkedIn</Text>
             </TouchableOpacity>

@@ -77,15 +77,14 @@ export default function DrawerMenu({
       <View style={styles.overlay}>
         <Pressable style={styles.backdrop} onPress={onClose} />
         <Animated.View
-          style={[
-            styles.drawer,
-            {transform: [{translateX: slideAnim}]},
-          ]}>
+          style={[styles.drawer, {transform: [{translateX: slideAnim}]}]}>
           {/* User Info Header */}
           <View style={styles.header}>
             <View style={styles.avatar}>
               <Text style={styles.avatarText}>
-                {userName?.[0]?.toUpperCase() || userEmail?.[0]?.toUpperCase() || '?'}
+                {userName?.[0]?.toUpperCase() ||
+                  userEmail?.[0]?.toUpperCase() ||
+                  '?'}
               </Text>
             </View>
             <Text style={styles.userName} numberOfLines={1}>

@@ -4,10 +4,10 @@
  * Provides upsertChunks and querySimilar functions using Drizzle ORM and pgvector.
  */
 
-import { sql } from "drizzle-orm";
+import { sql } from 'drizzle-orm';
 
-import type { NeonHttpDatabase } from "drizzle-orm/neon-http";
-import type { NodePgDatabase } from "drizzle-orm/node-postgres";
+import type { NeonHttpDatabase } from 'drizzle-orm/neon-http';
+import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
 
 /**
  * Row type for inserting/upserting chunks
@@ -77,7 +77,7 @@ export async function upsertChunks(db: DbInstance, rows: ChunkRow[]): Promise<vo
 
   // Use raw SQL for upsert with vector type
   for (const row of rows) {
-    const embeddingStr = `[${row.embedding.join(",")}]`;
+    const embeddingStr = `[${row.embedding.join(',')}]`;
     const metadataStr = row.metadata ? JSON.stringify(row.metadata) : null;
 
     await db.execute(sql`
@@ -119,9 +119,9 @@ export async function upsertChunks(db: DbInstance, rows: ChunkRow[]): Promise<vo
 export async function querySimilar(
   db: DbInstance,
   queryEmbedding: number[],
-  k: number
+  k: number,
 ): Promise<SimilarChunk[]> {
-  const embeddingStr = `[${queryEmbedding.join(",")}]`;
+  const embeddingStr = `[${queryEmbedding.join(',')}]`;
 
   // Use raw SQL for vector similarity search
   const results = await db.execute<{
@@ -166,7 +166,7 @@ export async function deleteDocChunks(db: DbInstance, docId: string): Promise<vo
  */
 export async function countChunks(db: DbInstance): Promise<number> {
   const result = await db.execute<{ count: string }>(
-    sql`SELECT COUNT(*)::text as count FROM rag_chunks`
+    sql`SELECT COUNT(*)::text as count FROM rag_chunks`,
   );
-  return parseInt(result.rows[0]?.count || "0", 10);
+  return parseInt(result.rows[0]?.count || '0', 10);
 }

@@ -4,9 +4,9 @@
  * Provides simple, effective chunking strategies for preparing text for embedding.
  */
 
-import { ulid } from "ulid";
+import { ulid } from 'ulid';
 
-import { DEFAULT_CHUNK_SIZE, DEFAULT_CHUNK_OVERLAP } from "./config";
+import { DEFAULT_CHUNK_SIZE, DEFAULT_CHUNK_OVERLAP } from './config';
 
 /**
  * A chunk of text with metadata
@@ -54,22 +54,15 @@ export interface FixedSizeChunkOptions {
  * // Returns: [{ id: "01HX...", content: "Long doc...", metadata: {...} }, ...]
  * ```
  */
-export function fixedSizeChunks(
-  text: string,
-  options: FixedSizeChunkOptions = {}
-): Chunk[] {
-  const {
-    size = DEFAULT_CHUNK_SIZE,
-    overlap = DEFAULT_CHUNK_OVERLAP,
-    source,
-  } = options;
+export function fixedSizeChunks(text: string, options: FixedSizeChunkOptions = {}): Chunk[] {
+  const { size = DEFAULT_CHUNK_SIZE, overlap = DEFAULT_CHUNK_OVERLAP, source } = options;
 
   if (size <= 0) {
-    throw new Error("Chunk size must be positive");
+    throw new Error('Chunk size must be positive');
   }
 
   if (overlap < 0 || overlap >= size) {
-    throw new Error("Overlap must be non-negative and less than chunk size");
+    throw new Error('Overlap must be non-negative and less than chunk size');
   }
 
   const trimmedText = text.trim();
@@ -133,31 +126,31 @@ export function mdToText(markdown: string): string {
     markdown
       // Remove code blocks (preserve content)
       .replace(/```[\s\S]*?```/g, (match) => {
-        const content = match.replace(/```\w*\n?/g, "").replace(/```/g, "");
+        const content = match.replace(/```\w*\n?/g, '').replace(/```/g, '');
         return content.trim();
       })
       // Remove inline code
-      .replace(/`([^`]+)`/g, "$1")
+      .replace(/`([^`]+)`/g, '$1')
       // Remove headers (keep text)
-      .replace(/^#{1,6}\s+/gm, "")
+      .replace(/^#{1,6}\s+/gm, '')
       // Remove bold/italic (keep text)
-      .replace(/\*\*([^*]+)\*\*/g, "$1")
-      .replace(/\*([^*]+)\*/g, "$1")
-      .replace(/__([^_]+)__/g, "$1")
-      .replace(/_([^_]+)_/g, "$1")
+      .replace(/\*\*([^*]+)\*\*/g, '$1')
+      .replace(/\*([^*]+)\*/g, '$1')
+      .replace(/__([^_]+)__/g, '$1')
+      .replace(/_([^_]+)_/g, '$1')
       // Remove links (keep text)
-      .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
+      .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
       // Remove images (keep alt text)
-      .replace(/!\[([^\]]*)\]\([^)]+\)/g, "$1")
+      .replace(/!\[([^\]]*)\]\([^)]+\)/g, '$1')
       // Remove blockquotes marker
-      .replace(/^>\s+/gm, "")
+      .replace(/^>\s+/gm, '')
       // Remove horizontal rules
-      .replace(/^[-*_]{3,}\s*$/gm, "")
+      .replace(/^[-*_]{3,}\s*$/gm, '')
       // Remove list markers (keep content)
-      .replace(/^[\s]*[-*+]\s+/gm, "")
-      .replace(/^[\s]*\d+\.\s+/gm, "")
+      .replace(/^[\s]*[-*+]\s+/gm, '')
+      .replace(/^[\s]*\d+\.\s+/gm, '')
       // Remove extra blank lines
-      .replace(/\n{3,}/g, "\n\n")
+      .replace(/\n{3,}/g, '\n\n')
       .trim()
   );
 }

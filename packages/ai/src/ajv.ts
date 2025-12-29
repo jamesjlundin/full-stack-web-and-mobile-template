@@ -1,11 +1,9 @@
-import Ajv from "ajv";
-import addFormats from "ajv-formats";
+import Ajv from 'ajv';
+import addFormats from 'ajv-formats';
 
-import { schemas, type SchemaKey, type SchemaInfo } from "./schemas/index";
+import { schemas, type SchemaKey, type SchemaInfo } from './schemas/index';
 
-export type ValidatorResult<T> =
-  | { valid: true; data: T }
-  | { valid: false; errors: string[] };
+export type ValidatorResult<T> = { valid: true; data: T } | { valid: false; errors: string[] };
 
 export interface SchemaValidator<T = unknown> {
   schemaInfo: SchemaInfo;
@@ -58,7 +56,7 @@ export function configureAjv(): AjvConfig {
           return { valid: true, data };
         }
         const errors = (compiledValidator.errors ?? []).map(
-          (err) => `${err.instancePath || "/"}: ${err.message ?? "validation error"}`
+          (err) => `${err.instancePath || '/'}: ${err.message ?? 'validation error'}`,
         );
         return { valid: false, errors };
       },

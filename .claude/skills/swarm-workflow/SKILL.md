@@ -64,9 +64,11 @@ Break down the request into independent units:
 ## Task Decomposition
 
 ### Original Request
+
 {user's request}
 
 ### Independent Units
+
 1. **{Unit A}**
    - Files: {list}
    - Dependencies: none
@@ -101,17 +103,19 @@ export interface UserService {
 ## Branch Plan
 
 ### Branch 1: feature/task-auth
+
 - Assignee: Session 1
 - Files:
   - packages/auth/src/...
   - apps/web/app/api/auth/...
-- Tests: packages/tests/src/auth.*.test.ts
+- Tests: packages/tests/src/auth.\*.test.ts
 - Definition of Done:
   - [ ] Auth endpoints working
   - [ ] Tests passing
   - [ ] TypeScript compiles
 
 ### Branch 2: feature/task-api
+
 - Assignee: Session 2
 - Files:
   - apps/web/app/api/users/...
@@ -122,6 +126,7 @@ export interface UserService {
   - [ ] TypeScript compiles
 
 ### Merge Gate
+
 - [ ] All branches pass CI
 - [ ] No merge conflicts
 - [ ] Integration tests pass
@@ -135,19 +140,24 @@ For each branch/session:
 ## Session Handoff: {Branch Name}
 
 ### Context
+
 {Brief description of overall task}
 
 ### Your Assignment
+
 {Specific work for this session}
 
 ### Files to Modify
+
 - {file1}: {what to do}
 - {file2}: {what to do}
 
 ### Interfaces to Use (Do Not Modify)
+
 - {interface file}
 
 ### Definition of Done
+
 1. {criterion 1}
 2. {criterion 2}
 3. pnpm typecheck passes
@@ -155,6 +165,7 @@ For each branch/session:
 5. Tests pass
 
 ### When Complete
+
 1. Commit with message: "{conventional commit}"
 2. Push to branch: {branch-name}
 3. Create PR to: feature/integration

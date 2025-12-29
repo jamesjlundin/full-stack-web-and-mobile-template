@@ -8,10 +8,7 @@ export { schemaFidelitySuite } from './schema_fidelity.js';
 export { constraintSatisfactionSuite } from './constraint_satisfaction.js';
 export { groundingCheckSuite } from './grounding_check.js';
 export { toolUsageCheckSuite } from './tool_usage_check.js';
-export {
-  retrievalQualitySuite,
-  isRetrievalQualityEnabled,
-} from './retrieval_quality.js';
+export { retrievalQualitySuite, isRetrievalQualityEnabled } from './retrieval_quality.js';
 
 import { constraintSatisfactionSuite } from './constraint_satisfaction.js';
 import { groundingCheckSuite } from './grounding_check.js';

@@ -1,12 +1,12 @@
-import { migrate } from "drizzle-orm/node-postgres/migrator";
+import { migrate } from 'drizzle-orm/node-postgres/migrator';
 
-import { createLocalDb } from "./client.js";
+import { createLocalDb } from './client.js';
 
 async function main() {
   const { db, pool } = createLocalDb();
   try {
-    await migrate(db, { migrationsFolder: "./drizzle" });
-    console.log("migrations applied");
+    await migrate(db, { migrationsFolder: './drizzle' });
+    console.log('migrations applied');
   } finally {
     await pool.end();
   }

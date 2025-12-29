@@ -1,4 +1,4 @@
-import { cookies, headers } from "next/headers";
+import { cookies, headers } from 'next/headers';
 
 export type SessionUser = {
   id: string;
@@ -36,8 +36,8 @@ export async function getServerSession(): Promise<SessionResult> {
   const headersList = await headers();
 
   // Get the host for constructing the URL
-  const host = headersList.get("host") || "localhost:3000";
-  const protocol = process.env.NODE_ENV === "production" ? "https" : "http";
+  const host = headersList.get('host') || 'localhost:3000';
+  const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
 
   const defaultConfig: AppConfig = {
     isEmailVerificationRequired: false,
@@ -51,7 +51,7 @@ export async function getServerSession(): Promise<SessionResult> {
       headers: {
         cookie: cookieStore.toString(),
       },
-      cache: "no-store",
+      cache: 'no-store',
     });
 
     if (response.status === 401) {
@@ -64,7 +64,7 @@ export async function getServerSession(): Promise<SessionResult> {
       config: data?.config ?? defaultConfig,
     };
   } catch (error) {
-    console.error("Failed to fetch session:", error);
+    console.error('Failed to fetch session:', error);
     return { user: null, config: defaultConfig };
   }
 }

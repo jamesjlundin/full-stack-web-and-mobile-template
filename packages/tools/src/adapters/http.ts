@@ -88,23 +88,20 @@ export interface HttpToolClient {
  * const tools = await client.listTools();
  * ```
  */
-export function buildHttpClient(
-  baseUrl: string,
-  options: HttpClientOptions = {}
-): HttpToolClient {
+export function buildHttpClient(baseUrl: string, options: HttpClientOptions = {}): HttpToolClient {
   const { headers = {}, timeout = 30000, traceId } = options;
 
   // Normalize base URL (remove trailing slash)
-  const normalizedBaseUrl = baseUrl.replace(/\/$/, "");
+  const normalizedBaseUrl = baseUrl.replace(/\/$/, '');
 
   // Build common headers
   const commonHeaders: Record<string, string> = {
-    "Content-Type": "application/json",
+    'Content-Type': 'application/json',
     ...headers,
   };
 
   if (traceId) {
-    commonHeaders["X-Trace-ID"] = traceId;
+    commonHeaders['X-Trace-ID'] = traceId;
   }
 
   return {
@@ -116,7 +113,7 @@ export function buildHttpClient(
 
       try {
         const response = await fetch(url, {
-          method: "POST",
+          method: 'POST',
           headers: commonHeaders,
           body: JSON.stringify({ input }),
           signal: controller.signal,
@@ -139,7 +136,7 @@ export function buildHttpClient(
         clearTimeout(timeoutId);
 
         if (err instanceof Error) {
-          if (err.name === "AbortError") {
+          if (err.name === 'AbortError') {
             return {
               ok: false,
               error: `Request timeout after ${timeout}ms`,
@@ -173,7 +170,7 @@ export function buildHttpClient(
 
       try {
         const response = await fetch(url, {
-          method: "GET",
+          method: 'GET',
           headers: commonHeaders,
           signal: controller.signal,
         });
@@ -197,7 +194,7 @@ export function buildHttpClient(
         clearTimeout(timeoutId);
 
         if (err instanceof Error) {
-          if (err.name === "AbortError") {
+          if (err.name === 'AbortError') {
             throw new Error(`Request timeout after ${timeout}ms`);
           }
           throw err;

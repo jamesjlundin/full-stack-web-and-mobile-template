@@ -1,10 +1,10 @@
-"use client";
+'use client';
 
 type DividerWithTextProps = {
   text?: string;
 };
 
-export function DividerWithText({ text = "or" }: DividerWithTextProps) {
+export function DividerWithText({ text = 'or' }: DividerWithTextProps) {
   return (
     <div className="relative">
       <div className="absolute inset-0 flex items-center">

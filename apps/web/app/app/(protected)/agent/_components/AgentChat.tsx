@@ -1,33 +1,28 @@
-"use client";
+'use client';
 
-import { Bot, ImagePlus, Send, Square, Trash2, Upload, User, X } from "lucide-react";
-import { useRef, useEffect, useState, useMemo } from "react";
+import { Bot, ImagePlus, Send, Square, Trash2, Upload, User, X } from 'lucide-react';
+import { useRef, useEffect, useState, useMemo } from 'react';
 
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+} from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
-import { useAgentChat } from "../_lib/useAgentChat";
+import { useAgentChat } from '../_lib/useAgentChat';
 
-import { MessageContent, UserMessageContent } from "./MessageContent";
-import { ToolCallDisplay } from "./ToolCallDisplay";
+import { MessageContent, UserMessageContent } from './MessageContent';
+import { ToolCallDisplay } from './ToolCallDisplay';
 
-import type { AiProviderInfo } from "@acme/api-client";
-import type { ChangeEvent, FormEvent, KeyboardEvent } from "react";
+import type { AiProviderInfo } from '@acme/api-client';
+import type { ChangeEvent, FormEvent, KeyboardEvent } from 'react';
 
 type AgentChatProps = {
   providers: AiProviderInfo[];
@@ -35,7 +30,7 @@ type AgentChatProps = {
   blobStorageEnabled: boolean;
 };
 
-const ACCEPTED_IMAGE_TYPES = "image/jpeg,image/png,image/webp,image/gif";
+const ACCEPTED_IMAGE_TYPES = 'image/jpeg,image/png,image/webp,image/gif';
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
 export function AgentChat({ providers, defaultProvider, blobStorageEnabled }: AgentChatProps) {
@@ -55,7 +50,7 @@ export function AgentChat({ providers, defaultProvider, blobStorageEnabled }: Ag
   // Get current provider's models
   const currentProvider = useMemo(
     () => providers.find((p) => p.id === selectedProvider),
-    [providers, selectedProvider]
+    [providers, selectedProvider],
   );
 
   // Update model when provider changes
@@ -65,12 +60,13 @@ export function AgentChat({ providers, defaultProvider, blobStorageEnabled }: Ag
     setSelectedModel(provider?.defaultModel ?? null);
   };
 
-  const { messages, isStreaming, isUploading, error, sendMessage, stopStreaming, clearChat } = useAgentChat({
-    provider: selectedProvider,
-    model: selectedModel,
-  });
+  const { messages, isStreaming, isUploading, error, sendMessage, stopStreaming, clearChat } =
+    useAgentChat({
+      provider: selectedProvider,
+      model: selectedModel,
+    });
 
-  const [input, setInput] = useState("");
+  const [input, setInput] = useState('');
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -78,7 +74,7 @@ export function AgentChat({ providers, defaultProvider, blobStorageEnabled }: Ag
 
   // Auto-scroll to bottom when messages change
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
   // Focus textarea on mount
@@ -89,7 +85,7 @@ export function AgentChat({ providers, defaultProvider, blobStorageEnabled }: Ag
   const handleFileSelect = (e: ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     const validFiles = files.filter((file) => {
-      if (!file.type.startsWith("image/")) {
+      if (!file.type.startsWith('image/')) {
         return false;
       }
       if (file.size > MAX_FILE_SIZE) {
@@ -100,7 +96,7 @@ export function AgentChat({ providers, defaultProvider, blobStorageEnabled }: Ag
 
     setSelectedFiles((prev) => [...prev, ...validFiles]);
     // Reset the input so the same file can be selected again
-    e.target.value = "";
+    e.target.value = '';
   };
 
   const removeFile = (index: number) => {
@@ -114,20 +110,20 @@ export function AgentChat({ providers, defaultProvider, blobStorageEnabled }: Ag
         text: input,
         images: selectedFiles.length > 0 ? selectedFiles : undefined,
       });
-      setInput("");
+      setInput('');
       setSelectedFiles([]);
     }
   };
 
   const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === "Enter" && !e.shiftKey) {
+    if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       if ((input.trim() || selectedFiles.length > 0) && !isStreaming) {
         sendMessage({
           text: input,
           images: selectedFiles.length > 0 ? selectedFiles : undefined,
         });
-        setInput("");
+        setInput('');
         setSelectedFiles([]);
       }
     }
@@ -135,8 +131,8 @@ export function AgentChat({ providers, defaultProvider, blobStorageEnabled }: Ag
 
   const insertImageCommand = () => {
     setInput((prev) => {
-      if (prev.startsWith("/image ")) return prev;
-      return "/image " + prev;
+      if (prev.startsWith('/image ')) return prev;
+      return '/image ' + prev;
     });
     textareaRef.current?.focus();
   };
@@ -201,9 +197,9 @@ export function AgentChat({ providers, defaultProvider, blobStorageEnabled }: Ag
             <p className="text-sm mt-1">
               {hasProviders
                 ? blobStorageEnabled
-                  ? "Try asking about weather, time, or generate images!"
-                  : "Try asking about weather or time!"
-                : "No AI providers configured. Using mock responses."}
+                  ? 'Try asking about weather, time, or generate images!'
+                  : 'Try asking about weather or time!'
+                : 'No AI providers configured. Using mock responses.'}
             </p>
             <div className="mt-4 space-y-1 text-xs">
               <p>&quot;What&apos;s the weather in San Francisco?&quot;</p>
@@ -216,9 +212,9 @@ export function AgentChat({ providers, defaultProvider, blobStorageEnabled }: Ag
         {messages.map((message) => (
           <div
             key={message.id}
-            className={`flex gap-3 ${message.role === "user" ? "justify-end" : "justify-start"}`}
+            className={`flex gap-3 ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
           >
-            {message.role === "assistant" && (
+            {message.role === 'assistant' && (
               <div className="shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
                 <Bot className="h-4 w-4 text-primary" />
               </div>
@@ -226,12 +222,12 @@ export function AgentChat({ providers, defaultProvider, blobStorageEnabled }: Ag
 
             <div
               className={`max-w-[80%] ${
-                message.role === "user"
-                  ? "bg-primary text-primary-foreground rounded-2xl rounded-br-md px-4 py-2"
-                  : "space-y-1"
+                message.role === 'user'
+                  ? 'bg-primary text-primary-foreground rounded-2xl rounded-br-md px-4 py-2'
+                  : 'space-y-1'
               }`}
             >
-              {message.role === "assistant" ? (
+              {message.role === 'assistant' ? (
                 <Card className="bg-muted/30 border-0 shadow-none">
                   <CardContent className="p-3">
                     {/* Tool calls */}
@@ -249,9 +245,18 @@ export function AgentChat({ providers, defaultProvider, blobStorageEnabled }: Ag
                       !message.toolCalls?.length && (
                         <div className="flex items-center gap-2 text-muted-foreground">
                           <div className="flex gap-1">
-                            <span className="w-2 h-2 bg-current rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
-                            <span className="w-2 h-2 bg-current rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
-                            <span className="w-2 h-2 bg-current rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
+                            <span
+                              className="w-2 h-2 bg-current rounded-full animate-bounce"
+                              style={{ animationDelay: '0ms' }}
+                            />
+                            <span
+                              className="w-2 h-2 bg-current rounded-full animate-bounce"
+                              style={{ animationDelay: '150ms' }}
+                            />
+                            <span
+                              className="w-2 h-2 bg-current rounded-full animate-bounce"
+                              style={{ animationDelay: '300ms' }}
+                            />
                           </div>
                         </div>
                       )}
@@ -262,7 +267,7 @@ export function AgentChat({ providers, defaultProvider, blobStorageEnabled }: Ag
               )}
             </div>
 
-            {message.role === "user" && (
+            {message.role === 'user' && (
               <div className="shrink-0 w-8 h-8 rounded-full bg-primary flex items-center justify-center">
                 <User className="h-4 w-4 text-primary-foreground" />
               </div>

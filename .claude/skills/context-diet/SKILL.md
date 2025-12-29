@@ -18,30 +18,30 @@ Optimizes context window usage for efficient Claude Code sessions.
 
 ## Context Budget
 
-| Priority | Keep in Context | Fetch on Demand |
-|----------|-----------------|-----------------|
-| Always | CLAUDE.md (~500 tokens) | Full file contents |
-| Task-specific | Current file | Related files |
-| Reference | Function signatures | Implementation details |
+| Priority      | Keep in Context         | Fetch on Demand        |
+| ------------- | ----------------------- | ---------------------- |
+| Always        | CLAUDE.md (~500 tokens) | Full file contents     |
+| Task-specific | Current file            | Related files          |
+| Reference     | Function signatures     | Implementation details |
 
 ## This Repo's Essential Files
 
 ### Always Relevant (Keep Short Reference)
 
-| File | What to Know | Size |
-|------|--------------|------|
-| `CLAUDE.md` | Commands, rules, structure | ~500 tokens |
-| Active file being edited | Full content | Varies |
+| File                     | What to Know               | Size        |
+| ------------------------ | -------------------------- | ----------- |
+| `CLAUDE.md`              | Commands, rules, structure | ~500 tokens |
+| Active file being edited | Full content               | Varies      |
 
 ### Fetch When Needed
 
-| Task | Files to Fetch |
-|------|----------------|
+| Task     | Files to Fetch                           |
+| -------- | ---------------------------------------- |
 | API work | `apps/web/app/api/_lib/`, specific route |
-| Database | `packages/db/src/schema.ts` |
-| Auth | `packages/auth/src/index.ts` |
-| Tests | Specific test file only |
-| Mobile | Specific screen/component |
+| Database | `packages/db/src/schema.ts`              |
+| Auth     | `packages/auth/src/index.ts`             |
+| Tests    | Specific test file only                  |
+| Mobile   | Specific screen/component                |
 
 ### Skip (Already Known)
 
@@ -55,6 +55,7 @@ Optimizes context window usage for efficient Claude Code sessions.
 ### Step 1: Assess Current Task
 
 What's the user working on?
+
 - Single file edit → Keep only that file
 - Cross-package feature → Keep interface files, fetch impl
 - Debugging → Keep error context, fetch related
@@ -65,14 +66,17 @@ For the current task, what's truly needed?
 
 ```markdown
 ## Essential for This Task
+
 1. {file1} - {why needed}
 2. {file2} - {why needed}
 
 ## Can Fetch If Needed
+
 - {file3} - Only if {condition}
 - {file4} - Only if {condition}
 
 ## Skip
+
 - {file5} - Already known / not relevant
 ```
 
@@ -84,13 +88,16 @@ Generate a minimal file list:
 ## Context Shortlist
 
 ### Must Have (read fully)
+
 - `{path}` - Active editing
 
 ### Reference Only (read signatures)
+
 - `{path}` - Import types
 - `{path}` - Check pattern
 
 ### Fetch If Blocked
+
 - `{path}` - Implementation details
 ```
 
@@ -100,10 +107,12 @@ Generate a minimal file list:
 ## Recommendations
 
 ### To Reduce Context Now
+
 1. {action} - saves ~{tokens}
 2. {action} - saves ~{tokens}
 
 ### For Future Sessions
+
 - Start with: "I'm working on {task}. Files: {shortlist}"
 - Use subagents for exploration
 - Split large tasks into focused sessions
@@ -129,13 +138,13 @@ Generate a minimal file list:
 
 ## Token Estimates
 
-| Item | ~Tokens |
-|------|---------|
-| Average TypeScript file | 500-1500 |
-| Large component | 1000-2000 |
-| Schema file | 800-1200 |
-| Full CLAUDE.md | 500 |
-| Test file | 400-800 |
+| Item                    | ~Tokens   |
+| ----------------------- | --------- |
+| Average TypeScript file | 500-1500  |
+| Large component         | 1000-2000 |
+| Schema file             | 800-1200  |
+| Full CLAUDE.md          | 500       |
+| Test file               | 400-800   |
 
 ## Guardrails
 

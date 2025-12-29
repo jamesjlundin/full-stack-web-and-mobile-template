@@ -33,10 +33,7 @@ export class OpenAIModel implements ModelAdapter {
     this.modelId = modelId;
   }
 
-  async generate(
-    messages: Message[],
-    options?: GenerateOptions
-  ): Promise<ModelResponse> {
+  async generate(messages: Message[], options?: GenerateOptions): Promise<ModelResponse> {
     if (!hasOpenAIKey()) {
       console.warn('OPENAI_API_KEY not found, falling back to mock model');
       const mock = createMockModel();
@@ -154,9 +151,7 @@ export class OpenAIModel implements ModelAdapter {
           content: result.text,
           toolCalls: toolCalls.length > 0 ? toolCalls : undefined,
           finishReason:
-            toolCalls.length > 0
-              ? 'tool_calls'
-              : this.mapFinishReason(result.finishReason),
+            toolCalls.length > 0 ? 'tool_calls' : this.mapFinishReason(result.finishReason),
         };
       }
 
@@ -183,7 +178,7 @@ export class OpenAIModel implements ModelAdapter {
    * Convert our tool definitions to Vercel AI SDK format
    */
   private async convertToolsToSDK(
-    tools: ToolDefinition[]
+    tools: ToolDefinition[],
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ): Promise<Record<string, any>> {
     const ai = await import('ai');
@@ -203,9 +198,7 @@ export class OpenAIModel implements ModelAdapter {
     return result;
   }
 
-  private mapFinishReason(
-    reason: string | undefined
-  ): ModelResponse['finishReason'] {
+  private mapFinishReason(reason: string | undefined): ModelResponse['finishReason'] {
     switch (reason) {
       case 'stop':
         return 'stop';

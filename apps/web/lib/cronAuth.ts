@@ -1,6 +1,6 @@
-import { timingSafeEqual } from "crypto";
+import { timingSafeEqual } from 'crypto';
 
-import { NextResponse } from "next/server";
+import { NextResponse } from 'next/server';
 
 /**
  * Cron authentication guard utilities
@@ -23,10 +23,10 @@ function getCronSecret(): string | null {
   const secret = process.env.CRON_SECRET;
 
   // In production, CRON_SECRET must be set - fail closed
-  if (process.env.NODE_ENV === "production" && !secret) {
+  if (process.env.NODE_ENV === 'production' && !secret) {
     console.error(
-      "[SECURITY] CRON_SECRET is not set in production. All cron requests will be rejected. " +
-        "Set CRON_SECRET environment variable with: openssl rand -hex 32"
+      '[SECURITY] CRON_SECRET is not set in production. All cron requests will be rejected. ' +
+        'Set CRON_SECRET environment variable with: openssl rand -hex 32',
     );
     return null;
   }
@@ -35,10 +35,10 @@ function getCronSecret(): string | null {
   // This only works for local testing and logs a warning
   if (!secret) {
     console.warn(
-      "[DEV] CRON_SECRET not set. Using insecure development fallback. " +
-        "This will NOT work in production."
+      '[DEV] CRON_SECRET not set. Using insecure development fallback. ' +
+        'This will NOT work in production.',
     );
-    return "dev-secret-local-only";
+    return 'dev-secret-local-only';
   }
 
   return secret;
@@ -53,7 +53,7 @@ function secureCompare(a: string, b: string): boolean {
     return false;
   }
   try {
-    return timingSafeEqual(Buffer.from(a, "utf8"), Buffer.from(b, "utf8"));
+    return timingSafeEqual(Buffer.from(a, 'utf8'), Buffer.from(b, 'utf8'));
   } catch {
     return false;
   }
@@ -84,7 +84,7 @@ export function isCronAuthorized(request: Request): boolean {
 
   // Method 1: Check Authorization: Bearer header (Vercel's official method)
   // Vercel automatically sends: Authorization: Bearer {CRON_SECRET}
-  const authHeader = request.headers.get("authorization");
+  const authHeader = request.headers.get('authorization');
   if (authHeader) {
     const match = authHeader.match(/^Bearer\s+(.+)$/i);
     const token = match?.[1];
@@ -94,7 +94,7 @@ export function isCronAuthorized(request: Request): boolean {
   }
 
   // Method 2: Check x-cron-secret header (for manual triggers and local dev)
-  const customSecret = request.headers.get("x-cron-secret");
+  const customSecret = request.headers.get('x-cron-secret');
   if (customSecret && secureCompare(customSecret, cronSecret)) {
     return true;
   }
@@ -125,18 +125,18 @@ export function verifyCronRequest(request: Request): NextResponse | null {
   console.log(
     JSON.stringify({
       ts: new Date().toISOString(),
-      event: "cron.unauthorized",
+      event: 'cron.unauthorized',
       path: new URL(request.url).pathname,
       method: request.method,
-    })
+    }),
   );
 
   return NextResponse.json(
     {
-      error: "Unauthorized",
-      message: "Invalid or missing cron secret",
+      error: 'Unauthorized',
+      message: 'Invalid or missing cron secret',
     },
-    { status: 401 }
+    { status: 401 },
   );
 }
 
@@ -147,10 +147,7 @@ export function verifyCronRequest(request: Request): NextResponse | null {
  * @param data - Additional response data
  * @returns JSON response with standard cron fields
  */
-export function cronResponse<T extends object>(
-  job: string,
-  data: T = {} as T
-): NextResponse {
+export function cronResponse<T extends object>(job: string, data: T = {} as T): NextResponse {
   return NextResponse.json({
     ok: true,
     ts: Date.now(),

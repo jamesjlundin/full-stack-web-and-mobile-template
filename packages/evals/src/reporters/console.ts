@@ -43,7 +43,7 @@ export class ConsoleReporter implements Reporter {
       `  Score: ${(suite.score * 100).toFixed(1)}% | ` +
         `Passed: ${suite.passed}/${suite.total} | ` +
         `Failed: ${suite.failed} | ` +
-        `Skipped: ${suite.skipped}`
+        `Skipped: ${suite.skipped}`,
     );
 
     // Print failed cases

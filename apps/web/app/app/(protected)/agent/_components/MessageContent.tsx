@@ -1,18 +1,18 @@
-"use client";
+'use client';
 
-import { X } from "lucide-react";
-import { useState } from "react";
+import { X } from 'lucide-react';
+import { useState } from 'react';
 
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 
-import type { MessagePart } from "../_lib/types";
+import type { MessagePart } from '../_lib/types';
 
 type MessageContentProps = {
   parts: MessagePart[];
   className?: string;
 };
 
-export function MessageContent({ parts, className = "" }: MessageContentProps) {
+export function MessageContent({ parts, className = '' }: MessageContentProps) {
   const [lightboxImage, setLightboxImage] = useState<string | null>(null);
 
   if (parts.length === 0) {
@@ -23,7 +23,7 @@ export function MessageContent({ parts, className = "" }: MessageContentProps) {
     <>
       <div className={`space-y-2 ${className}`}>
         {parts.map((part, index) => {
-          if (part.type === "text") {
+          if (part.type === 'text') {
             return (
               <p key={index} className="whitespace-pre-wrap text-sm">
                 {part.text}
@@ -31,19 +31,17 @@ export function MessageContent({ parts, className = "" }: MessageContentProps) {
             );
           }
 
-          if (part.type === "image") {
+          if (part.type === 'image') {
             return (
               <div key={index} className="relative group">
                 <img
                   src={part.url}
-                  alt={part.alt || "Image"}
+                  alt={part.alt || 'Image'}
                   className="max-w-full max-h-64 rounded-lg cursor-pointer hover:opacity-90 transition-opacity"
                   onClick={() => setLightboxImage(part.url)}
                 />
                 {part.alt && (
-                  <span className="text-xs text-muted-foreground mt-1 block">
-                    {part.alt}
-                  </span>
+                  <span className="text-xs text-muted-foreground mt-1 block">{part.alt}</span>
                 )}
               </div>
             );
@@ -63,11 +61,7 @@ export function MessageContent({ parts, className = "" }: MessageContentProps) {
             <X className="h-5 w-5" />
           </button>
           {lightboxImage && (
-            <img
-              src={lightboxImage}
-              alt="Full size"
-              className="w-full h-full object-contain"
-            />
+            <img src={lightboxImage} alt="Full size" className="w-full h-full object-contain" />
           )}
         </DialogContent>
       </Dialog>
@@ -80,14 +74,14 @@ type UserMessageContentProps = {
 };
 
 export function UserMessageContent({ parts }: UserMessageContentProps) {
-  const textParts = parts.filter((p) => p.type === "text");
-  const imageParts = parts.filter((p) => p.type === "image");
+  const textParts = parts.filter((p) => p.type === 'text');
+  const imageParts = parts.filter((p) => p.type === 'image');
 
   return (
     <div className="space-y-2">
       {/* Text content */}
       {textParts.map((part, index) => (
-        <span key={index}>{part.type === "text" ? part.text : null}</span>
+        <span key={index}>{part.type === 'text' ? part.text : null}</span>
       ))}
 
       {/* Image thumbnails */}
@@ -96,8 +90,8 @@ export function UserMessageContent({ parts }: UserMessageContentProps) {
           {imageParts.map((part, index) => (
             <img
               key={index}
-              src={part.type === "image" ? part.url : ""}
-              alt={part.type === "image" ? part.alt || "Attached image" : ""}
+              src={part.type === 'image' ? part.url : ''}
+              alt={part.type === 'image' ? part.alt || 'Attached image' : ''}
               className="max-w-32 max-h-32 rounded-md object-cover"
             />
           ))}

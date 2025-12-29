@@ -40,4 +40,3 @@ const styles = StyleSheet.create({
   email: {fontSize: 16, color: '#475569'},
   buttonGroup: {gap: 12},
 });
-

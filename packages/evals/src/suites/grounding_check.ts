@@ -16,7 +16,7 @@ export const groundingCheckSuite: Suite = {
 
   async run(context: EvalContext): Promise<CaseResult[]> {
     const groundingFixtures = context.fixtures.filter(
-      (f): f is GroundingFixture => f.category === 'grounding'
+      (f): f is GroundingFixture => f.category === 'grounding',
     );
 
     const results: CaseResult[] = [];
@@ -34,15 +34,14 @@ export const groundingCheckSuite: Suite = {
 
 async function evaluateGrounding(
   context: EvalContext,
-  fixture: GroundingFixture
+  fixture: GroundingFixture,
 ): Promise<CaseResult> {
   try {
     const prompt = `Context: ${fixture.context}\n\nQuestion: ${fixture.question}`;
     const response = await context.model.generate([
       {
         role: 'system',
-        content:
-          'Answer questions based only on the provided context. Be specific and factual.',
+        content: 'Answer questions based only on the provided context. Be specific and factual.',
       },
       { role: 'user', content: prompt },
     ]);

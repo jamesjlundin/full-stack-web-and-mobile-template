@@ -1,10 +1,10 @@
-import "dotenv/config";
-import { db, schema } from "@acme/db";
-import { betterAuth, type Session, type User } from "better-auth";
-import { drizzleAdapter } from "better-auth/adapters/drizzle";
-import { nextCookies, toNextJsHandler } from "better-auth/next-js";
-import { eq } from "drizzle-orm";
-import { jwtVerify } from "jose";
+import 'dotenv/config';
+import { db, schema } from '@acme/db';
+import { betterAuth, type Session, type User } from 'better-auth';
+import { drizzleAdapter } from 'better-auth/adapters/drizzle';
+import { nextCookies, toNextJsHandler } from 'better-auth/next-js';
+import { eq } from 'drizzle-orm';
+import { jwtVerify } from 'jose';
 
 /**
  * Check if dev token echoing is allowed.
@@ -16,10 +16,7 @@ import { jwtVerify } from "jose";
  * It exists only to allow testing production builds locally.
  */
 function isDevTokenAllowed(): boolean {
-  return (
-    process.env.NODE_ENV !== "production" ||
-    process.env.ALLOW_DEV_TOKENS === "true"
-  );
+  return process.env.NODE_ENV !== 'production' || process.env.ALLOW_DEV_TOKENS === 'true';
 }
 
 // In-memory store for tokens. Used for:
@@ -34,7 +31,7 @@ const devTokenStore: Map<string, DevTokenEntry> = new Map();
  * In dev mode, logs the token for convenience.
  */
 export function storeDevToken(
-  type: "verify" | "reset",
+  type: 'verify' | 'reset',
   email: string,
   token: string,
   url: string,
@@ -51,10 +48,7 @@ export function storeDevToken(
  * Returns null in production (unless ALLOW_DEV_TOKENS=true) or if no token exists.
  * Use this for returning devToken in API responses.
  */
-export function getDevToken(
-  type: "verify" | "reset",
-  email: string,
-): string | null {
+export function getDevToken(type: 'verify' | 'reset', email: string): string | null {
   if (!isDevTokenAllowed()) return null;
   const key = `${type}:${email.toLowerCase()}`;
   const entry = devTokenStore.get(key);
@@ -73,10 +67,7 @@ export function getDevToken(
  * Works in all environments. Used by mailer to get token for sending emails.
  * Returns null if no token exists or token has expired.
  */
-export function consumeTokenForEmail(
-  type: "verify" | "reset",
-  email: string,
-): string | null {
+export function consumeTokenForEmail(type: 'verify' | 'reset', email: string): string | null {
   const key = `${type}:${email.toLowerCase()}`;
   const entry = devTokenStore.get(key);
   if (!entry) return null;
@@ -102,14 +93,14 @@ function getAuth() {
   if (_auth) return _auth;
 
   const secret = process.env.BETTER_AUTH_SECRET;
-  const baseURL = process.env.APP_BASE_URL?.replace(/\/$/, "");
+  const baseURL = process.env.APP_BASE_URL?.replace(/\/$/, '');
 
   if (!secret) {
-    throw new Error("BETTER_AUTH_SECRET is not set");
+    throw new Error('BETTER_AUTH_SECRET is not set');
   }
 
   if (!baseURL) {
-    throw new Error("APP_BASE_URL is not set");
+    throw new Error('APP_BASE_URL is not set');
   }
 
   // Trust the base URL for CORS
@@ -121,7 +112,7 @@ function getAuth() {
   const isGoogleAuthEnabled = !!(googleClientId && googleClientSecret);
 
   // Disable rate limiting when DISABLE_RATE_LIMIT is set (for CI/testing)
-  const disableRateLimit = process.env.DISABLE_RATE_LIMIT === "true";
+  const disableRateLimit = process.env.DISABLE_RATE_LIMIT === 'true';
 
   _auth = betterAuth({
     baseURL,
@@ -135,24 +126,20 @@ function getAuth() {
       enabled: true,
       sendResetPassword: async ({ user, url, token }) => {
         // Store token in dev mode for testing. In production, integrate with SMTP.
-        storeDevToken("reset", user.email, token, url);
+        storeDevToken('reset', user.email, token, url);
         if (!isDevTokenAllowed()) {
           // TODO: Implement production SMTP email sending here
-          console.log(
-            `[PROD] Password reset email would be sent to ${user.email}`,
-          );
+          console.log(`[PROD] Password reset email would be sent to ${user.email}`);
         }
       },
     },
     emailVerification: {
       sendVerificationEmail: async ({ user, url, token }) => {
         // Store token in dev mode for testing. In production, integrate with SMTP.
-        storeDevToken("verify", user.email, token, url);
+        storeDevToken('verify', user.email, token, url);
         if (!isDevTokenAllowed()) {
           // TODO: Implement production SMTP email sending here
-          console.log(
-            `[PROD] Verification email would be sent to ${user.email}`,
-          );
+          console.log(`[PROD] Verification email would be sent to ${user.email}`);
         }
       },
       sendOnSignUp: false, // Don't auto-send on signup - use explicit request endpoint
@@ -167,7 +154,7 @@ function getAuth() {
       },
     }),
     database: drizzleAdapter(db, {
-      provider: "pg",
+      provider: 'pg',
       schema,
       usePlural: true,
     }),
@@ -228,9 +215,7 @@ function getJwtSecretKey(): Uint8Array {
 
   const secret = process.env.BETTER_AUTH_SECRET;
   if (!secret || secret.length < 32) {
-    throw new Error(
-      "BETTER_AUTH_SECRET must be set and at least 32 characters long",
-    );
+    throw new Error('BETTER_AUTH_SECRET must be set and at least 32 characters long');
   }
   _jwtSecretKey = new TextEncoder().encode(secret);
   return _jwtSecretKey;
@@ -240,8 +225,8 @@ function getJwtSecretKey(): Uint8Array {
  * Extract Bearer token from Authorization header.
  */
 function extractBearerToken(request: Request): string | null {
-  const authHeader = request.headers.get("Authorization");
-  if (!authHeader?.startsWith("Bearer ")) {
+  const authHeader = request.headers.get('Authorization');
+  if (!authHeader?.startsWith('Bearer ')) {
     return null;
   }
   const token = authHeader.slice(7).trim();
@@ -251,15 +236,13 @@ function extractBearerToken(request: Request): string | null {
 /**
  * Verify a JWT Bearer token and return the user from the database.
  */
-async function verifyBearerToken(
-  token: string,
-): Promise<CurrentUserResult | null> {
+async function verifyBearerToken(token: string): Promise<CurrentUserResult | null> {
   try {
     const { payload } = await jwtVerify(token, getJwtSecretKey(), {
-      algorithms: ["HS256"],
+      algorithms: ['HS256'],
     });
 
-    if (!payload.sub || typeof payload.sub !== "string") {
+    if (!payload.sub || typeof payload.sub !== 'string') {
       return null;
     }
 
@@ -279,7 +262,7 @@ async function verifyBearerToken(
       id: dbUser.id,
       email: dbUser.email,
       emailVerified: dbUser.emailVerified ?? false,
-      name: dbUser.name ?? "",
+      name: dbUser.name ?? '',
       image: dbUser.image ?? null,
       createdAt: dbUser.createdAt,
       updatedAt: dbUser.updatedAt,
@@ -296,9 +279,7 @@ async function verifyBearerToken(
   }
 }
 
-export async function getCurrentUser(
-  request: Request,
-): Promise<CurrentUserResult | null> {
+export async function getCurrentUser(request: Request): Promise<CurrentUserResult | null> {
   try {
     // First, check for Bearer token authentication
     const bearerToken = extractBearerToken(request);
@@ -329,7 +310,7 @@ export async function getCurrentUser(
 
     const { headers, response, status } = result;
 
-    if (response && "user" in response && "session" in response) {
+    if (response && 'user' in response && 'session' in response) {
       return {
         headers: headers ?? null,
         session: response.session,
@@ -345,7 +326,7 @@ export async function getCurrentUser(
       user: null,
     };
   } catch (error) {
-    console.error("Failed to read current user", error);
+    console.error('Failed to read current user', error);
     return null;
   }
 }

@@ -18,7 +18,7 @@ export {
   mathAddImpl,
   mathAddInputSchema,
   mathAddOutputSchema,
-} from "./register.js";
+} from './register.js';
 
 export type {
   EchoInput,
@@ -28,4 +28,4 @@ export type {
   MathAddInput,
   MathAddOutput,
   MathAddContract,
-} from "./register.js";
+} from './register.js';

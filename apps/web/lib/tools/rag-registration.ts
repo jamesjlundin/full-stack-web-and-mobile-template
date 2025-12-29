@@ -5,9 +5,15 @@
  * This module should be imported once at app initialization.
  */
 
-import { db } from "@acme/db";
-import { ragQuery, hasOpenAIKey, MissingApiKeyError } from "@acme/rag";
-import { registerTool, hasTool, ragQueryContract, type RagQueryInput, type RagQueryOutput } from "@acme/tools";
+import { db } from '@acme/db';
+import { ragQuery, hasOpenAIKey, MissingApiKeyError } from '@acme/rag';
+import {
+  registerTool,
+  hasTool,
+  ragQueryContract,
+  type RagQueryInput,
+  type RagQueryOutput,
+} from '@acme/tools';
 
 /**
  * Register the rag.query tool with the tools registry.
@@ -15,7 +21,7 @@ import { registerTool, hasTool, ragQueryContract, type RagQueryInput, type RagQu
  */
 export function registerRagTool(): void {
   // Skip if already registered (idempotent)
-  if (hasTool("rag.query")) {
+  if (hasTool('rag.query')) {
     return;
   }
 
@@ -47,7 +53,7 @@ export function registerRagTool(): void {
  * Check if the RAG tool is available (registered and API key present)
  */
 export function isRagToolAvailable(): boolean {
-  return hasTool("rag.query") && hasOpenAIKey();
+  return hasTool('rag.query') && hasOpenAIKey();
 }
 
 // Auto-register on module load

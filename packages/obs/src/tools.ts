@@ -1,6 +1,6 @@
-import { redact } from "./redaction";
+import { redact } from './redaction';
 
-import type { ToolLog, LogToolCallArgs } from "./types";
+import type { ToolLog, LogToolCallArgs } from './types';
 
 /**
  * Log a tool call with timing and redacted arguments
@@ -12,10 +12,10 @@ export async function logToolCall(args: LogToolCallArgs): Promise<void> {
   const duration_ms = args.finishedAt - args.startedAt;
 
   const log: ToolLog = {
-    span: "tool.call",
+    span: 'tool.call',
     name: args.name,
     duration_ms,
-    status: args.error ? "error" : "ok",
+    status: args.error ? 'error' : 'ok',
   };
 
   // Add redacted args sample if provided

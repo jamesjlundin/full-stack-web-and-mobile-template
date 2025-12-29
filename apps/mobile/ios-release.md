@@ -14,22 +14,22 @@ Before running the workflow, you must add the following secrets in your GitHub r
 
 **GitHub → Repo → Settings → Secrets and variables → Actions**
 
-| Secret | Description |
-|--------|-------------|
-| `APP_IDENTIFIER` | Your iOS app's bundle identifier (e.g., `com.example.myapp`) |
-| `APPLE_TEAM_ID` | Your Apple Developer Team ID |
-| `APP_STORE_CONNECT_ISSUER_ID` | App Store Connect API Key Issuer ID |
-| `APP_STORE_CONNECT_KEY_ID` | App Store Connect API Key ID |
-| `APP_STORE_CONNECT_PRIVATE_KEY` | App Store Connect API Private Key (`.p8` file contents) |
-| `MATCH_GIT_URL` | Private git repository URL for Match certificates/profiles |
-| `MATCH_PASSWORD` | Encryption password for Match repository |
+| Secret                          | Description                                                  |
+| ------------------------------- | ------------------------------------------------------------ |
+| `APP_IDENTIFIER`                | Your iOS app's bundle identifier (e.g., `com.example.myapp`) |
+| `APPLE_TEAM_ID`                 | Your Apple Developer Team ID                                 |
+| `APP_STORE_CONNECT_ISSUER_ID`   | App Store Connect API Key Issuer ID                          |
+| `APP_STORE_CONNECT_KEY_ID`      | App Store Connect API Key ID                                 |
+| `APP_STORE_CONNECT_PRIVATE_KEY` | App Store Connect API Private Key (`.p8` file contents)      |
+| `MATCH_GIT_URL`                 | Private git repository URL for Match certificates/profiles   |
+| `MATCH_PASSWORD`                | Encryption password for Match repository                     |
 
 ### Optional Secrets
 
-| Secret | Description | Default |
-|--------|-------------|---------|
-| `IOS_SCHEME` | Xcode scheme name | `Production` |
-| `APPLE_ID` | Apple ID email for Fastlane | `ios-ci@example.com` |
+| Secret       | Description                 | Default              |
+| ------------ | --------------------------- | -------------------- |
+| `IOS_SCHEME` | Xcode scheme name           | `Production`         |
+| `APPLE_ID`   | Apple ID email for Fastlane | `ios-ci@example.com` |
 
 ## Setting Up App Store Connect API Key
 
@@ -59,6 +59,7 @@ bundle exec fastlane ios bootstrap_signing
 ```
 
 This will:
+
 - Connect to App Store Connect using your API key
 - Enable automatic code signing
 - Sync certificates and profiles to your Match repository
@@ -75,16 +76,21 @@ This will:
 The following Fastlane lanes are available:
 
 ### `preflight`
+
 Checks that all required secrets are present. Exits gracefully with exit code 0 if secrets are missing, printing a helpful message about which secrets need to be added.
 
 ### `bootstrap_signing`
+
 Sets up code signing for the first time:
+
 - Configures App Store Connect API key
 - Enables automatic code signing
 - Syncs Match certificates and profiles
 
 ### `upload_testflight`
+
 Builds and uploads to TestFlight:
+
 - Installs CocoaPods dependencies
 - Runs TypeScript and ESLint checks
 - Gets the latest TestFlight build number and increments it
@@ -94,13 +100,17 @@ Builds and uploads to TestFlight:
 ## Troubleshooting
 
 ### "Missing APP_IDENTIFIER" error
+
 The `APP_IDENTIFIER` secret is required. Add it to your GitHub secrets.
 
 ### Preflight shows missing secrets
+
 This is expected if you're setting up the project for the first time. Add the missing secrets listed in the output.
 
 ### Code signing errors
+
 Run `bundle exec fastlane ios bootstrap_signing` to set up code signing, or check that your Match repository is accessible and the password is correct.
 
 ### Build fails on Xcode project not found
+
 Ensure you have initialized the iOS project with React Native and the `.xcodeproj` file exists at `apps/mobile/ios/`.

@@ -16,9 +16,7 @@ export class JsonReporter implements Reporter {
   }
 
   report(results: EvalResults): void {
-    const output = this.pretty
-      ? JSON.stringify(results, null, 2)
-      : JSON.stringify(results);
+    const output = this.pretty ? JSON.stringify(results, null, 2) : JSON.stringify(results);
 
     console.log(output);
   }

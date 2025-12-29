@@ -1,21 +1,21 @@
-import { redirect } from "next/navigation";
+import { redirect } from 'next/navigation';
 
-import { AppShell } from "@/components/layout";
-import { Badge } from "@/components/ui/badge";
-import { getServerSession } from "@/lib/session";
+import { AppShell } from '@/components/layout';
+import { Badge } from '@/components/ui/badge';
+import { getServerSession } from '@/lib/session';
 
-import { AgentChat } from "./_components/AgentChat";
+import { AgentChat } from './_components/AgentChat';
 
-import type { AiProviderInfo } from "@acme/api-client";
+import type { AiProviderInfo } from '@acme/api-client';
 
 // Skip static generation - this page requires auth check at runtime
-export const dynamic = "force-dynamic";
+export const dynamic = 'force-dynamic';
 
 export default async function AgentDemoPage() {
   const { user, config } = await getServerSession();
 
   if (!user) {
-    redirect("/login?next=/agent");
+    redirect('/login?next=/agent');
   }
 
   const aiProviders = config.ai?.providers ?? [];
@@ -32,8 +32,8 @@ export default async function AgentDemoPage() {
               <Badge variant="secondary">Demo</Badge>
             </div>
             <p className="text-muted-foreground">
-              Chat with an AI agent that can use tools to get weather and time information.
-              This demonstrates streaming responses with tool calling.
+              Chat with an AI agent that can use tools to get weather and time information. This
+              demonstrates streaming responses with tool calling.
             </p>
           </div>
 

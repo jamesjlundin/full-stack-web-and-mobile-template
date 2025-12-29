@@ -107,10 +107,7 @@ export async function runEvaluations(config: RunnerConfig): Promise<EvalResults>
 /**
  * Aggregate case results into suite result
  */
-function aggregateSuiteResults(
-  suiteName: string,
-  cases: CaseResult[]
-): SuiteResult {
+function aggregateSuiteResults(suiteName: string, cases: CaseResult[]): SuiteResult {
   const nonSkippedCases = cases.filter((c) => !c.skipped);
   const passed = nonSkippedCases.filter((c) => c.passed).length;
   const failed = nonSkippedCases.filter((c) => !c.passed).length;

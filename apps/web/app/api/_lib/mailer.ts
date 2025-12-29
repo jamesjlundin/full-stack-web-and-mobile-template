@@ -1,4 +1,4 @@
-import { Resend } from "resend";
+import { Resend } from 'resend';
 
 export type SendVerificationEmailResult = {
   ok: boolean;
@@ -26,14 +26,12 @@ export async function sendVerificationEmail({
   to: string;
   token: string;
 }): Promise<SendVerificationEmailResult> {
-  const appBaseUrl = (
-    process.env.APP_BASE_URL || "http://localhost:3000"
-  ).replace(/\/$/, "");
+  const appBaseUrl = (process.env.APP_BASE_URL || 'http://localhost:3000').replace(/\/$/, '');
   const verifyUrl = `${appBaseUrl}/auth/verify?token=${encodeURIComponent(token)}`;
 
   // DEV MODE: Do not call Resend, just log
-  if (process.env.NODE_ENV !== "production") {
-    console.log("[DEV] Would send verification email:");
+  if (process.env.NODE_ENV !== 'production') {
+    console.log('[DEV] Would send verification email:');
     console.log(`  To: ${to}`);
     console.log(`  Token: ${token}`);
     console.log(`  Link: ${verifyUrl}`);
@@ -43,22 +41,19 @@ export async function sendVerificationEmail({
   // PRODUCTION: Check for RESEND_API_KEY
   const resendApiKey = process.env.RESEND_API_KEY;
   if (!resendApiKey) {
-    console.error(
-      "[PROD] RESEND_API_KEY is not configured. Cannot send verification email.",
-    );
+    console.error('[PROD] RESEND_API_KEY is not configured. Cannot send verification email.');
     return {
       ok: false,
-      error:
-        "Email service not configured. RESEND_API_KEY is required in production.",
+      error: 'Email service not configured. RESEND_API_KEY is required in production.',
     };
   }
 
-  const mailFrom = process.env.MAIL_FROM || "onboarding@resend.dev";
+  const mailFrom = process.env.MAIL_FROM || 'onboarding@resend.dev';
 
   const emailPayload = {
     from: mailFrom,
     to,
-    subject: "Verify your email",
+    subject: 'Verify your email',
     html: `
 <!DOCTYPE html>
 <html>
@@ -88,8 +83,8 @@ export async function sendVerificationEmail({
   };
 
   // DRY RUN: Log payload instead of sending
-  if (process.env.RESEND_DRY_RUN === "1") {
-    console.log("[DRY_RUN] Would send verification email via Resend:");
+  if (process.env.RESEND_DRY_RUN === '1') {
+    console.log('[DRY_RUN] Would send verification email via Resend:');
     console.log(JSON.stringify(emailPayload, null, 2));
     return { ok: true, dryRun: true };
   }
@@ -100,18 +95,15 @@ export async function sendVerificationEmail({
     const result = await resend.emails.send(emailPayload);
 
     if (result.error) {
-      console.error("[PROD] Resend error:", result.error);
+      console.error('[PROD] Resend error:', result.error);
       return { ok: false, error: result.error.message };
     }
 
-    console.log(
-      "[PROD] Verification email sent successfully:",
-      result.data?.id,
-    );
+    console.log('[PROD] Verification email sent successfully:', result.data?.id);
     return { ok: true };
   } catch (error) {
-    console.error("[PROD] Failed to send verification email:", error);
-    const message = error instanceof Error ? error.message : "Unknown error";
+    console.error('[PROD] Failed to send verification email:', error);
+    const message = error instanceof Error ? error.message : 'Unknown error';
     return { ok: false, error: message };
   }
 }

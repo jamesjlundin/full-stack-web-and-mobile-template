@@ -1,5 +1,5 @@
-import { auth } from "@acme/auth";
-import { NextResponse } from "next/server";
+import { auth } from '@acme/auth';
+import { NextResponse } from 'next/server';
 
 /**
  * POST /api/auth/email/verify/confirm
@@ -12,11 +12,8 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { token } = body;
 
-    if (!token || typeof token !== "string") {
-      return NextResponse.json(
-        { ok: false, error: "Token is required" },
-        { status: 400 }
-      );
+    if (!token || typeof token !== 'string') {
+      return NextResponse.json({ ok: false, error: 'Token is required' }, { status: 400 });
     }
 
     // Call Better Auth's verify email API
@@ -26,11 +23,8 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ ok: true });
   } catch (error) {
-    console.error("[email/verify/confirm] Error:", error);
-    const message = error instanceof Error ? error.message : "Unknown error";
-    return NextResponse.json(
-      { ok: false, error: message },
-      { status: 400 }
-    );
+    console.error('[email/verify/confirm] Error:', error);
+    const message = error instanceof Error ? error.message : 'Unknown error';
+    return NextResponse.json({ ok: false, error: message }, { status: 400 });
   }
 }

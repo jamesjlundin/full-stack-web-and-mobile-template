@@ -95,7 +95,7 @@ async function main(): Promise<void> {
     const ragExists = await ragPackageExists();
     if (!ragExists) {
       console.warn(
-        'Warning: --rag flag set but packages/rag not found. RAG evaluation will be skipped.'
+        'Warning: --rag flag set but packages/rag not found. RAG evaluation will be skipped.',
       );
     }
   }

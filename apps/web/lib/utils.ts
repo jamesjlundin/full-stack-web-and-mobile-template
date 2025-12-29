@@ -1,5 +1,5 @@
-import { type ClassValue, clsx } from "clsx";
-import { twMerge } from "tailwind-merge";
+import { type ClassValue, clsx } from 'clsx';
+import { twMerge } from 'tailwind-merge';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -21,10 +21,10 @@ export function cn(...inputs: ClassValue[]) {
  */
 export function getSafeRedirectUrl(
   url: string | null | undefined,
-  fallback: string = "/app/home"
+  fallback: string = '/app/home',
 ): string {
   // No URL provided - use fallback
-  if (!url || typeof url !== "string") {
+  if (!url || typeof url !== 'string') {
     return fallback;
   }
 
@@ -38,17 +38,13 @@ export function getSafeRedirectUrl(
 
   // Must start with a single forward slash (relative path)
   // Reject: //, http://, https://, javascript:, data:, etc.
-  if (!trimmed.startsWith("/") || trimmed.startsWith("//")) {
+  if (!trimmed.startsWith('/') || trimmed.startsWith('//')) {
     return fallback;
   }
 
   // Check for dangerous protocols that might be URL-encoded
   const lower = trimmed.toLowerCase();
-  if (
-    lower.includes("javascript:") ||
-    lower.includes("data:") ||
-    lower.includes("vbscript:")
-  ) {
+  if (lower.includes('javascript:') || lower.includes('data:') || lower.includes('vbscript:')) {
     return fallback;
   }
 

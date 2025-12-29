@@ -34,6 +34,7 @@ pnpm -C packages/db migrate:apply
 ```
 
 This creates:
+
 - `vector` extension for pgvector
 - `rag_chunks` table with columns: id, doc_id, content, embedding (VECTOR(1536)), metadata, created_at
 - IVFFlat index on embeddings for fast cosine similarity search
@@ -43,38 +44,36 @@ This creates:
 ### Basic Pipeline
 
 ```typescript
-import { db } from "@acme/db";
-import {
-  fixedSizeChunks,
-  openaiEmbedder,
-  upsertChunks,
-  ragQuery,
-} from "@acme/rag";
+import { db } from '@acme/db';
+import { fixedSizeChunks, openaiEmbedder, upsertChunks, ragQuery } from '@acme/rag';
 
 // 1. Chunk your document
 const chunks = fixedSizeChunks(documentText, {
-  size: 800,      // characters per chunk
-  overlap: 200,   // overlap between chunks
-  source: "my-doc.md",
+  size: 800, // characters per chunk
+  overlap: 200, // overlap between chunks
+  source: 'my-doc.md',
 });
 
 // 2. Generate embeddings
 const embedder = openaiEmbedder();
-const embeddings = await embedder.embed(chunks.map(c => c.content));
+const embeddings = await embedder.embed(chunks.map((c) => c.content));
 
 // 3. Index in pgvector
-await upsertChunks(db, chunks.map((c, i) => ({
-  id: c.id,
-  docId: "doc-123",
-  content: c.content,
-  embedding: embeddings[i],
-  metadata: c.metadata,
-})));
+await upsertChunks(
+  db,
+  chunks.map((c, i) => ({
+    id: c.id,
+    docId: 'doc-123',
+    content: c.content,
+    embedding: embeddings[i],
+    metadata: c.metadata,
+  })),
+);
 
 // 4. Query for relevant chunks
 const results = await ragQuery(db, {
-  query: "What is TypeScript?",
-  k: 5,  // return top 5 results
+  query: 'What is TypeScript?',
+  k: 5, // return top 5 results
 });
 
 for (const chunk of results.chunks) {
@@ -85,26 +84,26 @@ for (const chunk of results.chunks) {
 ### Markdown Processing
 
 ```typescript
-import { mdToText, fixedSizeChunks } from "@acme/rag";
+import { mdToText, fixedSizeChunks } from '@acme/rag';
 
 // Convert markdown to plain text (removes formatting)
 const plainText = mdToText(markdownContent);
 
 // Then chunk the plain text
-const chunks = fixedSizeChunks(plainText, { source: "readme.md" });
+const chunks = fixedSizeChunks(plainText, { source: 'readme.md' });
 ```
 
 ## Configuration
 
 Constants are defined in `src/config.ts`:
 
-| Constant | Default | Description |
-|----------|---------|-------------|
-| `EMBED_MODEL` | `"openai:text-embedding-3-small"` | Embedding model identifier |
-| `EMBED_DIMS` | `1536` | Vector dimensions (must match model) |
-| `RAG_CONFIG_VERSION` | `"v1"` | Config version for compatibility tracking |
-| `DEFAULT_CHUNK_SIZE` | `800` | Default chunk size in characters |
-| `DEFAULT_CHUNK_OVERLAP` | `200` | Default overlap between chunks |
+| Constant                | Default                           | Description                               |
+| ----------------------- | --------------------------------- | ----------------------------------------- |
+| `EMBED_MODEL`           | `"openai:text-embedding-3-small"` | Embedding model identifier                |
+| `EMBED_DIMS`            | `1536`                            | Vector dimensions (must match model)      |
+| `RAG_CONFIG_VERSION`    | `"v1"`                            | Config version for compatibility tracking |
+| `DEFAULT_CHUNK_SIZE`    | `800`                             | Default chunk size in characters          |
+| `DEFAULT_CHUNK_OVERLAP` | `200`                             | Default overlap between chunks            |
 
 ### Changing Models
 
@@ -152,10 +151,10 @@ pnpm -C packages/rag seed
 
 ## Environment Variables
 
-| Variable | Required | Description |
-|----------|----------|-------------|
-| `DATABASE_URL` | Yes | PostgreSQL connection string with pgvector |
-| `OPENAI_API_KEY` | For embedding | OpenAI API key for text-embedding-3-small |
+| Variable         | Required      | Description                                |
+| ---------------- | ------------- | ------------------------------------------ |
+| `DATABASE_URL`   | Yes           | PostgreSQL connection string with pgvector |
+| `OPENAI_API_KEY` | For embedding | OpenAI API key for text-embedding-3-small  |
 
 ## Validation
 

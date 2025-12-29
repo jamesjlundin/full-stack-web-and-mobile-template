@@ -67,12 +67,12 @@ export function buildVersionMeta(args: BuildVersionMetaArgs): VersionMeta {
  * These headers are additive and do not modify existing response behavior.
  */
 export const VERSION_HEADERS = {
-  PROMPT_ID: "X-Prompt-Id",
-  PROMPT_VERSION: "X-Prompt-Version",
-  SCHEMA_ID: "X-Schema-Id",
-  SCHEMA_VERSION: "X-Schema-Version",
-  RAG_CONFIG_VERSION: "X-Rag-Config-Version",
-  EMBED_MODEL: "X-Embed-Model",
+  PROMPT_ID: 'X-Prompt-Id',
+  PROMPT_VERSION: 'X-Prompt-Version',
+  SCHEMA_ID: 'X-Schema-Id',
+  SCHEMA_VERSION: 'X-Schema-Version',
+  RAG_CONFIG_VERSION: 'X-Rag-Config-Version',
+  EMBED_MODEL: 'X-Embed-Model',
 } as const;
 
 /**

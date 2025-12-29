@@ -1,5 +1,12 @@
 import React, {useCallback, useState} from 'react';
-import {Button, SafeAreaView, StyleSheet, Text, TextInput, View} from 'react-native';
+import {
+  Button,
+  SafeAreaView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from 'react-native';
 
 import {API_BASE} from '../config/api';
 
@@ -67,7 +74,8 @@ export default function ResetRequestScreen({
         <View style={styles.container}>
           <Text style={styles.title}>Check Your Email</Text>
           <Text style={styles.successText}>
-            If that email exists in our system, a reset link has been sent. Please check your inbox.
+            If that email exists in our system, a reset link has been sent.
+            Please check your inbox.
           </Text>
 
           {/* Dev Token Display (only in dev mode) */}

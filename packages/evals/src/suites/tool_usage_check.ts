@@ -15,9 +15,7 @@ export const toolUsageCheckSuite: Suite = {
   metricName: 'tool_usage_check',
 
   async run(context: EvalContext): Promise<CaseResult[]> {
-    const toolFixtures = context.fixtures.filter(
-      (f): f is ToolFixture => f.category === 'tool'
-    );
+    const toolFixtures = context.fixtures.filter((f): f is ToolFixture => f.category === 'tool');
 
     const results: CaseResult[] = [];
     const limit = context.limit ?? toolFixtures.length;
@@ -32,10 +30,7 @@ export const toolUsageCheckSuite: Suite = {
   },
 };
 
-async function evaluateToolUsage(
-  context: EvalContext,
-  fixture: ToolFixture
-): Promise<CaseResult> {
+async function evaluateToolUsage(context: EvalContext, fixture: ToolFixture): Promise<CaseResult> {
   try {
     const response = await context.model.generate(
       [
@@ -46,7 +41,7 @@ async function evaluateToolUsage(
         },
         { role: 'user', content: fixture.prompt },
       ],
-      { tools: fixture.tools }
+      { tools: fixture.tools },
     );
 
     // Check if tool was called
@@ -81,9 +76,7 @@ async function evaluateToolUsage(
     if (fixture.expectedArguments) {
       const missingValues: string[] = [];
 
-      for (const [expectedKey, expectedValue] of Object.entries(
-        fixture.expectedArguments
-      )) {
+      for (const [expectedKey, expectedValue] of Object.entries(fixture.expectedArguments)) {
         if (typeof expectedValue !== 'string') continue;
 
         const expectedStr = expectedValue.toLowerCase();

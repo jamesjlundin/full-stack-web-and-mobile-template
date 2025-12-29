@@ -1,12 +1,12 @@
-import { getCurrentUser, type CurrentUserResult } from "@acme/auth";
-import { NextRequest, NextResponse } from "next/server";
+import { getCurrentUser, type CurrentUserResult } from '@acme/auth';
+import { NextRequest, NextResponse } from 'next/server';
 
-import type { createRateLimiter } from "@acme/security";
+import type { createRateLimiter } from '@acme/security';
 
 type RateLimiter = ReturnType<typeof createRateLimiter>;
 type UserRouteHandler = (
   request: NextRequest,
-  user: NonNullable<CurrentUserResult>
+  user: NonNullable<CurrentUserResult>,
 ) => Promise<Response>;
 
 /**
@@ -17,17 +17,14 @@ type UserRouteHandler = (
 export function withUserRateLimit(
   routeId: string,
   limiter: RateLimiter,
-  handler: UserRouteHandler
+  handler: UserRouteHandler,
 ): (request: NextRequest) => Promise<Response> {
   return async (request: NextRequest): Promise<Response> => {
     // Check authentication first
     const userResult = await getCurrentUser(request);
 
     if (!userResult?.user) {
-      return NextResponse.json(
-        { error: "unauthorized" },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
     }
 
     // Rate limit by user ID
@@ -36,20 +33,20 @@ export function withUserRateLimit(
     const resetSeconds = Math.ceil((result.resetAt - Date.now()) / 1000);
 
     const rateLimitHeaders: Record<string, string> = {
-      "X-RateLimit-Limit": String(limiter.limit),
-      "X-RateLimit-Remaining": String(result.remaining),
-      "X-RateLimit-Reset": String(result.resetAt),
+      'X-RateLimit-Limit': String(limiter.limit),
+      'X-RateLimit-Remaining': String(result.remaining),
+      'X-RateLimit-Reset': String(result.resetAt),
     };
 
     if (!result.allowed) {
-      rateLimitHeaders["Retry-After"] = String(Math.max(1, resetSeconds));
+      rateLimitHeaders['Retry-After'] = String(Math.max(1, resetSeconds));
 
       return NextResponse.json(
-        { error: "rate_limited" },
+        { error: 'rate_limited' },
         {
           status: 429,
           headers: rateLimitHeaders,
-        }
+        },
       );
     }
 

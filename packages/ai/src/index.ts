@@ -1,9 +1,9 @@
-import { streamText } from "ai";
+import { streamText } from 'ai';
 
-import { getModel, validateProviderModel, type ProviderId } from "./providers";
+import { getModel, validateProviderModel, type ProviderId } from './providers';
 
 // Re-export version and routing utilities
-export { selectPrompt, listFeatures, listChannels } from "./router";
+export { selectPrompt, listFeatures, listChannels } from './router';
 export {
   buildVersionMeta,
   attachVersionHeaders,
@@ -11,10 +11,10 @@ export {
   VERSION_HEADERS,
   type VersionMeta,
   type BuildVersionMetaArgs,
-} from "./versions";
-export { configureAjv, type AjvConfig, type SchemaValidator, type ValidatorResult } from "./ajv";
-export { schemas, type SchemaInfo, type SchemaKey } from "./schemas/index";
-export type { PromptDef } from "./prompts/types";
+} from './versions';
+export { configureAjv, type AjvConfig, type SchemaValidator, type ValidatorResult } from './ajv';
+export { schemas, type SchemaInfo, type SchemaKey } from './schemas/index';
+export type { PromptDef } from './prompts/types';
 export {
   getAvailableProviders,
   getDefaultProvider,
@@ -24,14 +24,14 @@ export {
   type ModelInfo,
   type ProviderConfig,
   type ProviderId,
-} from "./providers";
+} from './providers';
 export {
   generateImageToolDef,
   generateImageToolSchema,
   executeGenerateImage,
   type GenerateImageInput,
   type GenerateImageResult,
-} from "./tools";
+} from './tools';
 
 type StreamChatParams = {
   prompt: string;
@@ -46,21 +46,13 @@ type StreamChatResult = {
   model: string;
 };
 
-const MOCK_TOKENS = [
-  "Hello",
-  ", ",
-  "this ",
-  "is ",
-  "a ",
-  "mock ",
-  "stream.",
-];
+const MOCK_TOKENS = ['Hello', ', ', 'this ', 'is ', 'a ', 'mock ', 'stream.'];
 
 function buildHeaders() {
   return {
-    "Content-Type": "text/event-stream",
-    "Cache-Control": "no-cache",
-    Connection: "keep-alive",
+    'Content-Type': 'text/event-stream',
+    'Cache-Control': 'no-cache',
+    Connection: 'keep-alive',
   };
 }
 
@@ -71,12 +63,12 @@ function createMockStreamResponse(): Response {
     async start(controller) {
       for (const token of MOCK_TOKENS) {
         controller.enqueue(
-          encoder.encode(`data: ${JSON.stringify({ type: "text", text: token })}\n\n`),
+          encoder.encode(`data: ${JSON.stringify({ type: 'text', text: token })}\n\n`),
         );
         await new Promise((resolve) => setTimeout(resolve, 100));
       }
 
-      controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: "done" })}\n\n`));
+      controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: 'done' })}\n\n`));
       controller.close();
     },
   });
@@ -98,11 +90,11 @@ async function createProviderStreamResponse(
 
   const encoder = new TextEncoder();
 
-  const messages: Array<{ role: "system" | "user"; content: string }> = [];
+  const messages: Array<{ role: 'system' | 'user'; content: string }> = [];
   if (systemPrompt) {
-    messages.push({ role: "system", content: systemPrompt });
+    messages.push({ role: 'system', content: systemPrompt });
   }
-  messages.push({ role: "user", content: prompt });
+  messages.push({ role: 'user', content: prompt });
 
   const result = streamText({
     model: languageModel,
@@ -113,14 +105,14 @@ async function createProviderStreamResponse(
     async start(controller) {
       try {
         for await (const part of result.fullStream) {
-          if (part.type === "text-delta") {
+          if (part.type === 'text-delta') {
             controller.enqueue(
-              encoder.encode(`data: ${JSON.stringify({ type: "text", text: part.text })}\n\n`),
+              encoder.encode(`data: ${JSON.stringify({ type: 'text', text: part.text })}\n\n`),
             );
           }
         }
 
-        controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: "done" })}\n\n`));
+        controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: 'done' })}\n\n`));
         controller.close();
       } catch (error) {
         controller.error(error);
@@ -139,9 +131,9 @@ export async function streamChat({
 }: StreamChatParams): Promise<StreamChatResult> {
   if (!prompt) {
     return {
-      response: new Response("Missing prompt", { status: 400 }),
-      provider: "mock",
-      model: "mock",
+      response: new Response('Missing prompt', { status: 400 }),
+      provider: 'mock',
+      model: 'mock',
     };
   }
 
@@ -152,8 +144,8 @@ export async function streamChat({
     // No valid provider available, use mock
     return {
       response: createMockStreamResponse(),
-      provider: "mock",
-      model: "mock",
+      provider: 'mock',
+      model: 'mock',
     };
   }
 

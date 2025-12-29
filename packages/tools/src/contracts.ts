@@ -3,26 +3,26 @@
  * Provides type-safe tool definitions that can be consumed by MCP clients and app code.
  */
 
-import { z } from "zod";
+import { z } from 'zod';
 
 // =============================================================================
 // Common Zod Helpers
 // =============================================================================
 
 /** Non-empty string validator */
-export const nonemptyString = z.string().min(1, "String cannot be empty");
+export const nonemptyString = z.string().min(1, 'String cannot be empty');
 
 /** Positive integer validator */
-export const positiveInt = z.number().int().positive("Must be a positive integer");
+export const positiveInt = z.number().int().positive('Must be a positive integer');
 
 /** Non-negative integer validator */
-export const nonNegativeInt = z.number().int().nonnegative("Must be a non-negative integer");
+export const nonNegativeInt = z.number().int().nonnegative('Must be a non-negative integer');
 
 /** Safe JSON value (no undefined, functions, or symbols) */
 export const safeJson = z.unknown();
 
 /** Optional string that defaults to empty */
-export const optionalString = z.string().optional().default("");
+export const optionalString = z.string().optional().default('');
 
 // =============================================================================
 // Tool Definition Types
@@ -63,22 +63,20 @@ export interface ToolContract<
 /**
  * Helper type to infer input type from a ToolContract
  */
-export type ToolInput<T extends ToolContract> = T extends ToolContract<infer TIn, infer _TOut>
-  ? z.infer<TIn>
-  : never;
+export type ToolInput<T extends ToolContract> =
+  T extends ToolContract<infer TIn, infer _TOut> ? z.infer<TIn> : never;
 
 /**
  * Helper type to infer output type from a ToolContract
  */
-export type ToolOutput<T extends ToolContract> = T extends ToolContract<infer _TIn, infer TOut>
-  ? z.infer<TOut>
-  : never;
+export type ToolOutput<T extends ToolContract> =
+  T extends ToolContract<infer _TIn, infer TOut> ? z.infer<TOut> : never;
 
 /**
  * Tool implementation function signature
  */
 export type ToolImpl<TContract extends ToolContract> = (
-  input: ToolInput<TContract>
+  input: ToolInput<TContract>,
 ) => Promise<ToolOutput<TContract>> | ToolOutput<TContract>;
 
 // =============================================================================
@@ -91,7 +89,7 @@ export type ToolImpl<TContract extends ToolContract> = (
  * @returns Typed tool contract
  */
 export function defineContract<TIn extends z.ZodTypeAny, TOut extends z.ZodTypeAny>(
-  definition: ToolDefinition<TIn, TOut>
+  definition: ToolDefinition<TIn, TOut>,
 ): ToolContract<TIn, TOut> {
   return definition;
 }
@@ -102,7 +100,7 @@ export function defineContract<TIn extends z.ZodTypeAny, TOut extends z.ZodTypeA
  * @returns JSON Schema representation
  */
 export function zodToJsonSchema(schema: z.ZodTypeAny): Record<string, unknown> {
-  return z.toJSONSchema(schema, { target: "draft-07" }) as Record<string, unknown>;
+  return z.toJSONSchema(schema, { target: 'draft-07' }) as Record<string, unknown>;
 }
 
 // =============================================================================
@@ -146,8 +144,8 @@ export const ragQueryOutputSchema = z.object({
  * Use this contract when implementing the RAG query tool in Step 26.
  */
 export const ragQueryContract = defineContract({
-  name: "rag.query",
-  description: "Query the RAG vector store for relevant document chunks",
+  name: 'rag.query',
+  description: 'Query the RAG vector store for relevant document chunks',
   input: ragQueryInputSchema,
   output: ragQueryOutputSchema,
 });

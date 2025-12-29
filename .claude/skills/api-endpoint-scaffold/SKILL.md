@@ -18,6 +18,7 @@ Creates production-ready API endpoints following this repo's patterns.
 ## Prerequisites
 
 Before creating an endpoint, confirm:
+
 1. Endpoint path (e.g., `/api/users/profile`)
 2. HTTP methods needed (GET, POST, PUT, DELETE)
 3. Authentication required? (default: yes)
@@ -35,6 +36,7 @@ Use the template in [templates.md](./templates.md).
 ### Step 2: Add Rate Limiting (if needed)
 
 Import from existing pattern:
+
 ```typescript
 import { withUserRateLimit } from '../_lib/withUserRateLimit';
 import { createRateLimiter } from '@acme/security';
@@ -43,6 +45,7 @@ import { createRateLimiter } from '@acme/security';
 ### Step 3: Add Request Validation
 
 Use Zod for schema validation:
+
 ```typescript
 import { z } from 'zod';
 
@@ -60,6 +63,7 @@ See [templates.md](./templates.md) for test template.
 ### Step 5: Verify
 
 Run these commands:
+
 1. `pnpm typecheck` - Type check
 2. `pnpm lint` - Lint check
 3. `pnpm test:integration` - Run tests

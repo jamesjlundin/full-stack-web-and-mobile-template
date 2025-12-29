@@ -24,22 +24,22 @@ import {
 
 ## Type Mappings
 
-| Use Case | Drizzle Type | PostgreSQL Type |
-|----------|--------------|-----------------|
-| Primary key (UUID) | `uuid('id').primaryKey().defaultRandom()` | `UUID PRIMARY KEY DEFAULT gen_random_uuid()` |
-| Primary key (auto-increment) | `serial('id').primaryKey()` | `SERIAL PRIMARY KEY` |
-| Short text | `varchar('name', { length: 255 })` | `VARCHAR(255)` |
-| Long text | `text('description')` | `TEXT` |
-| Integer | `integer('count')` | `INTEGER` |
-| Big integer | `bigint('amount', { mode: 'number' })` | `BIGINT` |
-| Boolean | `boolean('is_active')` | `BOOLEAN` |
-| Timestamp | `timestamp('created_at')` | `TIMESTAMP` |
-| Timestamp with TZ | `timestamp('created_at', { withTimezone: true })` | `TIMESTAMPTZ` |
-| Date only | `date('birth_date')` | `DATE` |
-| JSON | `jsonb('metadata')` | `JSONB` |
-| Decimal | `numeric('price', { precision: 10, scale: 2 })` | `NUMERIC(10,2)` |
-| Float | `real('score')` | `REAL` |
-| Double | `doublePrecision('amount')` | `DOUBLE PRECISION` |
+| Use Case                     | Drizzle Type                                      | PostgreSQL Type                              |
+| ---------------------------- | ------------------------------------------------- | -------------------------------------------- |
+| Primary key (UUID)           | `uuid('id').primaryKey().defaultRandom()`         | `UUID PRIMARY KEY DEFAULT gen_random_uuid()` |
+| Primary key (auto-increment) | `serial('id').primaryKey()`                       | `SERIAL PRIMARY KEY`                         |
+| Short text                   | `varchar('name', { length: 255 })`                | `VARCHAR(255)`                               |
+| Long text                    | `text('description')`                             | `TEXT`                                       |
+| Integer                      | `integer('count')`                                | `INTEGER`                                    |
+| Big integer                  | `bigint('amount', { mode: 'number' })`            | `BIGINT`                                     |
+| Boolean                      | `boolean('is_active')`                            | `BOOLEAN`                                    |
+| Timestamp                    | `timestamp('created_at')`                         | `TIMESTAMP`                                  |
+| Timestamp with TZ            | `timestamp('created_at', { withTimezone: true })` | `TIMESTAMPTZ`                                |
+| Date only                    | `date('birth_date')`                              | `DATE`                                       |
+| JSON                         | `jsonb('metadata')`                               | `JSONB`                                      |
+| Decimal                      | `numeric('price', { precision: 10, scale: 2 })`   | `NUMERIC(10,2)`                              |
+| Float                        | `real('score')`                                   | `REAL`                                       |
+| Double                       | `doublePrecision('amount')`                       | `DOUBLE PRECISION`                           |
 
 ## Common Patterns
 
@@ -81,14 +81,18 @@ export const postsRelations = relations(posts, ({ one }) => ({
 ```typescript
 import { index, uniqueIndex } from 'drizzle-orm/pg-core';
 
-export const users = pgTable('users', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  email: text('email').notNull(),
-  username: text('username').notNull(),
-}, (table) => [
-  uniqueIndex('users_email_idx').on(table.email),
-  index('users_username_idx').on(table.username),
-]);
+export const users = pgTable(
+  'users',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    email: text('email').notNull(),
+    username: text('username').notNull(),
+  },
+  (table) => [
+    uniqueIndex('users_email_idx').on(table.email),
+    index('users_username_idx').on(table.username),
+  ],
+);
 ```
 
 ### Enum Type

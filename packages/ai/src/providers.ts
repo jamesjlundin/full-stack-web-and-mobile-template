@@ -1,19 +1,19 @@
-import { createAnthropic } from "@ai-sdk/anthropic";
-import { createGoogleGenerativeAI } from "@ai-sdk/google";
-import { createOpenAI } from "@ai-sdk/openai";
+import { createAnthropic } from '@ai-sdk/anthropic';
+import { createGoogleGenerativeAI } from '@ai-sdk/google';
+import { createOpenAI } from '@ai-sdk/openai';
 
-import type { streamText } from "ai";
+import type { streamText } from 'ai';
 
 /**
  * Type for models that can be used with streamText.
  * This is derived from what streamText accepts.
  */
-type StreamableModel = Parameters<typeof streamText>[0]["model"];
+type StreamableModel = Parameters<typeof streamText>[0]['model'];
 
 /**
  * Supported AI provider identifiers.
  */
-export type ProviderId = "openai" | "anthropic" | "google";
+export type ProviderId = 'openai' | 'anthropic' | 'google';
 
 /**
  * Model information for display purposes.
@@ -37,58 +37,58 @@ export type ProviderConfig = {
  * Environment variable keys for each provider.
  */
 const PROVIDER_ENV_KEYS: Record<ProviderId, string> = {
-  openai: "OPENAI_API_KEY",
-  anthropic: "ANTHROPIC_API_KEY",
-  google: "GOOGLE_GENERATIVE_AI_API_KEY",
+  openai: 'OPENAI_API_KEY',
+  anthropic: 'ANTHROPIC_API_KEY',
+  google: 'GOOGLE_GENERATIVE_AI_API_KEY',
 };
 
 /**
  * Provider configurations with December 2025 model lists.
  */
-const PROVIDER_CONFIGS: Record<ProviderId, Omit<ProviderConfig, "id">> = {
+const PROVIDER_CONFIGS: Record<ProviderId, Omit<ProviderConfig, 'id'>> = {
   openai: {
-    name: "OpenAI",
+    name: 'OpenAI',
     models: [
-      { id: "gpt-5.2", name: "GPT-5.2" },
-      { id: "gpt-5.2-pro", name: "GPT-5.2 Pro" },
-      { id: "gpt-5.1", name: "GPT-5.1" },
-      { id: "gpt-4.1", name: "GPT-4.1" },
-      { id: "gpt-4.1-mini", name: "GPT-4.1 Mini" },
-      { id: "gpt-4.1-nano", name: "GPT-4.1 Nano" },
-      { id: "o4-mini", name: "o4 Mini" },
-      { id: "o3", name: "o3" },
-      { id: "o3-mini", name: "o3 Mini" },
+      { id: 'gpt-5.2', name: 'GPT-5.2' },
+      { id: 'gpt-5.2-pro', name: 'GPT-5.2 Pro' },
+      { id: 'gpt-5.1', name: 'GPT-5.1' },
+      { id: 'gpt-4.1', name: 'GPT-4.1' },
+      { id: 'gpt-4.1-mini', name: 'GPT-4.1 Mini' },
+      { id: 'gpt-4.1-nano', name: 'GPT-4.1 Nano' },
+      { id: 'o4-mini', name: 'o4 Mini' },
+      { id: 'o3', name: 'o3' },
+      { id: 'o3-mini', name: 'o3 Mini' },
     ],
-    defaultModel: "gpt-4.1-mini",
+    defaultModel: 'gpt-4.1-mini',
   },
   anthropic: {
-    name: "Anthropic",
+    name: 'Anthropic',
     models: [
-      { id: "claude-opus-4-5-20251101", name: "Claude Opus 4.5" },
-      { id: "claude-sonnet-4-5-20250929", name: "Claude Sonnet 4.5" },
-      { id: "claude-haiku-4-5-20251001", name: "Claude Haiku 4.5" },
-      { id: "claude-opus-4-1-20250805", name: "Claude Opus 4.1" },
-      { id: "claude-sonnet-4-20250514", name: "Claude Sonnet 4" },
+      { id: 'claude-opus-4-5-20251101', name: 'Claude Opus 4.5' },
+      { id: 'claude-sonnet-4-5-20250929', name: 'Claude Sonnet 4.5' },
+      { id: 'claude-haiku-4-5-20251001', name: 'Claude Haiku 4.5' },
+      { id: 'claude-opus-4-1-20250805', name: 'Claude Opus 4.1' },
+      { id: 'claude-sonnet-4-20250514', name: 'Claude Sonnet 4' },
     ],
-    defaultModel: "claude-sonnet-4-5-20250929",
+    defaultModel: 'claude-sonnet-4-5-20250929',
   },
   google: {
-    name: "Google",
+    name: 'Google',
     models: [
-      { id: "gemini-3-flash-preview", name: "Gemini 3 Flash" },
-      { id: "gemini-3-pro-preview", name: "Gemini 3 Pro" },
-      { id: "gemini-2.5-pro", name: "Gemini 2.5 Pro" },
-      { id: "gemini-2.5-flash", name: "Gemini 2.5 Flash" },
-      { id: "gemini-2.5-flash-lite", name: "Gemini 2.5 Flash Lite" },
+      { id: 'gemini-3-flash-preview', name: 'Gemini 3 Flash' },
+      { id: 'gemini-3-pro-preview', name: 'Gemini 3 Pro' },
+      { id: 'gemini-2.5-pro', name: 'Gemini 2.5 Pro' },
+      { id: 'gemini-2.5-flash', name: 'Gemini 2.5 Flash' },
+      { id: 'gemini-2.5-flash-lite', name: 'Gemini 2.5 Flash Lite' },
     ],
-    defaultModel: "gemini-2.5-flash",
+    defaultModel: 'gemini-2.5-flash',
   },
 };
 
 /**
  * Provider priority order for default selection.
  */
-const PROVIDER_PRIORITY: ProviderId[] = ["openai", "anthropic", "google"];
+const PROVIDER_PRIORITY: ProviderId[] = ['openai', 'anthropic', 'google'];
 
 /**
  * Check if a provider is available (has API key set).
@@ -172,17 +172,14 @@ export function validateProviderModel(
  * Type guard to check if a string is a valid provider ID.
  */
 function isValidProviderId(id: string): id is ProviderId {
-  return id === "openai" || id === "anthropic" || id === "google";
+  return id === 'openai' || id === 'anthropic' || id === 'google';
 }
 
 /**
  * Get a language model instance for the specified provider and model.
  * Returns null if the provider is not available.
  */
-export function getModel(
-  providerId: ProviderId,
-  modelId?: string,
-): StreamableModel | null {
+export function getModel(providerId: ProviderId, modelId?: string): StreamableModel | null {
   const envKey = PROVIDER_ENV_KEYS[providerId];
   const apiKey = process.env[envKey];
 
@@ -196,15 +193,15 @@ export function getModel(
   // Note: Provider SDKs return LanguageModelV1 but streamText accepts LanguageModel (V2 union).
   // The SDK handles both at runtime, so we cast through unknown for type safety.
   switch (providerId) {
-    case "openai": {
+    case 'openai': {
       const client = createOpenAI({ apiKey });
       return client(model) as unknown as StreamableModel;
     }
-    case "anthropic": {
+    case 'anthropic': {
       const client = createAnthropic({ apiKey });
       return client(model) as unknown as StreamableModel;
     }
-    case "google": {
+    case 'google': {
       const client = createGoogleGenerativeAI({ apiKey });
       return client(model) as unknown as StreamableModel;
     }

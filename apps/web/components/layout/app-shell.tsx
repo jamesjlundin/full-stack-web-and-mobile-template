@@ -1,4 +1,4 @@
-import { Header } from "./header";
+import { Header } from './header';
 
 interface AppShellProps {
   children: React.ReactNode;

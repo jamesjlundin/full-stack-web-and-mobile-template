@@ -20,36 +20,37 @@ Detects hardcoded secrets and sensitive data in the codebase.
 
 ### High Priority (Block Merge)
 
-| Type | Pattern | Example |
-|------|---------|---------|
-| API Keys | `[a-zA-Z0-9_-]{32,}` | OpenAI, Anthropic, etc. |
-| AWS Credentials | `AKIA[A-Z0-9]{16}` | `AKIAIOSFODNN7EXAMPLE` |
-| Private Keys | `-----BEGIN.*PRIVATE KEY-----` | RSA, SSH keys |
-| JWT Secrets | `jwt.*=.*['"][a-zA-Z0-9+/=]{20,}` | Signing secrets |
-| Database URLs | `postgres://.*:.*@` | With password |
-| Bearer Tokens | `Bearer [a-zA-Z0-9._-]+` | Hardcoded tokens |
+| Type            | Pattern                           | Example                 |
+| --------------- | --------------------------------- | ----------------------- |
+| API Keys        | `[a-zA-Z0-9_-]{32,}`              | OpenAI, Anthropic, etc. |
+| AWS Credentials | `AKIA[A-Z0-9]{16}`                | `AKIAIOSFODNN7EXAMPLE`  |
+| Private Keys    | `-----BEGIN.*PRIVATE KEY-----`    | RSA, SSH keys           |
+| JWT Secrets     | `jwt.*=.*['"][a-zA-Z0-9+/=]{20,}` | Signing secrets         |
+| Database URLs   | `postgres://.*:.*@`               | With password           |
+| Bearer Tokens   | `Bearer [a-zA-Z0-9._-]+`          | Hardcoded tokens        |
 
 ### Medium Priority (Review)
 
-| Type | Pattern |
-|------|---------|
-| Generic secrets | `secret.*=.*['"]` |
-| Passwords | `password.*=.*['"]` |
-| Tokens | `token.*=.*['"]` |
-| API keys | `api[_-]?key.*=.*['"]` |
+| Type            | Pattern                |
+| --------------- | ---------------------- |
+| Generic secrets | `secret.*=.*['"]`      |
+| Passwords       | `password.*=.*['"]`    |
+| Tokens          | `token.*=.*['"]`       |
+| API keys        | `api[_-]?key.*=.*['"]` |
 
 ### PII Patterns
 
-| Type | Pattern |
-|------|---------|
-| Email addresses | `[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}` |
-| Phone numbers | `\+?1?[-.\s]?\(?[0-9]{3}\)?[-.\s]?[0-9]{3}[-.\s]?[0-9]{4}` |
-| SSN | `\d{3}-\d{2}-\d{4}` |
-| Credit cards | `\d{4}[-\s]?\d{4}[-\s]?\d{4}[-\s]?\d{4}` |
+| Type            | Pattern                                                    |
+| --------------- | ---------------------------------------------------------- |
+| Email addresses | `[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}`           |
+| Phone numbers   | `\+?1?[-.\s]?\(?[0-9]{3}\)?[-.\s]?[0-9]{3}[-.\s]?[0-9]{4}` |
+| SSN             | `\d{3}-\d{2}-\d{4}`                                        |
+| Credit cards    | `\d{4}[-\s]?\d{4}[-\s]?\d{4}[-\s]?\d{4}`                   |
 
 ## Allowed Exceptions
 
 These files are expected to have secret-like patterns:
+
 - `.env.example` - Template placeholders only
 - `*.test.ts` - Test fixtures
 - Documentation files - Examples only
@@ -98,29 +99,35 @@ Ensure `.env` is in `.gitignore`.
 ## Secrets Scan Report
 
 ### 🔴 Critical Findings
+
 {List of actual secrets found with file:line}
 
 ### 🟡 Suspicious Patterns
+
 {Patterns that look like secrets but may be false positives}
 
 ### ✅ Verified Safe
+
 - .env.example contains only placeholders
 - Test files use mock values
 - .gitignore excludes .env files
 
 ### Recommendations
+
 {Actions to take}
 ```
 
 ## False Positive Handling
 
 Common false positives:
+
 - Example values in docs: `sk-example-key-123`
 - Test fixtures: `test-token-abc`
 - Environment variable names: `OPENAI_API_KEY=`
 - Base64 encoded data (non-secret)
 
 Verify by checking:
+
 1. Is it in a test/example file?
 2. Does it match real credential format?
 3. Is it actually used in production code?

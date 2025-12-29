@@ -16,21 +16,21 @@ interface ModelPricing {
  */
 const PRICING_TABLE: Record<string, ModelPricing> = {
   // OpenAI models
-  "openai:gpt-4o-mini": { input: 0.15, output: 0.6 },
-  "openai:gpt-4o": { input: 2.5, output: 10.0 },
-  "openai:gpt-4-turbo": { input: 10.0, output: 30.0 },
-  "openai:gpt-4": { input: 30.0, output: 60.0 },
-  "openai:gpt-3.5-turbo": { input: 0.5, output: 1.5 },
+  'openai:gpt-4o-mini': { input: 0.15, output: 0.6 },
+  'openai:gpt-4o': { input: 2.5, output: 10.0 },
+  'openai:gpt-4-turbo': { input: 10.0, output: 30.0 },
+  'openai:gpt-4': { input: 30.0, output: 60.0 },
+  'openai:gpt-3.5-turbo': { input: 0.5, output: 1.5 },
 
   // Anthropic models
-  "anthropic:claude-3-5-sonnet": { input: 3.0, output: 15.0 },
-  "anthropic:claude-3-opus": { input: 15.0, output: 75.0 },
-  "anthropic:claude-3-haiku": { input: 0.25, output: 1.25 },
+  'anthropic:claude-3-5-sonnet': { input: 3.0, output: 15.0 },
+  'anthropic:claude-3-opus': { input: 15.0, output: 75.0 },
+  'anthropic:claude-3-haiku': { input: 0.25, output: 1.25 },
 
   // Embedding models (output is typically 0 as they don't generate text)
-  "openai:text-embedding-3-small": { input: 0.02, output: 0 },
-  "openai:text-embedding-3-large": { input: 0.13, output: 0 },
-  "openai:text-embedding-ada-002": { input: 0.1, output: 0 },
+  'openai:text-embedding-3-small': { input: 0.02, output: 0 },
+  'openai:text-embedding-3-large': { input: 0.13, output: 0 },
+  'openai:text-embedding-ada-002': { input: 0.1, output: 0 },
 };
 
 export interface GetCostArgs {
@@ -50,7 +50,7 @@ export interface GetCostArgs {
  * @returns Cost in USD, or undefined if model not found in pricing table
  */
 export function getCostUsd(args: GetCostArgs): number | undefined {
-  const provider = args.provider ?? "openai";
+  const provider = args.provider ?? 'openai';
   const key = `${provider}:${args.model}`;
   const pricing = PRICING_TABLE[key];
 

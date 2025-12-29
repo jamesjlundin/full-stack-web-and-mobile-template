@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
     if (!parsed.success) {
       return NextResponse.json(
         { error: 'Invalid request', details: parsed.error.flatten() },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -70,7 +70,7 @@ async function handlePost(request: NextRequest, user: CurrentUserResult) {
   if (!parsed.success) {
     return NextResponse.json(
       { error: 'Invalid request', details: parsed.error.flatten() },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
@@ -129,19 +129,27 @@ describe('{Feature} API', () => {
 
     it('validates request body', async () => {
       const token = await getTestToken();
-      const response = await http.post('/api/{path}', {}, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await http.post(
+        '/api/{path}',
+        {},
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        },
+      );
       expect(response.status).toBe(400);
     });
 
     it('succeeds with valid request', async () => {
       const token = await getTestToken();
-      const response = await http.post('/api/{path}', {
-        field: 'value',
-      }, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await http.post(
+        '/api/{path}',
+        {
+          field: 'value',
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        },
+      );
       expect(response.status).toBe(200);
       const data = await response.json();
       expect(data.success).toBe(true);

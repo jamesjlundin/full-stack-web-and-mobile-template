@@ -1,4 +1,4 @@
-import type { PromptDef } from "../types";
+import type { PromptDef } from '../types';
 
 /**
  * Default agent prompt v1
@@ -8,7 +8,7 @@ import type { PromptDef } from "../types";
  * then flip the router mapping in router.ts to use v2.
  */
 export const agentDefaultV1: PromptDef = {
-  id: "agent.default",
+  id: 'agent.default',
   version: 1,
   content: `You are a helpful AI assistant with access to tools. When users ask questions that require real-time data like weather or time, use the available tools to provide accurate information.
 

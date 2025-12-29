@@ -1,4 +1,4 @@
-import type { PromptDef } from "../types";
+import type { PromptDef } from '../types';
 
 /**
  * Default chat prompt v1
@@ -7,7 +7,7 @@ import type { PromptDef } from "../types";
  * then flip the router mapping in router.ts to use v2.
  */
 export const chatDefaultV1: PromptDef = {
-  id: "chat.default",
+  id: 'chat.default',
   version: 1,
   content: `You are a helpful AI assistant. Respond concisely and accurately to user questions.
 

@@ -1,8 +1,8 @@
-import { auth } from "@acme/auth";
-import { createRateLimiter } from "@acme/security";
-import { NextRequest, NextResponse } from "next/server";
+import { auth } from '@acme/auth';
+import { createRateLimiter } from '@acme/security';
+import { NextRequest, NextResponse } from 'next/server';
 
-import { withRateLimit } from "../../../_lib/withRateLimit";
+import { withRateLimit } from '../../../_lib/withRateLimit';
 
 // Rate limit: 5 requests per 60 seconds per IP
 const limiter = createRateLimiter({ limit: 5, windowMs: 60_000 });
@@ -19,25 +19,19 @@ async function handler(request: NextRequest) {
     const body = await request.json();
     const { token, newPassword } = body;
 
-    if (!token || typeof token !== "string") {
-      return NextResponse.json(
-        { error: "invalid_or_expired_token" },
-        { status: 400 }
-      );
+    if (!token || typeof token !== 'string') {
+      return NextResponse.json({ error: 'invalid_or_expired_token' }, { status: 400 });
     }
 
-    if (!newPassword || typeof newPassword !== "string") {
-      return NextResponse.json(
-        { error: "New password is required" },
-        { status: 400 }
-      );
+    if (!newPassword || typeof newPassword !== 'string') {
+      return NextResponse.json({ error: 'New password is required' }, { status: 400 });
     }
 
     // Validate password length (minimum 8 characters)
     if (newPassword.length < 8) {
       return NextResponse.json(
-        { error: "Password must be at least 8 characters" },
-        { status: 400 }
+        { error: 'Password must be at least 8 characters' },
+        { status: 400 },
       );
     }
 
@@ -52,13 +46,10 @@ async function handler(request: NextRequest) {
 
     return NextResponse.json({ ok: true });
   } catch (error) {
-    console.error("[reset/confirm] Error:", error);
+    console.error('[reset/confirm] Error:', error);
     // Token validation errors from Better Auth typically mean invalid/expired token
-    return NextResponse.json(
-      { error: "invalid_or_expired_token" },
-      { status: 400 }
-    );
+    return NextResponse.json({ error: 'invalid_or_expired_token' }, { status: 400 });
   }
 }
 
-export const POST = withRateLimit("/api/auth/reset/confirm", limiter, handler);
+export const POST = withRateLimit('/api/auth/reset/confirm', limiter, handler);

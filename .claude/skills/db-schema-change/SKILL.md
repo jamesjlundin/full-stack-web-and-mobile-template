@@ -18,18 +18,19 @@ Safely modify PostgreSQL schema using Drizzle ORM.
 
 ## Important Files
 
-| File | Purpose |
-|------|---------|
-| `packages/db/src/schema.ts` | Main schema exports |
-| `packages/db/src/auth-schema.ts` | Better Auth tables |
-| `packages/db/src/rag-schema.ts` | RAG embeddings tables |
-| `packages/db/drizzle/` | Generated migrations |
+| File                             | Purpose               |
+| -------------------------------- | --------------------- |
+| `packages/db/src/schema.ts`      | Main schema exports   |
+| `packages/db/src/auth-schema.ts` | Better Auth tables    |
+| `packages/db/src/rag-schema.ts`  | RAG embeddings tables |
+| `packages/db/drizzle/`           | Generated migrations  |
 
 ## Procedure
 
 ### Step 1: Understand Current Schema
 
 Read the schema file to understand existing tables:
+
 ```
 Read: packages/db/src/schema.ts
 ```
@@ -37,6 +38,7 @@ Read: packages/db/src/schema.ts
 ### Step 2: Plan the Change
 
 Before making changes, confirm with user:
+
 - Table name and column definitions
 - Data types (see [types.md](./types.md))
 - Relationships (foreign keys)
@@ -62,6 +64,7 @@ export const newTable = pgTable('new_table', {
 ### Step 4: Generate Migration
 
 Run migration generator:
+
 ```bash
 pnpm -C packages/db migrate:generate
 ```
@@ -69,6 +72,7 @@ pnpm -C packages/db migrate:generate
 ### Step 5: Review Migration
 
 Read the generated migration in `packages/db/drizzle/` and verify:
+
 - Correct SQL statements
 - No data loss for existing tables
 - Proper indexes created

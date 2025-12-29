@@ -1,4 +1,4 @@
-version: "3.9"
+version: '3.9'
 
 services:
   postgres:
@@ -9,7 +9,7 @@ services:
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: acme
     ports:
-      - "5432:5432"
+      - '5432:5432'
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
@@ -21,13 +21,13 @@ services:
     environment:
       DATABASE_URL: postgres://postgres:postgres@postgres:5432/acme?sslmode=disable
     ports:
-      - "8082:8081"
+      - '8082:8081'
 
   redis:
     image: redis:7-alpine
     restart: unless-stopped
     ports:
-      - "6379:6379"
+      - '6379:6379'
     volumes:
       - redis_data:/data
 
@@ -38,7 +38,7 @@ services:
     depends_on:
       - redis
     ports:
-      - "8079:80"
+      - '8079:80'
     environment:
       SRH_MODE: env
       SRH_TOKEN: local_development_token

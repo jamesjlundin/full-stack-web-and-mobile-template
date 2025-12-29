@@ -40,6 +40,7 @@ pnpm -C apps/mobile test          # Mobile unit tests
 ## Do/Don't Rules
 
 ### DO
+
 - Run `pnpm typecheck` and `pnpm lint` before committing
 - Use workspace packages (`@acme/*`) for shared code
 - Add rate limiting to new API endpoints via `@acme/security`
@@ -47,6 +48,7 @@ pnpm -C apps/mobile test          # Mobile unit tests
 - Follow existing patterns in each package
 
 ### DON'T
+
 - Don't commit `.env` files (use `.env.example` for templates)
 - Don't add secrets to code; use environment variables
 - Don't bypass rate limiting in production code
@@ -65,16 +67,16 @@ pnpm -C apps/mobile test          # Mobile unit tests
 
 Open reference docs **only when relevant** to your current task:
 
-| If working on...                | Open...                        |
-|---------------------------------|--------------------------------|
-| Package structure, data flows   | `docs/ai/ARCHITECTURE.md`      |
-| Adding/running tests            | `docs/ai/TESTING.md`           |
-| Auth logic, sessions, JWT       | `packages/auth/src/index.ts`   |
-| Database schema, migrations     | `packages/db/src/schema.ts`    |
-| AI prompts, streaming           | `packages/ai/src/`             |
-| API endpoints                   | `apps/web/app/api/`            |
-| CI/CD pipeline                  | `.github/workflows/`           |
-| Mobile native code              | `apps/mobile/ios/`, `android/` |
+| If working on...              | Open...                        |
+| ----------------------------- | ------------------------------ |
+| Package structure, data flows | `docs/ai/ARCHITECTURE.md`      |
+| Adding/running tests          | `docs/ai/TESTING.md`           |
+| Auth logic, sessions, JWT     | `packages/auth/src/index.ts`   |
+| Database schema, migrations   | `packages/db/src/schema.ts`    |
+| AI prompts, streaming         | `packages/ai/src/`             |
+| API endpoints                 | `apps/web/app/api/`            |
+| CI/CD pipeline                | `.github/workflows/`           |
+| Mobile native code            | `apps/mobile/ios/`, `android/` |
 
 ## Where Things Live
 

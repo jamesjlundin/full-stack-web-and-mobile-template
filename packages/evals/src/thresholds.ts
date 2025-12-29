@@ -12,18 +12,16 @@ export interface Thresholds {
 
 export const DEFAULT_THRESHOLDS: Thresholds = {
   schema_fidelity: 0.99,
-  constraint_satisfaction: 0.90,
+  constraint_satisfaction: 0.9,
   grounding_check: 0.85,
-  tool_usage_check: 0.90,
-  retrieval_quality: 0.80,
+  tool_usage_check: 0.9,
+  retrieval_quality: 0.8,
 };
 
 /**
  * Merge user-provided thresholds with defaults
  */
-export function mergeThresholds(
-  custom?: Partial<Thresholds>
-): Thresholds {
+export function mergeThresholds(custom?: Partial<Thresholds>): Thresholds {
   return {
     ...DEFAULT_THRESHOLDS,
     ...custom,
@@ -34,9 +32,7 @@ export function mergeThresholds(
  * Parse threshold constraints from CLI argument
  * Format: "schema_fidelity:0.95,constraint_satisfaction:0.85"
  */
-export function parseThresholdConstraints(
-  constraintStr: string
-): Partial<Thresholds> {
+export function parseThresholdConstraints(constraintStr: string): Partial<Thresholds> {
   const result: Partial<Thresholds> = {};
 
   if (!constraintStr) {
@@ -69,16 +65,14 @@ function isValidThresholdKey(key: string): key is keyof Thresholds {
  */
 export function checkThresholds(
   results: Record<string, number>,
-  thresholds: Thresholds
+  thresholds: Thresholds,
 ): { passed: boolean; failures: string[] } {
   const failures: string[] = [];
 
   for (const [metric, threshold] of Object.entries(thresholds)) {
     const score = results[metric];
     if (score !== undefined && score < threshold) {
-      failures.push(
-        `${metric}: ${(score * 100).toFixed(1)}% < ${(threshold * 100).toFixed(1)}%`
-      );
+      failures.push(`${metric}: ${(score * 100).toFixed(1)}% < ${(threshold * 100).toFixed(1)}%`);
     }
   }
 

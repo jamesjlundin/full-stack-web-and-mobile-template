@@ -5,13 +5,7 @@
  * It's designed to pass all evaluation thresholds with correct responses.
  */
 
-import type {
-  ModelAdapter,
-  ModelResponse,
-  Message,
-  GenerateOptions,
-  ToolCall,
-} from './types.js';
+import type { ModelAdapter, ModelResponse, Message, GenerateOptions, ToolCall } from './types.js';
 
 /**
  * Mock model that returns deterministic responses based on input patterns
@@ -19,10 +13,7 @@ import type {
 export class MockModel implements ModelAdapter {
   name = 'mock';
 
-  async generate(
-    messages: Message[],
-    options?: GenerateOptions
-  ): Promise<ModelResponse> {
+  async generate(messages: Message[], options?: GenerateOptions): Promise<ModelResponse> {
     const lastMessage = messages[messages.length - 1];
     const content = lastMessage?.content ?? '';
 
@@ -40,10 +31,7 @@ export class MockModel implements ModelAdapter {
     return this.generateTextResponse(content);
   }
 
-  private generateToolResponse(
-    content: string,
-    options: GenerateOptions
-  ): ModelResponse {
+  private generateToolResponse(content: string, options: GenerateOptions): ModelResponse {
     const tools = options.tools ?? [];
     const firstTool = tools[0];
 
@@ -63,7 +51,7 @@ export class MockModel implements ModelAdapter {
 
   private inferToolCall(
     content: string,
-    tool: { name: string; parameters: Record<string, unknown> }
+    tool: { name: string; parameters: Record<string, unknown> },
   ): ToolCall {
     const lowerContent = content.toLowerCase();
 
@@ -98,12 +86,9 @@ export class MockModel implements ModelAdapter {
     };
   }
 
-  private generateDefaultArguments(
-    parameters: Record<string, unknown>
-  ): Record<string, unknown> {
+  private generateDefaultArguments(parameters: Record<string, unknown>): Record<string, unknown> {
     const args: Record<string, unknown> = {};
-    const props =
-      (parameters.properties as Record<string, { type?: string }>) ?? {};
+    const props = (parameters.properties as Record<string, { type?: string }>) ?? {};
 
     for (const [key, schema] of Object.entries(props)) {
       switch (schema.type) {
@@ -150,7 +135,11 @@ export class MockModel implements ModelAdapter {
     }
 
     // Check for meeting/event BEFORE product/item (schema may contain 'minItems')
-    if (lowerContent.includes('event') || lowerContent.includes('meeting') || lowerContent.includes('attendees')) {
+    if (
+      lowerContent.includes('event') ||
+      lowerContent.includes('meeting') ||
+      lowerContent.includes('attendees')
+    ) {
       // Handle nested address object for event schema trap
       if (lowerContent.includes('address') || lowerContent.includes('"location"')) {
         return {
@@ -221,7 +210,10 @@ export class MockModel implements ModelAdapter {
 
     // QA-style responses
     if (lowerContent.includes('capital of france')) {
-      return { content: 'The capital of France is Paris.', finishReason: 'stop' };
+      return {
+        content: 'The capital of France is Paris.',
+        finishReason: 'stop',
+      };
     }
 
     if (lowerContent.includes('capital of')) {
@@ -243,10 +235,7 @@ export class MockModel implements ModelAdapter {
     }
 
     // Summarization responses - include key points (AI, industries, automation, ethics)
-    if (
-      lowerContent.includes('summarize') ||
-      lowerContent.includes('summary')
-    ) {
+    if (lowerContent.includes('summarize') || lowerContent.includes('summary')) {
       return {
         content:
           'AI is transforming industries through automation of complex tasks. These advancements raise important ethics questions about job displacement and regulation.',
@@ -277,8 +266,7 @@ export class MockModel implements ModelAdapter {
       // Check for specific grounding scenarios
       if (lowerContent.includes('acme') && lowerContent.includes('founded')) {
         return {
-          content:
-            'Acme Corporation was founded in 1985 by Jane Doe in Seattle, Washington.',
+          content: 'Acme Corporation was founded in 1985 by Jane Doe in Seattle, Washington.',
           finishReason: 'stop',
         };
       }

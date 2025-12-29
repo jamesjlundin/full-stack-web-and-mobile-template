@@ -6,7 +6,13 @@ import tseslint from 'typescript-eslint';
 
 export default tseslint.config(
   {
-    ignores: ['**/node_modules', '**/dist', '**/.next', '**/next-env.d.ts', 'apps/mobile/__tests__/**'],
+    ignores: [
+      '**/node_modules',
+      '**/dist',
+      '**/.next',
+      '**/next-env.d.ts',
+      'apps/mobile/__tests__/**',
+    ],
   },
   {
     files: ['**/*.{js,jsx,ts,tsx}'],
@@ -44,7 +50,16 @@ export default tseslint.config(
       'import/order': [
         'error',
         {
-          groups: ['builtin', 'external', 'internal', 'parent', 'sibling', 'index', 'object', 'type'],
+          groups: [
+            'builtin',
+            'external',
+            'internal',
+            'parent',
+            'sibling',
+            'index',
+            'object',
+            'type',
+          ],
           pathGroupsExcludedImportTypes: ['builtin'],
           alphabetize: {
             order: 'asc',
@@ -69,5 +84,5 @@ export default tseslint.config(
       'import/namespace': 'off',
       'import/no-unresolved': 'off',
     },
-  }
+  },
 );

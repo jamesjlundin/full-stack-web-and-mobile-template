@@ -1,5 +1,12 @@
 import React from 'react';
-import {Platform, SafeAreaView, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {
+  Platform,
+  SafeAreaView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 
 type AppHeaderProps = {
   title: string;

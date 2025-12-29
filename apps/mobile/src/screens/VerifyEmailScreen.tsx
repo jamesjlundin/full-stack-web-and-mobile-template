@@ -8,8 +8,16 @@ type VerifyEmailScreenProps = {
   email?: string;
 };
 
-export default function VerifyEmailScreen({email: propEmail}: VerifyEmailScreenProps) {
-  const {user, signOut, refreshSession, requestVerificationEmail, clearPendingVerification} = useAuth();
+export default function VerifyEmailScreen({
+  email: propEmail,
+}: VerifyEmailScreenProps) {
+  const {
+    user,
+    signOut,
+    refreshSession,
+    requestVerificationEmail,
+    clearPendingVerification,
+  } = useAuth();
   const [resending, setResending] = useState(false);
   const [checking, setChecking] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
@@ -101,8 +109,8 @@ export default function VerifyEmailScreen({email: propEmail}: VerifyEmailScreenP
 
         <View style={styles.infoBox}>
           <Text style={styles.infoText}>
-            We&apos;ve sent a verification email to your inbox. Click the link in the
-            email to verify your account.
+            We&apos;ve sent a verification email to your inbox. Click the link
+            in the email to verify your account.
           </Text>
         </View>
 
@@ -122,7 +130,13 @@ export default function VerifyEmailScreen({email: propEmail}: VerifyEmailScreenP
           />
 
           <Button
-            title={checking ? 'Checking...' : isUnauthenticated ? "I've Verified - Sign In Again" : "I've Verified My Email"}
+            title={
+              checking
+                ? 'Checking...'
+                : isUnauthenticated
+                  ? "I've Verified - Sign In Again"
+                  : "I've Verified My Email"
+            }
             onPress={handleCheckStatus}
             disabled={checking}
           />

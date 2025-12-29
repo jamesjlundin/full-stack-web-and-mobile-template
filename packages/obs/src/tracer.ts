@@ -1,4 +1,4 @@
-import type { TraceContext, TraceResult } from "./types";
+import type { TraceContext, TraceResult } from './types';
 
 /**
  * Generate a random hex trace ID (16 bytes = 32 hex chars)
@@ -7,19 +7,19 @@ function generateTraceId(): string {
   const bytes = new Uint8Array(16);
   crypto.getRandomValues(bytes);
   return Array.from(bytes)
-    .map((b) => b.toString(16).padStart(2, "0"))
-    .join("");
+    .map((b) => b.toString(16).padStart(2, '0'))
+    .join('');
 }
 
 /**
  * Log a span event as single-line JSON (friendly to log aggregators)
  */
 function logSpanEvent(
-  event: "start" | "end",
+  event: 'start' | 'end',
   spanName: string,
   ctx: TraceContext,
   duration_ms?: number,
-  error?: string
+  error?: string,
 ): void {
   const log: Record<string, unknown> = {
     ts: new Date().toISOString(),
@@ -55,7 +55,7 @@ function logSpanEvent(
 export async function withTrace<T>(
   spanName: string,
   fn: (ctx: TraceContext) => Promise<T> | T,
-  parent?: TraceContext
+  parent?: TraceContext,
 ): Promise<TraceResult<T>> {
   const ctx: TraceContext = {
     traceId: parent?.traceId ?? generateTraceId(),
@@ -63,7 +63,7 @@ export async function withTrace<T>(
     startMs: Date.now(),
   };
 
-  logSpanEvent("start", spanName, ctx);
+  logSpanEvent('start', spanName, ctx);
 
   let result: T | undefined;
   let error: Error | undefined;
@@ -76,7 +76,7 @@ export async function withTrace<T>(
 
   const duration_ms = Date.now() - ctx.startMs;
 
-  logSpanEvent("end", spanName, ctx, duration_ms, error?.message);
+  logSpanEvent('end', spanName, ctx, duration_ms, error?.message);
 
   return {
     result,

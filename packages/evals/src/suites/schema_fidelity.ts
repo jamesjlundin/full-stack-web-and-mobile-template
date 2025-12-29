@@ -28,7 +28,7 @@ export const schemaFidelitySuite: Suite = {
 
   async run(context: EvalContext): Promise<CaseResult[]> {
     const schemaFixtures = context.fixtures.filter(
-      (f): f is SchemaFixture => f.category === 'schema'
+      (f): f is SchemaFixture => f.category === 'schema',
     );
 
     const results: CaseResult[] = [];
@@ -46,7 +46,7 @@ export const schemaFidelitySuite: Suite = {
 
 async function evaluateSchemaCase(
   context: EvalContext,
-  fixture: SchemaFixture
+  fixture: SchemaFixture,
 ): Promise<CaseResult> {
   try {
     // Build a prompt that includes the schema so the model knows the exact structure
@@ -67,7 +67,7 @@ Generate a valid JSON object matching this schema.`;
         },
         { role: 'user', content: promptWithSchema },
       ],
-      { responseFormat: 'json' }
+      { responseFormat: 'json' },
     );
 
     // Try to parse the response as JSON
@@ -109,9 +109,7 @@ Generate a valid JSON object matching this schema.`;
     // Check required fields if specified
     if (fixture.requiredFields) {
       const obj = parsed as Record<string, unknown>;
-      const missingFields = fixture.requiredFields.filter(
-        (field) => !(field in obj)
-      );
+      const missingFields = fixture.requiredFields.filter((field) => !(field in obj));
 
       if (missingFields.length > 0) {
         return {

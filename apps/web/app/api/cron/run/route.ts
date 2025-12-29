@@ -1,7 +1,7 @@
-import { NextResponse } from "next/server";
+import { NextResponse } from 'next/server';
 
-import { verifyCronRequest, cronResponse } from "@/lib/cronAuth";
-import { runJob, type JobName } from "@/server/jobs";
+import { verifyCronRequest, cronResponse } from '@/lib/cronAuth';
+import { runJob, type JobName } from '@/server/jobs';
 
 /**
  * POST /api/cron/run
@@ -29,10 +29,7 @@ export async function POST(request: Request) {
   try {
     body = await request.json();
   } catch {
-    return NextResponse.json(
-      { error: "Invalid JSON body" },
-      { status: 400 }
-    );
+    return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
   }
 
   // Validate job name
@@ -40,11 +37,11 @@ export async function POST(request: Request) {
   if (!jobName || !isValidJobName(jobName)) {
     return NextResponse.json(
       {
-        error: "Invalid job name",
+        error: 'Invalid job name',
         message: 'Expected { job: "heartbeat" | "nightly" }',
-        availableJobs: ["heartbeat", "nightly"],
+        availableJobs: ['heartbeat', 'nightly'],
       },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
@@ -57,16 +54,13 @@ export async function POST(request: Request) {
     console.log(
       JSON.stringify({
         ts: new Date().toISOString(),
-        event: "cron.run.error",
+        event: 'cron.run.error',
         job: jobName,
         error: message,
-      })
+      }),
     );
 
-    return NextResponse.json(
-      { error: "Job execution failed", message },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Job execution failed', message }, { status: 500 });
   }
 }
 
@@ -74,5 +68,5 @@ export async function POST(request: Request) {
  * Type guard for valid job names
  */
 function isValidJobName(name: string): name is JobName {
-  return name === "heartbeat" || name === "nightly";
+  return name === 'heartbeat' || name === 'nightly';
 }

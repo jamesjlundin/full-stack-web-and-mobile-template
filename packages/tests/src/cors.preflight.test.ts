@@ -1,13 +1,13 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect } from 'vitest';
 
-import { options } from "./http.js";
+import { options } from './http.js';
 
-describe("CORS Preflight", () => {
-  it("should respond to OPTIONS /api/chat/stream with CORS headers", async () => {
-    const response = await options("/api/chat/stream", {
-      Origin: "http://localhost:3000",
-      "Access-Control-Request-Method": "POST",
-      "Access-Control-Request-Headers": "content-type,authorization",
+describe('CORS Preflight', () => {
+  it('should respond to OPTIONS /api/chat/stream with CORS headers', async () => {
+    const response = await options('/api/chat/stream', {
+      Origin: 'http://localhost:3000',
+      'Access-Control-Request-Method': 'POST',
+      'Access-Control-Request-Headers': 'content-type,authorization',
     });
 
     // OPTIONS preflight should return 200 or 204
@@ -15,15 +15,15 @@ describe("CORS Preflight", () => {
 
     // Check for CORS headers (Next.js may set these differently)
     // At minimum, the server should accept the request
-    const allowOrigin = response.headers.get("Access-Control-Allow-Origin");
-    const allowMethods = response.headers.get("Access-Control-Allow-Methods");
-    const allowHeaders = response.headers.get("Access-Control-Allow-Headers");
+    const allowOrigin = response.headers.get('Access-Control-Allow-Origin');
+    const allowMethods = response.headers.get('Access-Control-Allow-Methods');
+    const allowHeaders = response.headers.get('Access-Control-Allow-Headers');
 
     // Log headers for debugging
-    console.log("CORS Headers:", {
-      "Access-Control-Allow-Origin": allowOrigin,
-      "Access-Control-Allow-Methods": allowMethods,
-      "Access-Control-Allow-Headers": allowHeaders,
+    console.log('CORS Headers:', {
+      'Access-Control-Allow-Origin': allowOrigin,
+      'Access-Control-Allow-Methods': allowMethods,
+      'Access-Control-Allow-Headers': allowHeaders,
     });
 
     // The preflight should succeed (not blocked)
@@ -31,11 +31,11 @@ describe("CORS Preflight", () => {
     expect(response.status).toBeLessThan(400);
   });
 
-  it("should respond to OPTIONS /api/me with CORS headers", async () => {
-    const response = await options("/api/me", {
-      Origin: "http://localhost:3000",
-      "Access-Control-Request-Method": "GET",
-      "Access-Control-Request-Headers": "authorization",
+  it('should respond to OPTIONS /api/me with CORS headers', async () => {
+    const response = await options('/api/me', {
+      Origin: 'http://localhost:3000',
+      'Access-Control-Request-Method': 'GET',
+      'Access-Control-Request-Headers': 'authorization',
     });
 
     // OPTIONS preflight should return 200 or 204

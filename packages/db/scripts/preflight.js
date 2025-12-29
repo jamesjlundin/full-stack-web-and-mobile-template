@@ -5,9 +5,9 @@
 
 if (!process.env.DATABASE_URL) {
   throw new Error(
-    "DATABASE_URL environment variable is not set. " +
-      "Please set DATABASE_URL before running migrations."
+    'DATABASE_URL environment variable is not set. ' +
+      'Please set DATABASE_URL before running migrations.',
   );
 }
 
-console.log("DB preflight OK");
+console.log('DB preflight OK');
