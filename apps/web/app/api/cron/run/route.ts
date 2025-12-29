@@ -29,10 +29,7 @@ export async function POST(request: Request) {
   try {
     body = await request.json();
   } catch {
-    return NextResponse.json(
-      { error: "Invalid JSON body" },
-      { status: 400 }
-    );
+    return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
   }
 
   // Validate job name
@@ -44,7 +41,7 @@ export async function POST(request: Request) {
         message: 'Expected { job: "heartbeat" | "nightly" }',
         availableJobs: ["heartbeat", "nightly"],
       },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
@@ -60,12 +57,12 @@ export async function POST(request: Request) {
         event: "cron.run.error",
         job: jobName,
         error: message,
-      })
+      }),
     );
 
     return NextResponse.json(
       { error: "Job execution failed", message },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

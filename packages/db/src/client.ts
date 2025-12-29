@@ -1,7 +1,13 @@
 import "dotenv/config";
 import { neon } from "@neondatabase/serverless";
-import { drizzle as drizzleNeon, type NeonHttpDatabase } from "drizzle-orm/neon-http";
-import { drizzle as drizzlePg, type NodePgDatabase } from "drizzle-orm/node-postgres";
+import {
+  drizzle as drizzleNeon,
+  type NeonHttpDatabase,
+} from "drizzle-orm/neon-http";
+import {
+  drizzle as drizzlePg,
+  type NodePgDatabase,
+} from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
 
 import * as schema from "./schema";
@@ -19,7 +25,10 @@ function isServerlessEnv(): boolean {
 }
 
 // For CLI tools (migrations, smoke tests) that need pool access - always use node-postgres
-export function createLocalDb(): { db: NodePgDatabase<typeof schema>; pool: Pool } {
+export function createLocalDb(): {
+  db: NodePgDatabase<typeof schema>;
+  pool: Pool;
+} {
   const connectionString = getConnectionString();
   const pool = new Pool({ connectionString });
   const db = drizzlePg(pool, { schema });
@@ -27,7 +36,9 @@ export function createLocalDb(): { db: NodePgDatabase<typeof schema>; pool: Pool
 }
 
 // Lazy initialization for serverless db
-type DbInstance = NeonHttpDatabase<typeof schema> | NodePgDatabase<typeof schema>;
+type DbInstance =
+  | NeonHttpDatabase<typeof schema>
+  | NodePgDatabase<typeof schema>;
 let _db: DbInstance | null = null;
 let _pool: Pool | null = null;
 
@@ -57,7 +68,9 @@ export const db = new Proxy({} as DbInstance, {
 export const pool = new Proxy({} as Pool, {
   get(_, prop) {
     if (isServerlessEnv()) {
-      throw new Error("Pool is not available in serverless environment. Use db directly.");
+      throw new Error(
+        "Pool is not available in serverless environment. Use db directly.",
+      );
     }
     if (!_pool) {
       _pool = new Pool({ connectionString: getConnectionString() });

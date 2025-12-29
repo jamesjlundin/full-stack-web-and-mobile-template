@@ -20,7 +20,9 @@ async function main() {
   console.log("\nStreaming sample response:\n");
   let chunkCount = 0;
 
-  for await (const chunk of apiClient.streamChat({ prompt: "Quick smoke test" })) {
+  for await (const chunk of apiClient.streamChat({
+    prompt: "Quick smoke test",
+  })) {
     process.stdout.write(chunk.content);
     chunkCount += 1;
 

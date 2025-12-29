@@ -18,18 +18,19 @@ Creates tests following this repo's testing patterns.
 
 ## Test Locations
 
-| Type | Location | Framework |
-|------|----------|-----------|
-| Integration tests | `packages/tests/src/` | Vitest |
-| Mobile unit tests | `apps/mobile/__tests__/` | Jest |
-| Tools testing | `packages/tools-testing/` | Custom |
-| Evals | `packages/evals/` | Custom |
+| Type              | Location                  | Framework |
+| ----------------- | ------------------------- | --------- |
+| Integration tests | `packages/tests/src/`     | Vitest    |
+| Mobile unit tests | `apps/mobile/__tests__/`  | Jest      |
+| Tools testing     | `packages/tools-testing/` | Custom    |
+| Evals             | `packages/evals/`         | Custom    |
 
 ## Procedure
 
 ### Step 1: Identify What to Test
 
 Determine test type needed:
+
 - **API endpoint** → Integration test in `packages/tests/src/`
 - **React Native component** → Unit test in `apps/mobile/__tests__/`
 - **Shared package** → Integration or unit test in package
@@ -37,6 +38,7 @@ Determine test type needed:
 ### Step 2: Read Existing Tests
 
 Study patterns in existing tests:
+
 ```
 Read: packages/tests/src/auth.cookie.test.ts
 Read: packages/tests/src/stream.test.ts
@@ -47,6 +49,7 @@ Read: packages/tests/src/stream.test.ts
 Use templates from [templates.md](./templates.md).
 
 Key patterns:
+
 - Use `describe` for grouping
 - Use `it` for test cases
 - Import helpers from `./http.ts`
@@ -69,6 +72,7 @@ pnpm -C packages/tests vitest run src/{file}.test.ts
 ### Step 5: Check Coverage
 
 Ensure tests cover:
+
 - Happy path (success case)
 - Authentication (401 for protected routes)
 - Validation (400 for bad input)

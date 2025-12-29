@@ -1,5 +1,12 @@
 import React, {useCallback, useState} from 'react';
-import {Button, SafeAreaView, StyleSheet, Text, TextInput, View} from 'react-native';
+import {
+  Button,
+  SafeAreaView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from 'react-native';
 
 import {useAuth} from '../auth/AuthContext';
 
@@ -8,7 +15,10 @@ type SignUpScreenProps = {
   onSignedUp: () => void;
 };
 
-export default function SignUpScreen({onSwitchToSignIn, onSignedUp}: SignUpScreenProps) {
+export default function SignUpScreen({
+  onSwitchToSignIn,
+  onSignedUp,
+}: SignUpScreenProps) {
   const {signUp} = useAuth();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -86,7 +96,11 @@ export default function SignUpScreen({onSwitchToSignIn, onSignedUp}: SignUpScree
         {error ? <Text style={styles.errorText}>{error}</Text> : null}
 
         <View style={styles.buttonGroup}>
-          <Button title={submitting ? 'Creating Account…' : 'Sign Up'} onPress={handleSubmit} disabled={submitting} />
+          <Button
+            title={submitting ? 'Creating Account…' : 'Sign Up'}
+            onPress={handleSubmit}
+            disabled={submitting}
+          />
           <Button title="Have an account? Sign In" onPress={onSwitchToSignIn} />
         </View>
       </View>
@@ -112,4 +126,3 @@ const styles = StyleSheet.create({
   buttonGroup: {gap: 12},
   errorText: {color: '#b91c1c'},
 });
-

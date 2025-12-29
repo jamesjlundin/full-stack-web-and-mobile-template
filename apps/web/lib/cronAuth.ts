@@ -26,7 +26,7 @@ function getCronSecret(): string | null {
   if (process.env.NODE_ENV === "production" && !secret) {
     console.error(
       "[SECURITY] CRON_SECRET is not set in production. All cron requests will be rejected. " +
-        "Set CRON_SECRET environment variable with: openssl rand -hex 32"
+        "Set CRON_SECRET environment variable with: openssl rand -hex 32",
     );
     return null;
   }
@@ -36,7 +36,7 @@ function getCronSecret(): string | null {
   if (!secret) {
     console.warn(
       "[DEV] CRON_SECRET not set. Using insecure development fallback. " +
-        "This will NOT work in production."
+        "This will NOT work in production.",
     );
     return "dev-secret-local-only";
   }
@@ -128,7 +128,7 @@ export function verifyCronRequest(request: Request): NextResponse | null {
       event: "cron.unauthorized",
       path: new URL(request.url).pathname,
       method: request.method,
-    })
+    }),
   );
 
   return NextResponse.json(
@@ -136,7 +136,7 @@ export function verifyCronRequest(request: Request): NextResponse | null {
       error: "Unauthorized",
       message: "Invalid or missing cron secret",
     },
-    { status: 401 }
+    { status: 401 },
   );
 }
 
@@ -149,7 +149,7 @@ export function verifyCronRequest(request: Request): NextResponse | null {
  */
 export function cronResponse<T extends object>(
   job: string,
-  data: T = {} as T
+  data: T = {} as T,
 ): NextResponse {
   return NextResponse.json({
     ok: true,

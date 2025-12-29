@@ -28,7 +28,9 @@ export function ToolCallDisplay({ toolCall }: ToolCallDisplayProps) {
           </div>
           <div className="flex-1 min-w-0 space-y-1">
             <div className="flex items-center gap-2">
-              <span className="font-medium text-sm">{formatToolName(toolCall.name)}</span>
+              <span className="font-medium text-sm">
+                {formatToolName(toolCall.name)}
+              </span>
               {isComplete ? (
                 <CheckCircle className="h-3.5 w-3.5 text-green-500" />
               ) : (
@@ -41,7 +43,8 @@ export function ToolCallDisplay({ toolCall }: ToolCallDisplayProps) {
               <div className="text-xs text-muted-foreground">
                 {Object.entries(toolCall.args).map(([key, value]) => (
                   <span key={key} className="mr-2">
-                    {key}: <span className="font-mono">{formatArgValue(value)}</span>
+                    {key}:{" "}
+                    <span className="font-mono">{formatArgValue(value)}</span>
                   </span>
                 ))}
               </div>

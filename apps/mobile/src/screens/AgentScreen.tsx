@@ -86,7 +86,9 @@ export default function AgentScreen() {
         const text = decoder.decode(value, {stream: true});
         setMessages(prev =>
           prev.map(m =>
-            m.id === assistantMessage.id ? {...m, content: m.content + text} : m,
+            m.id === assistantMessage.id
+              ? {...m, content: m.content + text}
+              : m,
           ),
         );
       }
@@ -118,7 +120,9 @@ export default function AgentScreen() {
         <Text
           style={[
             styles.messageText,
-            item.role === 'user' ? styles.userMessageText : styles.assistantMessageText,
+            item.role === 'user'
+              ? styles.userMessageText
+              : styles.assistantMessageText,
           ]}>
           {item.content || 'Thinking...'}
         </Text>

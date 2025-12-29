@@ -53,7 +53,9 @@ export default function ResetPasswordPage() {
         setError(data.error ?? "Failed to send reset email");
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Unexpected error occurred");
+      setError(
+        err instanceof Error ? err.message : "Unexpected error occurred",
+      );
     } finally {
       setLoading(false);
     }

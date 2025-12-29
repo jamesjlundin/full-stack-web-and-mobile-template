@@ -30,6 +30,7 @@ git log main..HEAD --oneline
 For each file, check against the [checklist.md](./checklist.md).
 
 Priority order:
+
 1. Security concerns (auth, validation, secrets)
 2. Database changes (migrations, schema)
 3. API changes (breaking changes, rate limiting)
@@ -63,6 +64,7 @@ Output format:
 ## PR Review: {title}
 
 ### Summary
+
 - Files changed: {count}
 - Lines added/removed: +{added}/-{removed}
 - Risk level: {Low|Medium|High}
@@ -70,15 +72,19 @@ Output format:
 ### Findings
 
 #### 🔴 Critical (Must Fix)
+
 - {issue with file:line reference}
 
 #### 🟡 Suggestions
+
 - {suggestion with file:line reference}
 
 #### ✅ Looks Good
+
 - {positive observation}
 
 ### Checklist
+
 - [ ] Auth properly implemented
 - [ ] Rate limiting applied
 - [ ] Input validated
@@ -88,6 +94,7 @@ Output format:
 - [ ] ESLint passes
 
 ### Recommendation
+
 {APPROVE | REQUEST_CHANGES | NEEDS_DISCUSSION}
 ```
 

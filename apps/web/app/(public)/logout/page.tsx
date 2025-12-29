@@ -48,7 +48,9 @@ export default function LogoutPage() {
       toast.success("Signed out successfully");
       router.push("/");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Unexpected error occurred");
+      setError(
+        err instanceof Error ? err.message : "Unexpected error occurred",
+      );
     } finally {
       setLoading(false);
     }

@@ -39,25 +39,28 @@ describe("Auth Cookie Flow", () => {
 
       // If devToken wasn't returned in sign-up, request verification email to get it
       if (!devToken) {
-        const verifyRequestResponse = await postJson<{ ok: boolean; devToken?: string }>(
-          "/api/auth/email/verify/request",
-          { email: testEmail }
-        );
+        const verifyRequestResponse = await postJson<{
+          ok: boolean;
+          devToken?: string;
+        }>("/api/auth/email/verify/request", { email: testEmail });
         expect(verifyRequestResponse.status).toBe(200);
         devToken = verifyRequestResponse.data.devToken;
       }
 
       // Verify the email with the token
       if (devToken) {
-        const verifyResponse = await postJson("/api/auth/email/verify/confirm", {
-          token: devToken,
-        });
+        const verifyResponse = await postJson(
+          "/api/auth/email/verify/confirm",
+          {
+            token: devToken,
+          },
+        );
         expect(verifyResponse.status).toBe(200);
       } else {
         // If no devToken is available, tests cannot proceed - fail with helpful message
         throw new Error(
           "Email verification is required but no devToken was provided. " +
-          "Set ALLOW_DEV_TOKENS=true in CI environment for integration tests."
+            "Set ALLOW_DEV_TOKENS=true in CI environment for integration tests.",
         );
       }
     }
@@ -81,7 +84,7 @@ describe("Auth Cookie Flow", () => {
       // This is expected behavior - set RESEND_API_KEY to enable full auth flow
       console.log(
         "Note: RESEND_API_KEY not set - verification disabled, cookies not returned. " +
-        "Set RESEND_API_KEY in CI to test full cookie-based auth flow."
+          "Set RESEND_API_KEY in CI to test full cookie-based auth flow.",
       );
     }
   });
@@ -89,7 +92,9 @@ describe("Auth Cookie Flow", () => {
   it("should access /api/me with session cookies", async () => {
     // Skip this test if we don't have cookies (verification was not enabled)
     if (sessionCookies.length === 0) {
-      console.log("Skipping: No session cookies available (RESEND_API_KEY not set)");
+      console.log(
+        "Skipping: No session cookies available (RESEND_API_KEY not set)",
+      );
       return;
     }
 
@@ -97,7 +102,7 @@ describe("Auth Cookie Flow", () => {
       "/api/me",
       {
         cookies: cookiesToString(sessionCookies),
-      }
+      },
     );
 
     expect(response.status).toBe(200);

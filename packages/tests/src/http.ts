@@ -54,7 +54,7 @@ export function parseCookies(response: Response): string[] {
   }
 
   const cookies = setCookieParser.parse(
-    setCookieParser.splitCookiesString(setCookieHeader)
+    setCookieParser.splitCookiesString(setCookieHeader),
   );
   return cookies.map((c) => `${c.name}=${c.value}`);
 }
@@ -72,7 +72,7 @@ export function cookiesToString(cookies: string[]): string {
 export async function postJson<T = unknown>(
   path: string,
   body: unknown,
-  opts?: RequestOptions
+  opts?: RequestOptions,
 ): Promise<JsonResponse<T>> {
   const url = buildUrl(path);
   const headers = buildHeaders(opts);
@@ -99,7 +99,7 @@ export async function postJson<T = unknown>(
  */
 export async function getJson<T = unknown>(
   path: string,
-  opts?: RequestOptions
+  opts?: RequestOptions,
 ): Promise<JsonResponse<T>> {
   const url = buildUrl(path);
   const headers = buildHeaders(opts);
@@ -127,7 +127,7 @@ export async function getJson<T = unknown>(
  */
 export async function options(
   path: string,
-  customHeaders?: Record<string, string>
+  customHeaders?: Record<string, string>,
 ): Promise<{
   status: number;
   headers: Headers;
@@ -157,7 +157,7 @@ export async function options(
  */
 export async function streamText(
   path: string,
-  init?: RequestInit & { maxChunks?: number }
+  init?: RequestInit & { maxChunks?: number },
 ): Promise<{
   status: number;
   chunks: string[];

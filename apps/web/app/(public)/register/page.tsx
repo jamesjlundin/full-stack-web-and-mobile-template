@@ -83,7 +83,7 @@ function RegisterForm() {
       if (data.requiresVerification) {
         toast.success("Account created! Please verify your email.");
         router.push(
-          `/auth/verify?email=${encodeURIComponent(email)}&sent=true`
+          `/auth/verify?email=${encodeURIComponent(email)}&sent=true`,
         );
         return;
       }
@@ -104,10 +104,13 @@ function RegisterForm() {
 
       const signinData = await signinResponse.json().catch(() => ({}));
       setError(
-        signinData?.message ?? "Signed up but failed to sign in. Please try again."
+        signinData?.message ??
+          "Signed up but failed to sign in. Please try again.",
       );
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Unexpected error occurred");
+      setError(
+        err instanceof Error ? err.message : "Unexpected error occurred",
+      );
     } finally {
       setLoading(false);
     }
@@ -120,7 +123,9 @@ function RegisterForm() {
         <div className="container flex items-center justify-center min-h-[calc(100vh-3.5rem)] py-12">
           <Card className="w-full max-w-md min-h-[440px]">
             <CardHeader className="space-y-1">
-              <CardTitle className="text-2xl font-bold">Create an account</CardTitle>
+              <CardTitle className="text-2xl font-bold">
+                Create an account
+              </CardTitle>
               <CardDescription>Loading...</CardDescription>
             </CardHeader>
             <CardContent className="flex justify-center py-8">
@@ -137,7 +142,9 @@ function RegisterForm() {
       <div className="container flex items-center justify-center min-h-[calc(100vh-3.5rem)] py-12">
         <Card className="w-full max-w-md min-h-[440px]">
           <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl font-bold">Create an account</CardTitle>
+            <CardTitle className="text-2xl font-bold">
+              Create an account
+            </CardTitle>
             <CardDescription>
               Enter your details to create an account
             </CardDescription>
@@ -221,7 +228,9 @@ function RegisterLoading() {
       <div className="container flex items-center justify-center min-h-[calc(100vh-3.5rem)] py-12">
         <Card className="w-full max-w-md min-h-[440px]">
           <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl font-bold">Create an account</CardTitle>
+            <CardTitle className="text-2xl font-bold">
+              Create an account
+            </CardTitle>
             <CardDescription>Loading...</CardDescription>
           </CardHeader>
           <CardContent className="flex justify-center py-8">

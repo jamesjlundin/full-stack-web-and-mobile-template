@@ -44,7 +44,10 @@ export interface HttpToolClient {
    * @param input - Input data for the tool
    * @returns Promise resolving to result or error
    */
-  callTool<T = unknown>(name: string, input: unknown): Promise<HttpCallResult<T>>;
+  callTool<T = unknown>(
+    name: string,
+    input: unknown,
+  ): Promise<HttpCallResult<T>>;
 
   /**
    * List available tools from the server
@@ -90,7 +93,7 @@ export interface HttpToolClient {
  */
 export function buildHttpClient(
   baseUrl: string,
-  options: HttpClientOptions = {}
+  options: HttpClientOptions = {},
 ): HttpToolClient {
   const { headers = {}, timeout = 30000, traceId } = options;
 
@@ -108,7 +111,10 @@ export function buildHttpClient(
   }
 
   return {
-    async callTool<T = unknown>(name: string, input: unknown): Promise<HttpCallResult<T>> {
+    async callTool<T = unknown>(
+      name: string,
+      input: unknown,
+    ): Promise<HttpCallResult<T>> {
       const url = `${normalizedBaseUrl}/api/tools/${encodeURIComponent(name)}`;
 
       const controller = new AbortController();

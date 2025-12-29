@@ -7,7 +7,13 @@
 
 import { db } from "@acme/db";
 import { ragQuery, hasOpenAIKey, MissingApiKeyError } from "@acme/rag";
-import { registerTool, hasTool, ragQueryContract, type RagQueryInput, type RagQueryOutput } from "@acme/tools";
+import {
+  registerTool,
+  hasTool,
+  ragQueryContract,
+  type RagQueryInput,
+  type RagQueryOutput,
+} from "@acme/tools";
 
 /**
  * Register the rag.query tool with the tools registry.
@@ -19,28 +25,31 @@ export function registerRagTool(): void {
     return;
   }
 
-  registerTool(ragQueryContract, async (input: RagQueryInput): Promise<RagQueryOutput> => {
-    // Check for API key
-    if (!hasOpenAIKey()) {
-      throw new MissingApiKeyError();
-    }
+  registerTool(
+    ragQueryContract,
+    async (input: RagQueryInput): Promise<RagQueryOutput> => {
+      // Check for API key
+      if (!hasOpenAIKey()) {
+        throw new MissingApiKeyError();
+      }
 
-    // Execute RAG query
-    const result = await ragQuery(db, {
-      query: input.query,
-      k: input.k,
-    });
+      // Execute RAG query
+      const result = await ragQuery(db, {
+        query: input.query,
+        k: input.k,
+      });
 
-    // Map to expected output format (content -> text for contract compatibility)
-    return {
-      chunks: result.chunks.map((chunk) => ({
-        id: chunk.id,
-        text: chunk.text,
-        score: chunk.score,
-        metadata: chunk.metadata,
-      })),
-    };
-  });
+      // Map to expected output format (content -> text for contract compatibility)
+      return {
+        chunks: result.chunks.map((chunk) => ({
+          id: chunk.id,
+          text: chunk.text,
+          score: chunk.score,
+          metadata: chunk.metadata,
+        })),
+      };
+    },
+  );
 }
 
 /**

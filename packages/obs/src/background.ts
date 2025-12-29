@@ -28,7 +28,7 @@ function logBackgroundEvent(
   event: "start" | "complete" | "error",
   taskName: string,
   duration_ms?: number,
-  error?: string
+  error?: string,
 ): void {
   const log: Record<string, unknown> = {
     ts: new Date().toISOString(),
@@ -121,11 +121,16 @@ function getWaitUntil(ctx?: BackgroundContext): WaitUntilFn | undefined {
 export function runInBackground(
   promiseOrFn: Promise<unknown> | (() => Promise<unknown>),
   ctx?: BackgroundContext,
-  taskName = "anonymous"
+  taskName = "anonymous",
 ): void {
   // Check if background work is enabled
   if (!isBackgroundEnabled()) {
-    logBackgroundEvent("complete", taskName, 0, "disabled via BACKGROUND_ENABLED");
+    logBackgroundEvent(
+      "complete",
+      taskName,
+      0,
+      "disabled via BACKGROUND_ENABLED",
+    );
     return;
   }
 
@@ -142,8 +147,7 @@ export function runInBackground(
       logBackgroundEvent("complete", taskName, durationMs(startMs));
     })
     .catch((err: unknown) => {
-      const errorMessage =
-        err instanceof Error ? err.message : String(err);
+      const errorMessage = err instanceof Error ? err.message : String(err);
       logBackgroundEvent("error", taskName, durationMs(startMs), errorMessage);
       // Don't rethrow - background tasks should never crash the process
     });

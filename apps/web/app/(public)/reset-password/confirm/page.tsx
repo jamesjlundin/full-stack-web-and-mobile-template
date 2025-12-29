@@ -76,14 +76,16 @@ function ResetConfirmForm() {
       } else {
         if (data.error === "invalid_or_expired_token") {
           setError(
-            "This link is invalid or has expired. Please request a new password reset."
+            "This link is invalid or has expired. Please request a new password reset.",
           );
         } else {
           setError(data.error ?? "Failed to reset password");
         }
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Unexpected error occurred");
+      setError(
+        err instanceof Error ? err.message : "Unexpected error occurred",
+      );
     } finally {
       setLoading(false);
     }
@@ -95,7 +97,9 @@ function ResetConfirmForm() {
         <div className="container flex items-center justify-center min-h-[calc(100vh-3.5rem)] py-12">
           <Card className="w-full max-w-md">
             <CardHeader className="space-y-1">
-              <CardTitle className="text-2xl font-bold">Password Reset</CardTitle>
+              <CardTitle className="text-2xl font-bold">
+                Password Reset
+              </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <Alert className="border-green-500 bg-green-50 dark:bg-green-950">
@@ -120,7 +124,9 @@ function ResetConfirmForm() {
       <div className="container flex items-center justify-center min-h-[calc(100vh-3.5rem)] py-12">
         <Card className="w-full max-w-md">
           <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl font-bold">Set New Password</CardTitle>
+            <CardTitle className="text-2xl font-bold">
+              Set New Password
+            </CardTitle>
             <CardDescription>Enter your new password below.</CardDescription>
           </CardHeader>
           <form onSubmit={handleConfirmReset}>
@@ -175,7 +181,9 @@ function ResetConfirmForm() {
 
               {error?.includes("invalid or has expired") && (
                 <Button variant="outline" asChild className="w-full">
-                  <Link href="/reset-password">Request a new password reset</Link>
+                  <Link href="/reset-password">
+                    Request a new password reset
+                  </Link>
                 </Button>
               )}
             </CardContent>
@@ -220,7 +228,9 @@ function ResetConfirmLoading() {
       <div className="container flex items-center justify-center min-h-[calc(100vh-3.5rem)] py-12">
         <Card className="w-full max-w-md">
           <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl font-bold">Set New Password</CardTitle>
+            <CardTitle className="text-2xl font-bold">
+              Set New Password
+            </CardTitle>
             <CardDescription>Loading...</CardDescription>
           </CardHeader>
           <CardContent className="flex justify-center py-8">

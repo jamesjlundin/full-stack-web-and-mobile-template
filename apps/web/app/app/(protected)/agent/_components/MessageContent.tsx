@@ -54,7 +54,10 @@ export function MessageContent({ parts, className = "" }: MessageContentProps) {
       </div>
 
       {/* Lightbox for full-size image viewing */}
-      <Dialog open={!!lightboxImage} onOpenChange={() => setLightboxImage(null)}>
+      <Dialog
+        open={!!lightboxImage}
+        onOpenChange={() => setLightboxImage(null)}
+      >
         <DialogContent className="max-w-4xl max-h-[90vh] p-0 overflow-hidden">
           <button
             onClick={() => setLightboxImage(null)}

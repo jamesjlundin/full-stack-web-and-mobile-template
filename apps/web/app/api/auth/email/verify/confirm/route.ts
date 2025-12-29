@@ -15,7 +15,7 @@ export async function POST(request: Request) {
     if (!token || typeof token !== "string") {
       return NextResponse.json(
         { ok: false, error: "Token is required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -28,9 +28,6 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error("[email/verify/confirm] Error:", error);
     const message = error instanceof Error ? error.message : "Unknown error";
-    return NextResponse.json(
-      { ok: false, error: message },
-      { status: 400 }
-    );
+    return NextResponse.json({ ok: false, error: message }, { status: 400 });
   }
 }

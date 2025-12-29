@@ -58,7 +58,8 @@ export function configureAjv(): AjvConfig {
           return { valid: true, data };
         }
         const errors = (compiledValidator.errors ?? []).map(
-          (err) => `${err.instancePath || "/"}: ${err.message ?? "validation error"}`
+          (err) =>
+            `${err.instancePath || "/"}: ${err.message ?? "validation error"}`,
         );
         return { valid: false, errors };
       },

@@ -5,16 +5,21 @@
  * and computes metrics.
  */
 
-import { getAllFixtures } from './fixtures/index.js';
-import { loadRag } from './hooks/rag.js';
-import { getSuites, allSuites } from './suites/index.js';
-import { checkThresholds, mergeThresholds } from './thresholds.js';
+import { getAllFixtures } from "./fixtures/index.js";
+import { loadRag } from "./hooks/rag.js";
+import { getSuites, allSuites } from "./suites/index.js";
+import { checkThresholds, mergeThresholds } from "./thresholds.js";
 
-import type { RagModule } from './hooks/rag.js';
-import type { ModelAdapter } from './models/types.js';
-import type { EvalResults, SuiteResult, CaseResult, Reporter } from './reporters/types.js';
-import type { Suite, EvalContext } from './suites/types.js';
-import type { Thresholds } from './thresholds.js';
+import type { RagModule } from "./hooks/rag.js";
+import type { ModelAdapter } from "./models/types.js";
+import type {
+  EvalResults,
+  SuiteResult,
+  CaseResult,
+  Reporter,
+} from "./reporters/types.js";
+import type { Suite, EvalContext } from "./suites/types.js";
+import type { Thresholds } from "./thresholds.js";
 
 /**
  * Runner configuration
@@ -31,7 +36,9 @@ export interface RunnerConfig {
 /**
  * Run all evaluations
  */
-export async function runEvaluations(config: RunnerConfig): Promise<EvalResults> {
+export async function runEvaluations(
+  config: RunnerConfig,
+): Promise<EvalResults> {
   const startTime = Date.now();
 
   // Load fixtures
@@ -109,7 +116,7 @@ export async function runEvaluations(config: RunnerConfig): Promise<EvalResults>
  */
 function aggregateSuiteResults(
   suiteName: string,
-  cases: CaseResult[]
+  cases: CaseResult[],
 ): SuiteResult {
   const nonSkippedCases = cases.filter((c) => !c.skipped);
   const passed = nonSkippedCases.filter((c) => c.passed).length;
@@ -119,7 +126,8 @@ function aggregateSuiteResults(
   // Calculate score as average of individual scores
   const score =
     nonSkippedCases.length > 0
-      ? nonSkippedCases.reduce((sum, c) => sum + c.score, 0) / nonSkippedCases.length
+      ? nonSkippedCases.reduce((sum, c) => sum + c.score, 0) /
+        nonSkippedCases.length
       : 1; // If all skipped, score is 1
 
   return {

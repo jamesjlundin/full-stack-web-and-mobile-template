@@ -47,7 +47,10 @@ async function handleSignIn(request: Request) {
   // If email verification is not required, return success with session cookie
   if (!isEmailVerificationRequired) {
     const setCookieHeader = response.headers.get("set-cookie");
-    const jsonResponse = NextResponse.json({ success: true, requiresVerification: false });
+    const jsonResponse = NextResponse.json({
+      success: true,
+      requiresVerification: false,
+    });
     if (setCookieHeader) {
       jsonResponse.headers.set("set-cookie", setCookieHeader);
     }

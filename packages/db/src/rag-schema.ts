@@ -45,7 +45,7 @@ export const ragChunks = pgTable(
   (table) => [
     // Index on doc_id for efficient document-level operations
     index("rag_chunks_doc_id_idx").on(table.docId),
-  ]
+  ],
 );
 
 /**

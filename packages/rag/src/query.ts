@@ -4,7 +4,6 @@
  * Provides the main ragQuery function that combines embedding and similarity search.
  */
 
-
 import { openaiEmbedder, hasOpenAIKey, MissingApiKeyError } from "./embed";
 import { querySimilar } from "./store";
 
@@ -69,7 +68,7 @@ type DbInstance = NodePgDatabase<any> | NeonHttpDatabase<any>;
  */
 export async function ragQuery(
   db: DbInstance,
-  options: RagQueryOptions
+  options: RagQueryOptions,
 ): Promise<RagQueryResult> {
   const { query, k = 3 } = options;
 

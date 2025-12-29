@@ -1,5 +1,12 @@
 import React, {useCallback, useState} from 'react';
-import {Button, SafeAreaView, StyleSheet, Text, TextInput, View} from 'react-native';
+import {
+  Button,
+  SafeAreaView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from 'react-native';
 
 import {useAuth} from '../auth/AuthContext';
 
@@ -9,7 +16,11 @@ type SignInScreenProps = {
   onForgotPassword?: () => void;
 };
 
-export default function SignInScreen({onSwitchToSignUp, onSignedIn, onForgotPassword}: SignInScreenProps) {
+export default function SignInScreen({
+  onSwitchToSignUp,
+  onSignedIn,
+  onForgotPassword,
+}: SignInScreenProps) {
   const {signIn} = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -42,7 +53,9 @@ export default function SignInScreen({onSwitchToSignUp, onSignedIn, onForgotPass
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
         <Text style={styles.title}>Sign in</Text>
-        <Text style={styles.subtitle}>Enter your email and password to access your account</Text>
+        <Text style={styles.subtitle}>
+          Enter your email and password to access your account
+        </Text>
 
         <View style={styles.inputGroup}>
           <Text style={styles.label}>Email</Text>
@@ -70,7 +83,11 @@ export default function SignInScreen({onSwitchToSignUp, onSignedIn, onForgotPass
         {error ? <Text style={styles.errorText}>{error}</Text> : null}
 
         <View style={styles.buttonGroup}>
-          <Button title={submitting ? 'Signing In…' : 'Sign In'} onPress={handleSubmit} disabled={submitting} />
+          <Button
+            title={submitting ? 'Signing In…' : 'Sign In'}
+            onPress={handleSubmit}
+            disabled={submitting}
+          />
           <Button title="Need an account? Sign Up" onPress={onSwitchToSignUp} />
           {onForgotPassword ? (
             <Button title="Forgot Password?" onPress={onForgotPassword} />
@@ -99,4 +116,3 @@ const styles = StyleSheet.create({
   buttonGroup: {gap: 12},
   errorText: {color: '#b91c1c'},
 });
-

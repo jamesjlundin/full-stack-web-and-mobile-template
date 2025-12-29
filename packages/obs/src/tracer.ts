@@ -19,7 +19,7 @@ function logSpanEvent(
   spanName: string,
   ctx: TraceContext,
   duration_ms?: number,
-  error?: string
+  error?: string,
 ): void {
   const log: Record<string, unknown> = {
     ts: new Date().toISOString(),
@@ -55,7 +55,7 @@ function logSpanEvent(
 export async function withTrace<T>(
   spanName: string,
   fn: (ctx: TraceContext) => Promise<T> | T,
-  parent?: TraceContext
+  parent?: TraceContext,
 ): Promise<TraceResult<T>> {
   const ctx: TraceContext = {
     traceId: parent?.traceId ?? generateTraceId(),

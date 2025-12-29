@@ -20,7 +20,10 @@ export const echoInputSchema = z.object({
   /** Text to echo back */
   text: z.string(),
   /** Optional transform to apply (default: "none") */
-  transform: z.enum(["none", "uppercase", "lowercase", "reverse"]).optional().default("none"),
+  transform: z
+    .enum(["none", "uppercase", "lowercase", "reverse"])
+    .optional()
+    .default("none"),
 });
 
 /** Echo output schema */
@@ -54,7 +57,9 @@ export type EchoOutput = z.infer<typeof echoOutputSchema>;
  * @param input - Echo input with text and optional transform
  * @returns Echo output with (transformed) text
  */
-export const echoImpl: ToolImpl<typeof echoContract> = (input: EchoInput): EchoOutput => {
+export const echoImpl: ToolImpl<typeof echoContract> = (
+  input: EchoInput,
+): EchoOutput => {
   const { text, transform = "none" } = input;
 
   let result: string;
@@ -79,4 +84,7 @@ export const echoImpl: ToolImpl<typeof echoContract> = (input: EchoInput): EchoO
 };
 
 // Export contract type for external use
-export type EchoContract = ToolContract<typeof echoInputSchema, typeof echoOutputSchema>;
+export type EchoContract = ToolContract<
+  typeof echoInputSchema,
+  typeof echoOutputSchema
+>;

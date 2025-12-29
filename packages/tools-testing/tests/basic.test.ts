@@ -191,7 +191,7 @@ describe("MCP Adapter", () => {
       const echoTool = tools.find((t) => t.name === "echo");
       expect(echoTool).toBeDefined();
       expect(echoTool!.description).toBe(
-        "Echo input text back, optionally transforming it"
+        "Echo input text back, optionally transforming it",
       );
       expect(echoTool!.input_schema).toHaveProperty("type", "object");
       expect(echoTool!.input_schema).toHaveProperty("properties");

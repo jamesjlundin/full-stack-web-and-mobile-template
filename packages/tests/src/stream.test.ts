@@ -28,36 +28,39 @@ describe("Agent Stream", () => {
 
       // If devToken wasn't returned in sign-up, request verification email to get it
       if (!devToken) {
-        const verifyRequestResponse = await postJson<{ ok: boolean; devToken?: string }>(
-          "/api/auth/email/verify/request",
-          { email: testEmail }
-        );
+        const verifyRequestResponse = await postJson<{
+          ok: boolean;
+          devToken?: string;
+        }>("/api/auth/email/verify/request", { email: testEmail });
         expect(verifyRequestResponse.status).toBe(200);
         devToken = verifyRequestResponse.data.devToken;
       }
 
       // Verify the email with the token
       if (devToken) {
-        const verifyResponse = await postJson("/api/auth/email/verify/confirm", {
-          token: devToken,
-        });
+        const verifyResponse = await postJson(
+          "/api/auth/email/verify/confirm",
+          {
+            token: devToken,
+          },
+        );
         expect(verifyResponse.status).toBe(200);
       } else {
         throw new Error(
           "Email verification is required but no devToken was provided. " +
-          "Set ALLOW_DEV_TOKENS=true in CI environment for integration tests."
+            "Set ALLOW_DEV_TOKENS=true in CI environment for integration tests.",
         );
       }
     }
 
     // Obtain a bearer token
-    const tokenResponse = await postJson<{ token: string; user: { id: string; email: string } }>(
-      "/api/auth/token",
-      {
-        email: testEmail,
-        password: testPassword,
-      }
-    );
+    const tokenResponse = await postJson<{
+      token: string;
+      user: { id: string; email: string };
+    }>("/api/auth/token", {
+      email: testEmail,
+      password: testPassword,
+    });
 
     expect(tokenResponse.status).toBe(200);
     expect(tokenResponse.data.token).toBeDefined();
@@ -101,7 +104,9 @@ describe("Agent Stream", () => {
     const response = await streamText("/api/agent/stream", {
       method: "POST",
       body: JSON.stringify({
-        messages: [{ role: "user", content: "What is the weather in San Francisco?" }],
+        messages: [
+          { role: "user", content: "What is the weather in San Francisco?" },
+        ],
       }),
       maxChunks: 10,
       headers: {

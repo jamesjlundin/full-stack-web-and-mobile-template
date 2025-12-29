@@ -56,7 +56,7 @@ export interface FixedSizeChunkOptions {
  */
 export function fixedSizeChunks(
   text: string,
-  options: FixedSizeChunkOptions = {}
+  options: FixedSizeChunkOptions = {},
 ): Chunk[] {
   const {
     size = DEFAULT_CHUNK_SIZE,
@@ -105,7 +105,10 @@ export function fixedSizeChunks(
     position += step;
 
     // If remaining text is smaller than overlap, include it in the last chunk
-    if (position < trimmedText.length && trimmedText.length - position < overlap) {
+    if (
+      position < trimmedText.length &&
+      trimmedText.length - position < overlap
+    ) {
       break;
     }
   }

@@ -12,7 +12,12 @@ export {
   type VersionMeta,
   type BuildVersionMetaArgs,
 } from "./versions";
-export { configureAjv, type AjvConfig, type SchemaValidator, type ValidatorResult } from "./ajv";
+export {
+  configureAjv,
+  type AjvConfig,
+  type SchemaValidator,
+  type ValidatorResult,
+} from "./ajv";
 export { schemas, type SchemaInfo, type SchemaKey } from "./schemas/index";
 export type { PromptDef } from "./prompts/types";
 export {
@@ -46,15 +51,7 @@ type StreamChatResult = {
   model: string;
 };
 
-const MOCK_TOKENS = [
-  "Hello",
-  ", ",
-  "this ",
-  "is ",
-  "a ",
-  "mock ",
-  "stream.",
-];
+const MOCK_TOKENS = ["Hello", ", ", "this ", "is ", "a ", "mock ", "stream."];
 
 function buildHeaders() {
   return {
@@ -71,12 +68,16 @@ function createMockStreamResponse(): Response {
     async start(controller) {
       for (const token of MOCK_TOKENS) {
         controller.enqueue(
-          encoder.encode(`data: ${JSON.stringify({ type: "text", text: token })}\n\n`),
+          encoder.encode(
+            `data: ${JSON.stringify({ type: "text", text: token })}\n\n`,
+          ),
         );
         await new Promise((resolve) => setTimeout(resolve, 100));
       }
 
-      controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: "done" })}\n\n`));
+      controller.enqueue(
+        encoder.encode(`data: ${JSON.stringify({ type: "done" })}\n\n`),
+      );
       controller.close();
     },
   });
@@ -115,12 +116,16 @@ async function createProviderStreamResponse(
         for await (const part of result.fullStream) {
           if (part.type === "text-delta") {
             controller.enqueue(
-              encoder.encode(`data: ${JSON.stringify({ type: "text", text: part.text })}\n\n`),
+              encoder.encode(
+                `data: ${JSON.stringify({ type: "text", text: part.text })}\n\n`,
+              ),
             );
           }
         }
 
-        controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: "done" })}\n\n`));
+        controller.enqueue(
+          encoder.encode(`data: ${JSON.stringify({ type: "done" })}\n\n`),
+        );
         controller.close();
       } catch (error) {
         controller.error(error);

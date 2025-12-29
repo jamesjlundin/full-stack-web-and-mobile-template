@@ -22,14 +22,14 @@ async function handler(request: NextRequest) {
     if (!token || typeof token !== "string") {
       return NextResponse.json(
         { error: "invalid_or_expired_token" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     if (!newPassword || typeof newPassword !== "string") {
       return NextResponse.json(
         { error: "New password is required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -37,7 +37,7 @@ async function handler(request: NextRequest) {
     if (newPassword.length < 8) {
       return NextResponse.json(
         { error: "Password must be at least 8 characters" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -56,7 +56,7 @@ async function handler(request: NextRequest) {
     // Token validation errors from Better Auth typically mean invalid/expired token
     return NextResponse.json(
       { error: "invalid_or_expired_token" },
-      { status: 400 }
+      { status: 400 },
     );
   }
 }

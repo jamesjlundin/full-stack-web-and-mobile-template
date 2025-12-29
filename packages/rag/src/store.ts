@@ -70,7 +70,10 @@ type DbInstance = NodePgDatabase<any> | NeonHttpDatabase<any>;
  * ]);
  * ```
  */
-export async function upsertChunks(db: DbInstance, rows: ChunkRow[]): Promise<void> {
+export async function upsertChunks(
+  db: DbInstance,
+  rows: ChunkRow[],
+): Promise<void> {
   if (rows.length === 0) {
     return;
   }
@@ -119,7 +122,7 @@ export async function upsertChunks(db: DbInstance, rows: ChunkRow[]): Promise<vo
 export async function querySimilar(
   db: DbInstance,
   queryEmbedding: number[],
-  k: number
+  k: number,
 ): Promise<SimilarChunk[]> {
   const embeddingStr = `[${queryEmbedding.join(",")}]`;
 
@@ -157,7 +160,10 @@ export async function querySimilar(
  * @param db - Drizzle database instance
  * @param docId - Document identifier
  */
-export async function deleteDocChunks(db: DbInstance, docId: string): Promise<void> {
+export async function deleteDocChunks(
+  db: DbInstance,
+  docId: string,
+): Promise<void> {
   await db.execute(sql`DELETE FROM rag_chunks WHERE doc_id = ${docId}`);
 }
 
@@ -166,7 +172,7 @@ export async function deleteDocChunks(db: DbInstance, docId: string): Promise<vo
  */
 export async function countChunks(db: DbInstance): Promise<number> {
   const result = await db.execute<{ count: string }>(
-    sql`SELECT COUNT(*)::text as count FROM rag_chunks`
+    sql`SELECT COUNT(*)::text as count FROM rag_chunks`,
   );
   return parseInt(result.rows[0]?.count || "0", 10);
 }

@@ -10,7 +10,12 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+  SheetTitle,
+} from "@/components/ui/sheet";
 
 import { SignOutMenuItem } from "./sign-out-menu-item";
 import { ThemeToggle } from "./theme-toggle";

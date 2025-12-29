@@ -24,15 +24,17 @@ export type GetMeResult = {
   config: AppConfig;
 };
 
-export type SignInResult = {
-  success: true;
-  token: string;
-  user: User;
-} | {
-  success: false;
-  requiresVerification: true;
-  email: string;
-};
+export type SignInResult =
+  | {
+      success: true;
+      token: string;
+      user: User;
+    }
+  | {
+      success: false;
+      requiresVerification: true;
+      email: string;
+    };
 
 export type RequestVerificationParams = {
   email: string;
@@ -123,9 +125,10 @@ export function createApiClient({ baseUrl = "" }: ApiClientConfig = {}) {
       return { user: null, config: defaultConfig };
     }
 
-    const data = (await response.json().catch(() => null)) as
-      | { user?: User; config?: AppConfig }
-      | null;
+    const data = (await response.json().catch(() => null)) as {
+      user?: User;
+      config?: AppConfig;
+    } | null;
 
     return {
       user: data?.user ?? null,
@@ -144,7 +147,10 @@ export function createApiClient({ baseUrl = "" }: ApiClientConfig = {}) {
     return data ?? defaultConfig;
   };
 
-  const signIn = async ({ email, password }: SignInParams): Promise<SignInResult> => {
+  const signIn = async ({
+    email,
+    password,
+  }: SignInParams): Promise<SignInResult> => {
     const response = await fetch(buildUrl("/api/auth/token"), {
       method: "POST",
       headers: {
@@ -155,9 +161,10 @@ export function createApiClient({ baseUrl = "" }: ApiClientConfig = {}) {
 
     // Handle verification required response (403)
     if (response.status === 403) {
-      const payload = (await response.json().catch(() => null)) as
-        | { requiresVerification?: boolean; email?: string }
-        | null;
+      const payload = (await response.json().catch(() => null)) as {
+        requiresVerification?: boolean;
+        email?: string;
+      } | null;
 
       if (payload?.requiresVerification) {
         return {
@@ -175,9 +182,10 @@ export function createApiClient({ baseUrl = "" }: ApiClientConfig = {}) {
       );
     }
 
-    const payload = (await response.json().catch(() => null)) as
-      | { token?: string; user?: User }
-      | null;
+    const payload = (await response.json().catch(() => null)) as {
+      token?: string;
+      user?: User;
+    } | null;
 
     if (!payload?.token || !payload.user) {
       throw new Error("Invalid sign-in response");
@@ -208,14 +216,18 @@ export function createApiClient({ baseUrl = "" }: ApiClientConfig = {}) {
       body: JSON.stringify({ email }),
     });
 
-    const data = (await response.json().catch(() => null)) as
-      | RequestVerificationResult
-      | null;
+    const data = (await response
+      .json()
+      .catch(() => null)) as RequestVerificationResult | null;
 
     return data ?? { ok: false, error: "Unknown error" };
   };
 
-  const streamChat = async function* ({ prompt, token, signal }: StreamChatParams) {
+  const streamChat = async function* ({
+    prompt,
+    token,
+    signal,
+  }: StreamChatParams) {
     const headers: HeadersInit = {
       "content-type": "application/json",
     };
@@ -251,4 +263,10 @@ export const requestVerificationEmail = defaultClient.requestVerificationEmail;
 export const signIn = defaultClient.signIn;
 export const streamChat = defaultClient.streamChat;
 
-export type { AiModelInfo, AiProviderInfo, AppConfig, ChatChunk, User } from "@acme/types";
+export type {
+  AiModelInfo,
+  AiProviderInfo,
+  AppConfig,
+  ChatChunk,
+  User,
+} from "@acme/types";

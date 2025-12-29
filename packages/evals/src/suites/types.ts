@@ -2,10 +2,10 @@
  * Suite types and interfaces
  */
 
-import type { Fixture } from '../fixtures/types.js';
-import type { RagModule } from '../hooks/rag.js';
-import type { ModelAdapter } from '../models/types.js';
-import type { CaseResult } from '../reporters/types.js';
+import type { Fixture } from "../fixtures/types.js";
+import type { RagModule } from "../hooks/rag.js";
+import type { ModelAdapter } from "../models/types.js";
+import type { CaseResult } from "../reporters/types.js";
 
 /**
  * Context passed to suite evaluators

@@ -15,7 +15,9 @@ function getSecretKey(): Uint8Array {
 
   const secret = process.env.BETTER_AUTH_SECRET;
   if (!secret || secret.length < 32) {
-    throw new Error("BETTER_AUTH_SECRET must be set and at least 32 characters long");
+    throw new Error(
+      "BETTER_AUTH_SECRET must be set and at least 32 characters long",
+    );
   }
   _secretKey = new TextEncoder().encode(secret);
   return _secretKey;
@@ -30,8 +32,12 @@ export async function signAuthToken(payload: AuthTokenPayload) {
     .sign(getSecretKey());
 }
 
-export async function verifyAuthToken(token: string): Promise<AuthTokenPayload> {
-  const { payload } = await jwtVerify(token, getSecretKey(), { algorithms: ["HS256"] });
+export async function verifyAuthToken(
+  token: string,
+): Promise<AuthTokenPayload> {
+  const { payload } = await jwtVerify(token, getSecretKey(), {
+    algorithms: ["HS256"],
+  });
 
   if (!payload.sub || typeof payload.sub !== "string") {
     throw new Error("Invalid token subject");

@@ -64,11 +64,14 @@ async function handler(request: NextRequest) {
 
     if (!dbUser?.emailVerified) {
       // User is not verified - do NOT return a token
-      return NextResponse.json({
-        error: "email_not_verified",
-        requiresVerification: true,
-        email: user.email,
-      }, { status: 403 });
+      return NextResponse.json(
+        {
+          error: "email_not_verified",
+          requiresVerification: true,
+          email: user.email,
+        },
+        { status: 403 },
+      );
     }
   }
 

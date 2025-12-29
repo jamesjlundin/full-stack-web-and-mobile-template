@@ -2,7 +2,10 @@ import { auth, getDevToken, consumeTokenForEmail } from "@acme/auth";
 import { createRateLimiter } from "@acme/security";
 import { NextRequest, NextResponse } from "next/server";
 
-import { sendPasswordResetEmail, buildPasswordResetUrls } from "../../../_lib/passwordResetEmail";
+import {
+  sendPasswordResetEmail,
+  buildPasswordResetUrls,
+} from "../../../_lib/passwordResetEmail";
 import { withRateLimit } from "../../../_lib/withRateLimit";
 
 // Rate limit: 5 requests per 60 seconds per IP
@@ -19,7 +22,8 @@ const limiter = createRateLimiter({ limit: 5, windowMs: 60_000 });
 async function handler(request: NextRequest) {
   // Check if dev token echoing is allowed (dev mode OR ALLOW_DEV_TOKENS=true for testing)
   const isDevTokenAllowed =
-    process.env.NODE_ENV !== "production" || process.env.ALLOW_DEV_TOKENS === "true";
+    process.env.NODE_ENV !== "production" ||
+    process.env.ALLOW_DEV_TOKENS === "true";
 
   try {
     const body = await request.json();
@@ -64,13 +68,20 @@ async function handler(request: NextRequest) {
 
     // Production: send actual email if token exists
     if (tokenForEmail) {
-      const emailResult = await sendPasswordResetEmail({ to: email, token: tokenForEmail });
+      const emailResult = await sendPasswordResetEmail({
+        to: email,
+        token: tokenForEmail,
+      });
       if (!emailResult.ok) {
         // Log error but still return success to prevent enumeration
-        console.error("[reset/request] Failed to send email:", emailResult.error);
+        console.error(
+          "[reset/request] Failed to send email:",
+          emailResult.error,
+        );
 
         // If no email service, log URLs for manual testing
-        const { webResetUrl, mobileDeepLink } = buildPasswordResetUrls(tokenForEmail);
+        const { webResetUrl, mobileDeepLink } =
+          buildPasswordResetUrls(tokenForEmail);
         console.log("[reset/request] Reset URL (no email sent):", webResetUrl);
         if (mobileDeepLink) {
           console.log("[reset/request] Mobile deep link:", mobileDeepLink);

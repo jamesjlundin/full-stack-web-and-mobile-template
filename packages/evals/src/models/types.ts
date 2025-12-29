@@ -16,14 +16,14 @@ export interface ToolCall {
 export interface ModelResponse {
   content: string;
   toolCalls?: ToolCall[];
-  finishReason?: 'stop' | 'tool_calls' | 'length' | 'error';
+  finishReason?: "stop" | "tool_calls" | "length" | "error";
 }
 
 /**
  * Message structure for model input
  */
 export interface Message {
-  role: 'system' | 'user' | 'assistant';
+  role: "system" | "user" | "assistant";
   content: string;
 }
 
@@ -34,7 +34,7 @@ export interface ModelAdapter {
   name: string;
   generate(
     messages: Message[],
-    options?: GenerateOptions
+    options?: GenerateOptions,
   ): Promise<ModelResponse>;
 }
 
@@ -45,7 +45,7 @@ export interface GenerateOptions {
   temperature?: number;
   maxTokens?: number;
   tools?: ToolDefinition[];
-  responseFormat?: 'text' | 'json';
+  responseFormat?: "text" | "json";
 }
 
 /**

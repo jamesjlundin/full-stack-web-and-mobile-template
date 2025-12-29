@@ -29,7 +29,13 @@ export interface ToolCall {
   status: "pending" | "complete" | "error";
 }
 
-export type StreamEventType = "text" | "image" | "tool_call" | "tool_result" | "done" | "error";
+export type StreamEventType =
+  | "text"
+  | "image"
+  | "tool_call"
+  | "tool_result"
+  | "done"
+  | "error";
 
 export interface StreamEvent {
   type: StreamEventType;
@@ -53,14 +59,16 @@ export function getMessageText(message: Message): string {
 
 // Helper to get images from a message
 export function getMessageImages(message: Message): ImagePart[] {
-  return message.parts.filter((part): part is ImagePart => part.type === "image");
+  return message.parts.filter(
+    (part): part is ImagePart => part.type === "image",
+  );
 }
 
 // Helper to create a text-only message
 export function createTextMessage(
   role: MessageRole,
   text: string,
-  id?: string
+  id?: string,
 ): Message {
   return {
     id: id || Math.random().toString(36).substring(2, 9),

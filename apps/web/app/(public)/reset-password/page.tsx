@@ -49,7 +49,9 @@ export default function RequestResetPage() {
         setDevToken(data.devToken);
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Unexpected error occurred");
+      setError(
+        err instanceof Error ? err.message : "Unexpected error occurred",
+      );
     } finally {
       setLoading(false);
     }
@@ -119,8 +121,8 @@ export default function RequestResetPage() {
               <Alert className="border-green-500 bg-green-50 dark:bg-green-950">
                 <CheckCircle className="h-4 w-4 text-green-600" />
                 <AlertDescription className="text-green-700 dark:text-green-300">
-                  If that email exists in our system, a reset link has been sent.
-                  Please check your inbox.
+                  If that email exists in our system, a reset link has been
+                  sent. Please check your inbox.
                 </AlertDescription>
               </Alert>
 

@@ -31,7 +31,7 @@ export class MissingApiKeyError extends Error {
     super(
       "OPENAI_API_KEY environment variable is not set. " +
         "Embedding requires an OpenAI API key. " +
-        "Set OPENAI_API_KEY in your environment or .env file."
+        "Set OPENAI_API_KEY in your environment or .env file.",
     );
     this.name = "MissingApiKeyError";
   }
@@ -41,7 +41,10 @@ export class MissingApiKeyError extends Error {
  * Check if OpenAI API key is available
  */
 export function hasOpenAIKey(): boolean {
-  return typeof process.env.OPENAI_API_KEY === "string" && process.env.OPENAI_API_KEY.length > 0;
+  return (
+    typeof process.env.OPENAI_API_KEY === "string" &&
+    process.env.OPENAI_API_KEY.length > 0
+  );
 }
 
 /**

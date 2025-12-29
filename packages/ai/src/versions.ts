@@ -95,7 +95,10 @@ export const VERSION_HEADERS = {
  * const response = new Response(stream, { headers: { "Content-Type": "text/event-stream" } });
  * const withVersions = attachVersionHeaders(response, versionMeta);
  */
-export function attachVersionHeaders(response: Response, meta: VersionMeta): Response {
+export function attachVersionHeaders(
+  response: Response,
+  meta: VersionMeta,
+): Response {
   const headers = new Headers(response.headers);
 
   headers.set(VERSION_HEADERS.PROMPT_ID, meta.prompt_id);
@@ -124,7 +127,9 @@ export function attachVersionHeaders(response: Response, meta: VersionMeta): Res
  * @param response - Response to extract headers from
  * @returns Partial VersionMeta from the headers
  */
-export function extractVersionHeaders(response: Response): Partial<VersionMeta> {
+export function extractVersionHeaders(
+  response: Response,
+): Partial<VersionMeta> {
   const headers = response.headers;
   const result: Partial<VersionMeta> = {};
 

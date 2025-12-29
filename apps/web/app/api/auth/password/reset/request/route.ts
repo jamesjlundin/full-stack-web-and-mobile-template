@@ -10,7 +10,9 @@ import { NextResponse } from "next/server";
  */
 export async function POST(request: Request) {
   // Check if dev token echoing is allowed (dev mode OR ALLOW_DEV_TOKENS=true for testing)
-  const isDevTokenAllowed = process.env.NODE_ENV !== "production" || process.env.ALLOW_DEV_TOKENS === "true";
+  const isDevTokenAllowed =
+    process.env.NODE_ENV !== "production" ||
+    process.env.ALLOW_DEV_TOKENS === "true";
 
   try {
     const body = await request.json();
@@ -19,7 +21,7 @@ export async function POST(request: Request) {
     if (!email || typeof email !== "string") {
       return NextResponse.json(
         { ok: false, error: "Email is required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -43,9 +45,6 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error("[password/reset/request] Error:", error);
     const message = error instanceof Error ? error.message : "Unknown error";
-    return NextResponse.json(
-      { ok: false, error: message },
-      { status: 500 }
-    );
+    return NextResponse.json({ ok: false, error: message }, { status: 500 });
   }
 }

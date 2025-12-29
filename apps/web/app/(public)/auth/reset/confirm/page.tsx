@@ -53,7 +53,7 @@ function ResetConfirmForm() {
 
       if (data.ok) {
         setMessage(
-          "Password reset successfully! You can now sign in with your new password."
+          "Password reset successfully! You can now sign in with your new password.",
         );
         toast.success("Password reset successfully");
         setToken("");
@@ -62,7 +62,9 @@ function ResetConfirmForm() {
         setError(data.error ?? "Failed to reset password");
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Unexpected error occurred");
+      setError(
+        err instanceof Error ? err.message : "Unexpected error occurred",
+      );
     } finally {
       setLoading(false);
     }
@@ -73,7 +75,9 @@ function ResetConfirmForm() {
       <div className="container flex items-center justify-center min-h-[calc(100vh-3.5rem)] py-12">
         <Card className="w-full max-w-md">
           <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl font-bold">Set New Password</CardTitle>
+            <CardTitle className="text-2xl font-bold">
+              Set New Password
+            </CardTitle>
             <CardDescription>
               Enter your reset token and new password below.
             </CardDescription>
@@ -165,7 +169,9 @@ function ResetConfirmLoading() {
       <div className="container flex items-center justify-center min-h-[calc(100vh-3.5rem)] py-12">
         <Card className="w-full max-w-md">
           <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl font-bold">Set New Password</CardTitle>
+            <CardTitle className="text-2xl font-bold">
+              Set New Password
+            </CardTitle>
             <CardDescription>Loading...</CardDescription>
           </CardHeader>
           <CardContent className="flex justify-center py-8">

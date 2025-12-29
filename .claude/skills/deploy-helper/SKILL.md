@@ -111,32 +111,39 @@ Generate deploy readiness report:
 ## Deploy Readiness Report
 
 ### Quality Checks
+
 - [ ] TypeScript: {PASS|FAIL}
 - [ ] ESLint: {PASS|FAIL}
 - [ ] Build: {PASS|FAIL}
 
 ### Tests
+
 - [ ] Integration: {PASS|FAIL}
 - [ ] Mobile: {PASS|FAIL}
 
 ### Migrations
+
 - Pending: {count}
 - Reviewed: {YES|NO}
 
 ### Changes
+
 - Commits: {count}
 - Files changed: {count}
 
 ### Risk Level
+
 {LOW|MEDIUM|HIGH}
 
 ### Recommendation
+
 {READY TO DEPLOY | NEEDS ATTENTION}
 ```
 
 ### Step 6: Deploy
 
 If all checks pass:
+
 ```bash
 git push origin main
 ```
@@ -148,6 +155,7 @@ Monitor deploy.yml workflow in GitHub Actions.
 If deployment fails:
 
 1. **Revert commit:**
+
    ```bash
    git revert HEAD
    git push origin main

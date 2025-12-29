@@ -19,18 +19,21 @@ Structured multi-role review process for critical changes.
 ## Pipeline Roles
 
 ### 1. Implementer
+
 - Writes the code
 - Creates initial tests
 - Documents changes
 - Produces implementation artifact
 
 ### 2. Verifier
+
 - Runs all tests
 - Checks edge cases
 - Validates against requirements
 - Produces verification artifact
 
 ### 3. Reviewer
+
 - Reviews code quality
 - Checks security
 - Validates patterns
@@ -44,30 +47,37 @@ Structured multi-role review process for critical changes.
 # Implementation Artifact
 
 ## Change Summary
+
 {Brief description of what was implemented}
 
 ## Files Modified
-| File | Change Type | Lines Changed |
-|------|-------------|---------------|
-| {path} | {add/modify/delete} | +{n}/-{n} |
+
+| File   | Change Type         | Lines Changed |
+| ------ | ------------------- | ------------- |
+| {path} | {add/modify/delete} | +{n}/-{n}     |
 
 ## Requirements Addressed
+
 - [x] {requirement 1}
 - [x] {requirement 2}
 
 ## Tests Added
+
 - {test file}: {what it tests}
 
 ## Known Limitations
+
 - {limitation 1}
 
 ## Ready for Verification
+
 - [ ] Code compiles: `pnpm typecheck`
 - [ ] Linting passes: `pnpm lint`
 - [ ] Unit tests pass: `pnpm -C apps/mobile test`
 - [ ] Integration tests pass: `pnpm test:integration`
 
 ## Handoff Notes
+
 {Any context the verifier needs}
 ```
 
@@ -77,33 +87,40 @@ Structured multi-role review process for critical changes.
 # Verification Artifact
 
 ## Implementation Reviewed
+
 {Link to implementation artifact or PR}
 
 ## Test Results
-| Test Suite | Status | Notes |
-|------------|--------|-------|
-| TypeScript | {PASS/FAIL} | {notes} |
-| ESLint | {PASS/FAIL} | {notes} |
+
+| Test Suite  | Status      | Notes   |
+| ----------- | ----------- | ------- |
+| TypeScript  | {PASS/FAIL} | {notes} |
+| ESLint      | {PASS/FAIL} | {notes} |
 | Integration | {PASS/FAIL} | {notes} |
-| Mobile | {PASS/FAIL} | {notes} |
+| Mobile      | {PASS/FAIL} | {notes} |
 
 ## Edge Cases Tested
+
 - [x] {edge case 1}: {result}
 - [x] {edge case 2}: {result}
 
 ## Requirements Verification
+
 - [x] {requirement 1}: Verified by {how}
 - [x] {requirement 2}: Verified by {how}
 
 ## Issues Found
-| Severity | Issue | Location | Status |
-|----------|-------|----------|--------|
+
+| Severity       | Issue         | Location    | Status       |
+| -------------- | ------------- | ----------- | ------------ |
 | {High/Med/Low} | {description} | {file:line} | {Open/Fixed} |
 
 ## Verification Status
+
 {PASSED | FAILED | BLOCKED}
 
 ## Handoff Notes
+
 {Any context the reviewer needs}
 ```
 
@@ -113,18 +130,21 @@ Structured multi-role review process for critical changes.
 # Review Artifact
 
 ## Implementation Reviewed
+
 {Link to PR}
 
 ## Code Quality
-| Aspect | Rating | Notes |
-|--------|--------|-------|
-| Readability | {1-5} | {notes} |
-| Maintainability | {1-5} | {notes} |
-| Performance | {1-5} | {notes} |
-| Security | {1-5} | {notes} |
-| Testing | {1-5} | {notes} |
+
+| Aspect          | Rating | Notes   |
+| --------------- | ------ | ------- |
+| Readability     | {1-5}  | {notes} |
+| Maintainability | {1-5}  | {notes} |
+| Performance     | {1-5}  | {notes} |
+| Security        | {1-5}  | {notes} |
+| Testing         | {1-5}  | {notes} |
 
 ## Checklist
+
 - [ ] Auth properly implemented
 - [ ] Rate limiting applied
 - [ ] Input validated
@@ -133,19 +153,25 @@ Structured multi-role review process for critical changes.
 - [ ] Follows repo patterns
 
 ## Findings
+
 ### Critical (Block Merge)
+
 {none or list}
 
 ### Recommendations
+
 {list of suggestions}
 
 ### Positive Observations
+
 {what was done well}
 
 ## Final Decision
+
 {APPROVE | REQUEST_CHANGES | NEEDS_DISCUSSION}
 
 ## Conditions for Merge
+
 {any conditions that must be met}
 ```
 

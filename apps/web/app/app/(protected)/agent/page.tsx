@@ -32,8 +32,9 @@ export default async function AgentDemoPage() {
               <Badge variant="secondary">Demo</Badge>
             </div>
             <p className="text-muted-foreground">
-              Chat with an AI agent that can use tools to get weather and time information.
-              This demonstrates streaming responses with tool calling.
+              Chat with an AI agent that can use tools to get weather and time
+              information. This demonstrates streaming responses with tool
+              calling.
             </p>
           </div>
 
@@ -44,7 +45,8 @@ export default async function AgentDemoPage() {
           />
 
           <p className="text-xs text-muted-foreground text-center">
-            Rate limited to 5 requests per 24 hours. Weather data is mocked for demo purposes.
+            Rate limited to 5 requests per 24 hours. Weather data is mocked for
+            demo purposes.
           </p>
         </div>
       </div>

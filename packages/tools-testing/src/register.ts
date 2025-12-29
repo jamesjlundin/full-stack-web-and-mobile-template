@@ -28,8 +28,18 @@ export function registerTestTools(): void {
 registerTestTools();
 
 // Re-export tools for convenience
-export { echoContract, echoImpl, echoInputSchema, echoOutputSchema } from "./tools/echo.js";
-export type { EchoInput, EchoOutput, EchoTransform, EchoContract } from "./tools/echo.js";
+export {
+  echoContract,
+  echoImpl,
+  echoInputSchema,
+  echoOutputSchema,
+} from "./tools/echo.js";
+export type {
+  EchoInput,
+  EchoOutput,
+  EchoTransform,
+  EchoContract,
+} from "./tools/echo.js";
 
 export {
   mathAddContract,
@@ -37,4 +47,8 @@ export {
   mathAddInputSchema,
   mathAddOutputSchema,
 } from "./tools/math.add.js";
-export type { MathAddInput, MathAddOutput, MathAddContract } from "./tools/math.add.js";
+export type {
+  MathAddInput,
+  MathAddOutput,
+  MathAddContract,
+} from "./tools/math.add.js";

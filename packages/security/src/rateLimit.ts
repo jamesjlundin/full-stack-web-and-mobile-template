@@ -49,8 +49,7 @@ export interface RateLimitResult {
  */
 function isRedisConfigured(): boolean {
   return !!(
-    process.env.UPSTASH_REDIS_REST_URL &&
-    process.env.UPSTASH_REDIS_REST_TOKEN
+    process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN
   );
 }
 
@@ -92,7 +91,7 @@ function initializeInMemoryCleanup(windowMs: number) {
 async function checkInMemory(
   key: string,
   limit: number,
-  windowMs: number
+  windowMs: number,
 ): Promise<RateLimitResult> {
   initializeInMemoryCleanup(windowMs);
 
@@ -136,7 +135,7 @@ const rateLimiterCache = new Map<string, Ratelimit>();
  */
 function getOrCreateRatelimiter(
   limit: number,
-  windowSeconds: number
+  windowSeconds: number,
 ): Ratelimit {
   const cacheKey = `${limit}:${windowSeconds}`;
 
@@ -202,7 +201,7 @@ export function createRateLimiter(config: RateLimiterConfig) {
       if (!hasLoggedFallback) {
         console.warn(
           "[RateLimit] Upstash Redis not configured (UPSTASH_REDIS_REST_URL, UPSTASH_REDIS_REST_TOKEN). " +
-            "Using in-memory fallback. This is fine for local development but will NOT work correctly in serverless production."
+            "Using in-memory fallback. This is fine for local development but will NOT work correctly in serverless production.",
         );
         hasLoggedFallback = true;
       }

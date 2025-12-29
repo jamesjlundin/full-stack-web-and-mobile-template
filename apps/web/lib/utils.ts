@@ -21,7 +21,7 @@ export function cn(...inputs: ClassValue[]) {
  */
 export function getSafeRedirectUrl(
   url: string | null | undefined,
-  fallback: string = "/app/home"
+  fallback: string = "/app/home",
 ): string {
   // No URL provided - use fallback
   if (!url || typeof url !== "string") {

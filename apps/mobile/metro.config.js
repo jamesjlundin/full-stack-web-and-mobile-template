@@ -51,7 +51,7 @@ const config = {
     extraNodeModules: {
       // Core React Native dependencies that Metro needs to find
       '@babel/runtime': getModulePath('@babel/runtime'),
-      'react': getModulePath('react'),
+      react: getModulePath('react'),
       'react-native': getModulePath('react-native'),
       'react-native-keychain': getModulePath('react-native-keychain'),
       // Workspace packages

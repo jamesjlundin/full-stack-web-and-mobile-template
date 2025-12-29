@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
           "The RAG query endpoint requires an OpenAI API key for generating embeddings. " +
           "Please set the OPENAI_API_KEY environment variable.",
       },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
           error: "invalid_request",
           message: "Request body must include a non-empty 'query' string",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -76,7 +76,7 @@ export async function POST(request: NextRequest) {
             error: "embedding_api_key_missing",
             message: err.message,
           },
-          { status: 400 }
+          { status: 400 },
         );
       }
 
@@ -88,7 +88,7 @@ export async function POST(request: NextRequest) {
           error: "query_failed",
           message: "An error occurred while processing the query",
         },
-        { status: 500 }
+        { status: 500 },
       );
     }
   });
@@ -100,7 +100,7 @@ export async function POST(request: NextRequest) {
         error: "internal_error",
         message: "An internal error occurred",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 

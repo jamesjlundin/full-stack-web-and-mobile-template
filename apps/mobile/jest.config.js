@@ -6,7 +6,5 @@ module.exports = {
     '/node_modules/.pnpm/(?!((jest-)?react-native|@react-native(-community)?|@testing-library|invariant|react-clone-referenced-element|@react-native/js-polyfills))',
   ],
   // Override setup to use custom CommonJS file
-  setupFiles: [
-    require.resolve('./jest.setup.js'),
-  ],
+  setupFiles: [require.resolve('./jest.setup.js')],
 };

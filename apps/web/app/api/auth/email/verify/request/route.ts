@@ -20,7 +20,9 @@ const verifyRequestLimiter = createRateLimiter({ limit: 3, windowMs: 60_000 });
  */
 async function handler(request: NextRequest) {
   // Check if dev token echoing is allowed (dev mode OR ALLOW_DEV_TOKENS=true for testing)
-  const isDevTokenAllowed = process.env.NODE_ENV !== "production" || process.env.ALLOW_DEV_TOKENS === "true";
+  const isDevTokenAllowed =
+    process.env.NODE_ENV !== "production" ||
+    process.env.ALLOW_DEV_TOKENS === "true";
   const isProduction = process.env.NODE_ENV === "production";
   const hasResendKey = !!process.env.RESEND_API_KEY;
   const isDryRun = process.env.RESEND_DRY_RUN === "1";
@@ -32,7 +34,7 @@ async function handler(request: NextRequest) {
     if (!email || typeof email !== "string") {
       return NextResponse.json(
         { ok: false, error: "Email is required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -57,10 +59,12 @@ async function handler(request: NextRequest) {
       // Retrieve token for email sending
       const token = consumeTokenForEmail("verify", email);
       if (!token) {
-        console.error("[email/verify/request] Failed to retrieve token for email");
+        console.error(
+          "[email/verify/request] Failed to retrieve token for email",
+        );
         return NextResponse.json(
           { ok: false, error: "Failed to generate verification token" },
-          { status: 500 }
+          { status: 500 },
         );
       }
 
@@ -68,14 +72,20 @@ async function handler(request: NextRequest) {
 
       if (!result.ok) {
         return NextResponse.json(
-          { ok: false, error: result.error || "Failed to send verification email" },
-          { status: 500 }
+          {
+            ok: false,
+            error: result.error || "Failed to send verification email",
+          },
+          { status: 500 },
         );
       }
 
       // Dry run mode: include note in response
       if (isDryRun) {
-        return NextResponse.json({ ok: true, devNote: "dry_run: email payload logged" });
+        return NextResponse.json({
+          ok: true,
+          devNote: "dry_run: email payload logged",
+        });
       }
 
       return NextResponse.json({ ok: true });
@@ -86,7 +96,7 @@ async function handler(request: NextRequest) {
       console.error("[email/verify/request] RESEND_API_KEY not configured");
       return NextResponse.json(
         { ok: false, error: "Email service not configured" },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -95,11 +105,12 @@ async function handler(request: NextRequest) {
   } catch (error) {
     console.error("[email/verify/request] Error:", error);
     const message = error instanceof Error ? error.message : "Unknown error";
-    return NextResponse.json(
-      { ok: false, error: message },
-      { status: 500 }
-    );
+    return NextResponse.json({ ok: false, error: message }, { status: 500 });
   }
 }
 
-export const POST = withRateLimit("/api/auth/email/verify/request", verifyRequestLimiter, handler);
+export const POST = withRateLimit(
+  "/api/auth/email/verify/request",
+  verifyRequestLimiter,
+  handler,
+);

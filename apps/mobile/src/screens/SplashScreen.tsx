@@ -1,5 +1,11 @@
 import React from 'react';
-import {ActivityIndicator, SafeAreaView, StyleSheet, Text, View} from 'react-native';
+import {
+  ActivityIndicator,
+  SafeAreaView,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 
 /**
  * SplashScreen - Shown while restoring session on app startup

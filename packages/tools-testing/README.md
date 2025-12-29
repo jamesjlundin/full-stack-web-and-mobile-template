@@ -37,7 +37,10 @@ import "@acme/tools-testing/register";
 const echo = await invokeTool("echo", { text: "hello" });
 // { ok: true, result: { text: "hello" } }
 
-const upper = await invokeTool("echo", { text: "hello", transform: "uppercase" });
+const upper = await invokeTool("echo", {
+  text: "hello",
+  transform: "uppercase",
+});
 // { ok: true, result: { text: "HELLO" } }
 
 // Math.add tool
@@ -52,10 +55,12 @@ const sum = await invokeTool("math.add", { a: 5, b: 3 });
 Echo input text back, optionally transforming it.
 
 **Input:**
+
 - `text` (string, required): Text to echo
 - `transform` (optional): One of `"none"`, `"uppercase"`, `"lowercase"`, `"reverse"`
 
 **Output:**
+
 - `text` (string): Echoed/transformed text
 
 ### math.add
@@ -63,10 +68,12 @@ Echo input text back, optionally transforming it.
 Add two numbers together.
 
 **Input:**
+
 - `a` (number, required): First number
 - `b` (number, required): Second number
 
 **Output:**
+
 - `sum` (number): Sum of a and b
 
 ## Running the Demo

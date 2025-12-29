@@ -18,12 +18,12 @@ Diagnoses and fixes CI/CD pipeline failures.
 
 ## CI Workflows
 
-| Workflow | Trigger | Purpose |
-|----------|---------|---------|
-| `ci.yml` | PR, push | Typecheck, lint, build, test |
-| `deploy.yml` | push to main | Migrations, Vercel deploy |
-| `evals.yml` | PR, push | LLM evaluations |
-| `ios-testflight.yml` | manual | iOS deployment |
+| Workflow             | Trigger      | Purpose                      |
+| -------------------- | ------------ | ---------------------------- |
+| `ci.yml`             | PR, push     | Typecheck, lint, build, test |
+| `deploy.yml`         | push to main | Migrations, Vercel deploy    |
+| `evals.yml`          | PR, push     | LLM evaluations              |
+| `ios-testflight.yml` | manual       | iOS deployment               |
 
 ## Common Failures
 
@@ -32,11 +32,13 @@ Diagnoses and fixes CI/CD pipeline failures.
 **Symptom:** `tsc --noEmit` fails
 
 **Diagnosis:**
+
 ```bash
 pnpm typecheck
 ```
 
 **Fixes:**
+
 - Add missing type annotations
 - Fix type mismatches
 - Update type imports
@@ -46,11 +48,13 @@ pnpm typecheck
 **Symptom:** `eslint .` fails
 
 **Diagnosis:**
+
 ```bash
 pnpm lint
 ```
 
 **Auto-fix:**
+
 ```bash
 pnpm eslint . --fix
 npx prettier --write .
@@ -61,11 +65,13 @@ npx prettier --write .
 **Symptom:** `pnpm -C apps/web build` fails
 
 **Common causes:**
+
 - Missing environment variables
 - Import errors
 - TypeScript errors not caught by tsc
 
 **Diagnosis:**
+
 ```bash
 pnpm -C apps/web build
 ```
@@ -75,12 +81,14 @@ pnpm -C apps/web build
 **Symptom:** `pnpm test:integration` fails
 
 **Common causes:**
+
 - Database not running
 - Server not started
 - Rate limiting (disable in CI)
 - Missing test user
 
 **CI-specific:**
+
 - Uses GitHub Actions PostgreSQL service
 - `DISABLE_RATE_LIMIT=true`
 - `ALLOW_DEV_TOKENS=true`
@@ -90,11 +98,13 @@ pnpm -C apps/web build
 **Symptom:** `migrate:apply` fails in deploy
 
 **Common causes:**
+
 - Schema mismatch
 - Missing migration file
 - Database connection error
 
 **Diagnosis:**
+
 ```bash
 pnpm -C packages/db migrate:apply
 ```
@@ -104,6 +114,7 @@ pnpm -C packages/db migrate:apply
 **Symptom:** `pnpm install` fails
 
 **Fixes:**
+
 ```bash
 rm -rf node_modules pnpm-lock.yaml
 pnpm install
@@ -138,6 +149,7 @@ pnpm test:integration
 ### Step 4: Check Environment
 
 CI uses specific environment variables:
+
 - `DATABASE_URL` - PostgreSQL connection
 - `DISABLE_RATE_LIMIT=true`
 - `ALLOW_DEV_TOKENS=true`
@@ -149,19 +161,20 @@ Based on diagnosis, apply appropriate fix.
 ### Step 6: Verify
 
 Run full CI check locally:
+
 ```bash
 pnpm typecheck && pnpm lint && pnpm -C apps/web build
 ```
 
 ## Environment Differences
 
-| Local | CI |
-|-------|-----|
-| Docker PostgreSQL | GitHub Actions service |
-| Docker Redis | GitHub Actions service |
-| Manual server start | wait-on + background |
+| Local                 | CI                        |
+| --------------------- | ------------------------- |
+| Docker PostgreSQL     | GitHub Actions service    |
+| Docker Redis          | GitHub Actions service    |
+| Manual server start   | wait-on + background      |
 | Rate limiting enabled | `DISABLE_RATE_LIMIT=true` |
-| Real tokens | `ALLOW_DEV_TOKENS=true` |
+| Real tokens           | `ALLOW_DEV_TOKENS=true`   |
 
 ## Guardrails
 

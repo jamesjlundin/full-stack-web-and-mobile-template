@@ -8,13 +8,13 @@
  * Metric: Precision@k, Recall@k, Context Faithfulness
  */
 
-import type { Suite, EvalContext } from './types.js';
-import type { CaseResult } from '../reporters/types.js';
+import type { Suite, EvalContext } from "./types.js";
+import type { CaseResult } from "../reporters/types.js";
 
 export const retrievalQualitySuite: Suite = {
-  name: 'Retrieval Quality',
-  description: 'Evaluates RAG pipeline retrieval quality (stub)',
-  metricName: 'retrieval_quality',
+  name: "Retrieval Quality",
+  description: "Evaluates RAG pipeline retrieval quality (stub)",
+  metricName: "retrieval_quality",
 
   async run(context: EvalContext): Promise<CaseResult[]> {
     // TODO: Implement full RAG evaluation when packages/rag is available
@@ -29,30 +29,30 @@ export const retrievalQualitySuite: Suite = {
       // TODO: Implement actual RAG evaluation using:
       // - context.ragModule.retrieve(query, k) for retrieval
       // - RAG scoring helpers from hooks/rag.ts
-      console.log('RAG module available - running evaluation');
+      console.log("RAG module available - running evaluation");
 
       results.push({
-        id: 'rag-placeholder-001',
-        suite: 'retrieval_quality',
-        name: 'RAG Retrieval Test',
+        id: "rag-placeholder-001",
+        suite: "retrieval_quality",
+        name: "RAG Retrieval Test",
         passed: true,
         score: 1.0,
         skipped: false,
-        details: 'RAG module available - stub evaluation passed',
+        details: "RAG module available - stub evaluation passed",
       });
     } else {
       // RAG module not available - return skipped placeholder
-      console.log('RAG module not available - skipping evaluation');
+      console.log("RAG module not available - skipping evaluation");
 
       results.push({
-        id: 'rag-placeholder-001',
-        suite: 'retrieval_quality',
-        name: 'RAG Retrieval Test (Skipped)',
+        id: "rag-placeholder-001",
+        suite: "retrieval_quality",
+        name: "RAG Retrieval Test (Skipped)",
         passed: true,
         score: 1.0,
         skipped: true,
         details:
-          'RAG package not yet available. This evaluation will be enabled when packages/rag is implemented.',
+          "RAG package not yet available. This evaluation will be enabled when packages/rag is implemented.",
       });
     }
 

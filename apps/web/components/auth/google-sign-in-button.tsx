@@ -46,14 +46,16 @@ export function GoogleSignInButton({
       await authClient.signIn.social({
         provider: "google",
         callbackURL,
-        errorCallbackURL: mode === "signin" ? "/login?error=google" : "/register?error=google",
+        errorCallbackURL:
+          mode === "signin" ? "/login?error=google" : "/register?error=google",
       });
     } catch {
       setLoading(false);
     }
   };
 
-  const buttonText = mode === "signin" ? "Sign in with Google" : "Sign up with Google";
+  const buttonText =
+    mode === "signin" ? "Sign in with Google" : "Sign up with Google";
 
   return (
     <Button
@@ -63,11 +65,7 @@ export function GoogleSignInButton({
       onClick={handleGoogleSignIn}
       disabled={loading}
     >
-      {loading ? (
-        <Spinner size="sm" className="mr-2" />
-      ) : (
-        <GoogleIcon />
-      )}
+      {loading ? <Spinner size="sm" className="mr-2" /> : <GoogleIcon />}
       {loading ? "Redirecting..." : buttonText}
     </Button>
   );

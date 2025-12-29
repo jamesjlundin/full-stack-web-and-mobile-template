@@ -1,13 +1,13 @@
 module.exports = {
-  extends: ['../../packages/config/eslint.base.cjs'],
+  extends: ["../../packages/config/eslint.base.cjs"],
   parserOptions: {
-    project: './tsconfig.json',
+    project: "./tsconfig.json",
     tsconfigRootDir: __dirname,
   },
   settings: {
-    'import/resolver': {
+    "import/resolver": {
       typescript: {
-        project: './tsconfig.json',
+        project: "./tsconfig.json",
       },
     },
   },

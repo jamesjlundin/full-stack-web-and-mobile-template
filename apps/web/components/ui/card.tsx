@@ -14,7 +14,7 @@ function Card({
       ref={ref}
       className={cn(
         "rounded-xl border bg-card text-card-foreground shadow-sm",
-        className
+        className,
       )}
       {...props}
     />
@@ -95,4 +95,11 @@ function CardFooter({
   );
 }
 
-export { Card, CardHeader, CardFooter, CardTitle, CardDescription, CardContent };
+export {
+  Card,
+  CardHeader,
+  CardFooter,
+  CardTitle,
+  CardDescription,
+  CardContent,
+};

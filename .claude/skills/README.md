@@ -10,44 +10,44 @@ Skills are organized folders of instructions, scripts, and resources that Claude
 
 ### Navigation & Understanding
 
-| Skill | Purpose | Trigger |
-|-------|---------|---------|
+| Skill            | Purpose                        | Trigger                      |
+| ---------------- | ------------------------------ | ---------------------------- |
 | `repo-navigator` | Map repo structure, find files | "where is", "find", "locate" |
 
 ### Implementation Work
 
-| Skill | Purpose | Trigger |
-|-------|---------|---------|
+| Skill                   | Purpose                                      | Trigger                      |
+| ----------------------- | -------------------------------------------- | ---------------------------- |
 | `api-endpoint-scaffold` | Create API endpoints with auth/rate limiting | "add endpoint", "create API" |
-| `db-schema-change` | Safely modify database schema | "add table", "migration" |
+| `db-schema-change`      | Safely modify database schema                | "add table", "migration"     |
 
 ### Quality Gates
 
-| Skill | Purpose | Trigger |
-|-------|---------|---------|
-| `pr-review` | Review PRs for quality and security | "review", "check PR" |
-| `test-writer` | Write integration/unit tests | "write test", "add test" |
+| Skill         | Purpose                             | Trigger                  |
+| ------------- | ----------------------------------- | ------------------------ |
+| `pr-review`   | Review PRs for quality and security | "review", "check PR"     |
+| `test-writer` | Write integration/unit tests        | "write test", "add test" |
 
 ### Operations
 
-| Skill | Purpose | Trigger |
-|-------|---------|---------|
-| `ci-fixer` | Debug CI/CD failures | "CI failing", "build error" |
-| `deploy-helper` | Guide safe deployment | "deploy", "release" |
+| Skill           | Purpose               | Trigger                     |
+| --------------- | --------------------- | --------------------------- |
+| `ci-fixer`      | Debug CI/CD failures  | "CI failing", "build error" |
+| `deploy-helper` | Guide safe deployment | "deploy", "release"         |
 
 ### Safety & Security
 
-| Skill | Purpose | Trigger |
-|-------|---------|---------|
+| Skill             | Purpose              | Trigger                      |
+| ----------------- | -------------------- | ---------------------------- |
 | `secrets-scanner` | Scan for secrets/PII | "scan secrets", "check keys" |
 
 ### Power-User Workflows
 
-| Skill | Purpose | Trigger |
-|-------|---------|---------|
-| `context-diet` | Optimize context window | "too much context", "slim down" |
-| `swarm-workflow` | Split work across sessions | "parallel work", "swarm" |
-| `review-to-merge` | Structured review pipeline | "review pipeline", "handoff" |
+| Skill             | Purpose                    | Trigger                         |
+| ----------------- | -------------------------- | ------------------------------- |
+| `context-diet`    | Optimize context window    | "too much context", "slim down" |
+| `swarm-workflow`  | Split work across sessions | "parallel work", "swarm"        |
+| `review-to-merge` | Structured review pipeline | "review pipeline", "handoff"    |
 
 ## How Skills Work
 
@@ -82,7 +82,7 @@ skill-name/
    ---
    name: my-skill
    description: What it does. Use when [trigger condition].
-   allowed-tools: Read, Grep, Glob  # Optional tool restrictions
+   allowed-tools: Read, Grep, Glob # Optional tool restrictions
    ---
    ```
 3. Keep SKILL.md under 500 lines; split into reference files

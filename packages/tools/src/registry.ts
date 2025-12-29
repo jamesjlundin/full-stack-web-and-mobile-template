@@ -64,7 +64,7 @@ const registry = new Map<string, RegisteredTool>();
  */
 export function registerTool<TContract extends ToolContract>(
   contract: TContract,
-  impl: ToolImpl<TContract>
+  impl: ToolImpl<TContract>,
 ): void {
   if (registry.has(contract.name)) {
     throw new Error(`Tool "${contract.name}" is already registered`);
@@ -116,7 +116,7 @@ export function listTools(): ToolMeta[] {
 export async function invokeTool<T = unknown>(
   name: string,
   input: unknown,
-  options: InvokeOptions = {}
+  options: InvokeOptions = {},
 ): Promise<InvokeResult<T>> {
   const tool = registry.get(name);
 

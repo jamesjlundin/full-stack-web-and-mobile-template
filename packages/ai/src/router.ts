@@ -61,7 +61,9 @@ export function selectPrompt(feature: string, channel?: string): PromptDef {
   const featureMapping = PROMPT_MAPPING[feature];
 
   if (!featureMapping) {
-    throw new Error(`Unknown feature: "${feature}". Available: ${Object.keys(PROMPT_MAPPING).join(", ")}`);
+    throw new Error(
+      `Unknown feature: "${feature}". Available: ${Object.keys(PROMPT_MAPPING).join(", ")}`,
+    );
   }
 
   const targetChannel = channel ?? DEFAULT_CHANNEL;
@@ -69,7 +71,7 @@ export function selectPrompt(feature: string, channel?: string): PromptDef {
 
   if (!prompt) {
     throw new Error(
-      `Unknown channel "${targetChannel}" for feature "${feature}". Available: ${Object.keys(featureMapping).join(", ")}`
+      `Unknown channel "${targetChannel}" for feature "${feature}". Available: ${Object.keys(featureMapping).join(", ")}`,
     );
   }
 

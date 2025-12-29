@@ -36,12 +36,12 @@ Email verification uses [Resend](https://resend.com) for sending emails in produ
 
 Set the following environment variables:
 
-| Variable | Description | Required |
-|----------|-------------|----------|
-| `RESEND_API_KEY` | Your Resend API key | In production |
-| `MAIL_FROM` | Sender email address (must be verified in Resend) | In production |
-| `APP_BASE_URL` | Base URL for verification links (e.g., `https://yourapp.com`) | Yes |
-| `RESEND_DRY_RUN` | Set to `"1"` to log email payload without sending | Optional |
+| Variable         | Description                                                   | Required      |
+| ---------------- | ------------------------------------------------------------- | ------------- |
+| `RESEND_API_KEY` | Your Resend API key                                           | In production |
+| `MAIL_FROM`      | Sender email address (must be verified in Resend)             | In production |
+| `APP_BASE_URL`   | Base URL for verification links (e.g., `https://yourapp.com`) | Yes           |
+| `RESEND_DRY_RUN` | Set to `"1"` to log email payload without sending             | Optional      |
 
 ### Behavior by Environment
 
@@ -63,6 +63,7 @@ The web app includes a RAG (Retrieval-Augmented Generation) query endpoint for s
 ### Prerequisites
 
 1. Run the pgvector migration:
+
    ```bash
    pnpm -C packages/db migrate:apply
    ```
@@ -75,6 +76,7 @@ The web app includes a RAG (Retrieval-Augmented Generation) query endpoint for s
 ### Testing the Endpoint
 
 **Without API key** (expect 400 error):
+
 ```bash
 curl -X POST http://localhost:3000/api/rag/query \
   -H "Content-Type: application/json" \
@@ -82,6 +84,7 @@ curl -X POST http://localhost:3000/api/rag/query \
 ```
 
 **With API key and seeded data** (expect 200 with results):
+
 ```bash
 curl -X POST http://localhost:3000/api/rag/query \
   -H "Content-Type: application/json" \
@@ -107,10 +110,10 @@ curl -X POST http://localhost:3000/api/rag/query \
 
 ### Environment Variables
 
-| Variable | Description | Required |
-|----------|-------------|----------|
-| `DATABASE_URL` | PostgreSQL connection string with pgvector | Yes |
-| `OPENAI_API_KEY` | OpenAI API key for embeddings | For RAG queries |
+| Variable         | Description                                | Required        |
+| ---------------- | ------------------------------------------ | --------------- |
+| `DATABASE_URL`   | PostgreSQL connection string with pgvector | Yes             |
+| `OPENAI_API_KEY` | OpenAI API key for embeddings              | For RAG queries |
 
 ## Protected Routes
 
@@ -138,7 +141,7 @@ const PROTECTED_PATH_PREFIXES = [
   "/dashboard",
   "/account",
   "/protected",
-  "/my-new-route",  // Add your new protected path here
+  "/my-new-route", // Add your new protected path here
 ];
 ```
 
@@ -247,6 +250,7 @@ The theme uses CSS variables defined in `app/globals.css`. Colors use HSL format
 ```
 
 To customize the theme:
+
 1. Edit the CSS variables in `app/globals.css`
 2. Adjust colors in `tailwind.config.ts` if needed
 
@@ -299,7 +303,7 @@ toast("Event has been created", {
 
 The `cn()` utility function in `lib/utils.ts` merges Tailwind classes safely:
 
-```tsx
+````tsx
 import { cn } from "@/lib/utils";
 
 <div className={cn("base-class", conditional && "conditional-class", className)} />
@@ -374,9 +378,10 @@ export async function GET() {
 
   return Response.json({ ok: true });
 }
-```
+````
 
 Use `runInBackground` when:
+
 - The work is non-critical and can fail silently
 - You want to reduce response latency
 - The task doesn't need to complete before responding

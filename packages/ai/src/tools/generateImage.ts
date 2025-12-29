@@ -15,29 +15,32 @@ export const generateImageToolSchema = z.object({
 
 export type GenerateImageInput = z.infer<typeof generateImageToolSchema>;
 
-export type GenerateImageResult = {
-  success: true;
-  imageBase64: string;
-  prompt: string;
-  size: string;
-} | {
-  success: false;
-  error: string;
-};
+export type GenerateImageResult =
+  | {
+      success: true;
+      imageBase64: string;
+      prompt: string;
+      size: string;
+    }
+  | {
+      success: false;
+      error: string;
+    };
 
 /**
  * Generate an image using OpenAI's GPT Image 1.5 model
  * Returns base64 image data that should be uploaded to Vercel Blob
  */
 export async function executeGenerateImage(
-  input: GenerateImageInput
+  input: GenerateImageInput,
 ): Promise<GenerateImageResult> {
   const apiKey = process.env.OPENAI_API_KEY;
 
   if (!apiKey) {
     return {
       success: false,
-      error: "Image generation requires an OpenAI API key. Please configure OPENAI_API_KEY.",
+      error:
+        "Image generation requires an OpenAI API key. Please configure OPENAI_API_KEY.",
     };
   }
 
@@ -55,7 +58,8 @@ export async function executeGenerateImage(
       size: input.size,
     };
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Image generation failed";
+    const message =
+      error instanceof Error ? error.message : "Image generation failed";
     return {
       success: false,
       error: message,

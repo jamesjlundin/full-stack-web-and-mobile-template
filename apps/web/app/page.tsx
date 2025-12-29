@@ -83,7 +83,8 @@ export default async function HomePage() {
               <span className="font-medium text-foreground">James Lundin</span>
             </p>
             <p className="text-xs max-w-sm">
-              Full-stack engineer passionate about building modern web and mobile applications
+              Full-stack engineer passionate about building modern web and
+              mobile applications
             </p>
             <div className="flex items-center gap-4 mt-2">
               <a
@@ -108,7 +109,6 @@ export default async function HomePage() {
           </div>
         </div>
         {/* End Creator Branding */}
-
       </div>
     </AppShell>
   );

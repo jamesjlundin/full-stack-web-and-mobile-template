@@ -1,6 +1,15 @@
 "use client";
 
-import { Bot, ImagePlus, Send, Square, Trash2, Upload, User, X } from "lucide-react";
+import {
+  Bot,
+  ImagePlus,
+  Send,
+  Square,
+  Trash2,
+  Upload,
+  User,
+  X,
+} from "lucide-react";
 import { useRef, useEffect, useState, useMemo } from "react";
 
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -38,14 +47,20 @@ type AgentChatProps = {
 const ACCEPTED_IMAGE_TYPES = "image/jpeg,image/png,image/webp,image/gif";
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
-export function AgentChat({ providers, defaultProvider, blobStorageEnabled }: AgentChatProps) {
+export function AgentChat({
+  providers,
+  defaultProvider,
+  blobStorageEnabled,
+}: AgentChatProps) {
   // Initialize selected provider/model from defaults
-  const [selectedProvider, setSelectedProvider] = useState<string | null>(() => {
-    if (defaultProvider && providers.some((p) => p.id === defaultProvider)) {
-      return defaultProvider;
-    }
-    return providers[0]?.id ?? null;
-  });
+  const [selectedProvider, setSelectedProvider] = useState<string | null>(
+    () => {
+      if (defaultProvider && providers.some((p) => p.id === defaultProvider)) {
+        return defaultProvider;
+      }
+      return providers[0]?.id ?? null;
+    },
+  );
 
   const [selectedModel, setSelectedModel] = useState<string | null>(() => {
     const provider = providers.find((p) => p.id === selectedProvider);
@@ -55,7 +70,7 @@ export function AgentChat({ providers, defaultProvider, blobStorageEnabled }: Ag
   // Get current provider's models
   const currentProvider = useMemo(
     () => providers.find((p) => p.id === selectedProvider),
-    [providers, selectedProvider]
+    [providers, selectedProvider],
   );
 
   // Update model when provider changes
@@ -65,7 +80,15 @@ export function AgentChat({ providers, defaultProvider, blobStorageEnabled }: Ag
     setSelectedModel(provider?.defaultModel ?? null);
   };
 
-  const { messages, isStreaming, isUploading, error, sendMessage, stopStreaming, clearChat } = useAgentChat({
+  const {
+    messages,
+    isStreaming,
+    isUploading,
+    error,
+    sendMessage,
+    stopStreaming,
+    clearChat,
+  } = useAgentChat({
     provider: selectedProvider,
     model: selectedModel,
   });
@@ -208,7 +231,9 @@ export function AgentChat({ providers, defaultProvider, blobStorageEnabled }: Ag
             <div className="mt-4 space-y-1 text-xs">
               <p>&quot;What&apos;s the weather in San Francisco?&quot;</p>
               <p>&quot;What time is it in Tokyo?&quot;</p>
-              {blobStorageEnabled && <p>&quot;/image a sunset over mountains&quot;</p>}
+              {blobStorageEnabled && (
+                <p>&quot;/image a sunset over mountains&quot;</p>
+              )}
             </div>
           </div>
         )}
@@ -249,9 +274,18 @@ export function AgentChat({ providers, defaultProvider, blobStorageEnabled }: Ag
                       !message.toolCalls?.length && (
                         <div className="flex items-center gap-2 text-muted-foreground">
                           <div className="flex gap-1">
-                            <span className="w-2 h-2 bg-current rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
-                            <span className="w-2 h-2 bg-current rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
-                            <span className="w-2 h-2 bg-current rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
+                            <span
+                              className="w-2 h-2 bg-current rounded-full animate-bounce"
+                              style={{ animationDelay: "0ms" }}
+                            />
+                            <span
+                              className="w-2 h-2 bg-current rounded-full animate-bounce"
+                              style={{ animationDelay: "150ms" }}
+                            />
+                            <span
+                              className="w-2 h-2 bg-current rounded-full animate-bounce"
+                              style={{ animationDelay: "300ms" }}
+                            />
                           </div>
                         </div>
                       )}

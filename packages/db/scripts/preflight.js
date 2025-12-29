@@ -6,7 +6,7 @@
 if (!process.env.DATABASE_URL) {
   throw new Error(
     "DATABASE_URL environment variable is not set. " +
-      "Please set DATABASE_URL before running migrations."
+      "Please set DATABASE_URL before running migrations.",
   );
 }
 

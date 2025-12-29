@@ -29,7 +29,7 @@ function getClientIp(request: NextRequest): string {
 export function withRateLimit(
   routeId: string,
   limiter: RateLimiter,
-  handler: RouteHandler
+  handler: RouteHandler,
 ): RouteHandler {
   return async (request: NextRequest): Promise<Response> => {
     const ip = getClientIp(request);
@@ -53,7 +53,7 @@ export function withRateLimit(
         {
           status: 429,
           headers: rateLimitHeaders,
-        }
+        },
       );
     }
 

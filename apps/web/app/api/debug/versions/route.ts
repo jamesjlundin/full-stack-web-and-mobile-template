@@ -31,8 +31,11 @@ export async function GET(request: NextRequest) {
 
     if (!userResult?.user) {
       return NextResponse.json(
-        { error: "unauthorized", message: "Authentication required in production" },
-        { status: 401 }
+        {
+          error: "unauthorized",
+          message: "Authentication required in production",
+        },
+        { status: 401 },
       );
     }
   }

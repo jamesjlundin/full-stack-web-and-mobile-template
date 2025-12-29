@@ -38,7 +38,8 @@ async function fetchUser(): Promise<User | null> {
         return user;
       })
       .catch((error) => {
-        cachedError = error instanceof Error ? error : new Error("Failed to load user");
+        cachedError =
+          error instanceof Error ? error : new Error("Failed to load user");
         throw cachedError;
       })
       .finally(() => {
@@ -52,7 +53,9 @@ async function fetchUser(): Promise<User | null> {
 export function useUser(): UseUserResult {
   const [user, setUser] = useState<User | null>(cachedUser ?? null);
   const [error, setError] = useState<Error | null>(cachedError);
-  const [loading, setLoading] = useState<boolean>(cachedUser === undefined && !cachedError);
+  const [loading, setLoading] = useState<boolean>(
+    cachedUser === undefined && !cachedError,
+  );
 
   useEffect(() => {
     let isMounted = true;

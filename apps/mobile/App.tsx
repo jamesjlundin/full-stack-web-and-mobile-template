@@ -4,7 +4,10 @@ import {StyleSheet, View} from 'react-native';
 import {AuthProvider, useAuth} from './src/auth/AuthContext';
 import AppHeader from './src/components/AppHeader';
 import DrawerMenu from './src/components/DrawerMenu';
-import {setupDeepLinkListener, DeepLinkHandler} from './src/linking/DeepLinkHandler';
+import {
+  setupDeepLinkListener,
+  DeepLinkHandler,
+} from './src/linking/DeepLinkHandler';
 import AccountScreen from './src/screens/AccountScreen';
 import AgentScreen from './src/screens/AgentScreen';
 import HomeScreen from './src/screens/HomeScreen';
@@ -21,7 +24,12 @@ import WelcomeScreen from './src/screens/WelcomeScreen';
 // ============================================================================
 
 /** Screens available when user is NOT authenticated */
-type AuthStackScreen = 'welcome' | 'signIn' | 'signUp' | 'resetRequest' | 'resetConfirm';
+type AuthStackScreen =
+  | 'welcome'
+  | 'signIn'
+  | 'signUp'
+  | 'resetRequest'
+  | 'resetConfirm';
 
 /** Screens available when user IS authenticated */
 type AppStackScreen = 'home' | 'agent' | 'account';
@@ -66,7 +74,9 @@ type AuthStackProps = {
  */
 function AuthStack({onDeepLinkReset}: AuthStackProps) {
   const [screen, setScreen] = useState<AuthStackScreen>('welcome');
-  const [resetToken, setResetToken] = useState<string | undefined>(onDeepLinkReset);
+  const [resetToken, setResetToken] = useState<string | undefined>(
+    onDeepLinkReset,
+  );
 
   // Handle deep link reset token from parent
   useEffect(() => {
@@ -76,10 +86,13 @@ function AuthStack({onDeepLinkReset}: AuthStackProps) {
     }
   }, [onDeepLinkReset]);
 
-  const handleNavigateToResetConfirm = useCallback((tokenFromRequest?: string) => {
-    setResetToken(tokenFromRequest);
-    setScreen('resetConfirm');
-  }, []);
+  const handleNavigateToResetConfirm = useCallback(
+    (tokenFromRequest?: string) => {
+      setResetToken(tokenFromRequest);
+      setScreen('resetConfirm');
+    },
+    [],
+  );
 
   const handleResetSuccess = useCallback(() => {
     setResetToken(undefined);
@@ -242,8 +255,11 @@ function AppStack() {
  * Also handles deep links for password reset.
  */
 function RootNavigator() {
-  const {user, loading, needsVerification, pendingVerificationEmail} = useAuth();
-  const [deepLinkResetToken, setDeepLinkResetToken] = useState<string | undefined>();
+  const {user, loading, needsVerification, pendingVerificationEmail} =
+    useAuth();
+  const [deepLinkResetToken, setDeepLinkResetToken] = useState<
+    string | undefined
+  >();
 
   // Handle deep links
   useEffect(() => {

@@ -6,7 +6,7 @@ import type { createRateLimiter } from "@acme/security";
 type RateLimiter = ReturnType<typeof createRateLimiter>;
 type UserRouteHandler = (
   request: NextRequest,
-  user: NonNullable<CurrentUserResult>
+  user: NonNullable<CurrentUserResult>,
 ) => Promise<Response>;
 
 /**
@@ -17,17 +17,14 @@ type UserRouteHandler = (
 export function withUserRateLimit(
   routeId: string,
   limiter: RateLimiter,
-  handler: UserRouteHandler
+  handler: UserRouteHandler,
 ): (request: NextRequest) => Promise<Response> {
   return async (request: NextRequest): Promise<Response> => {
     // Check authentication first
     const userResult = await getCurrentUser(request);
 
     if (!userResult?.user) {
-      return NextResponse.json(
-        { error: "unauthorized" },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: "unauthorized" }, { status: 401 });
     }
 
     // Rate limit by user ID
@@ -49,7 +46,7 @@ export function withUserRateLimit(
         {
           status: 429,
           headers: rateLimitHeaders,
-        }
+        },
       );
     }
 

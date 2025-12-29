@@ -105,8 +105,11 @@ function convertToAIMessages(
   messages: Array<{
     role: "user" | "assistant";
     content?: string;
-    parts?: Array<{ type: "text"; text: string } | { type: "image"; url: string; alt?: string }>;
-  }>
+    parts?: Array<
+      | { type: "text"; text: string }
+      | { type: "image"; url: string; alt?: string }
+    >;
+  }>,
 ): ModelMessage[] {
   return messages.map((msg): ModelMessage => {
     // If parts array exists, use it
@@ -164,7 +167,11 @@ async function handleRequest(
     );
   }
 
-  const { messages, provider: requestProvider, model: requestModel } = parsed.data;
+  const {
+    messages,
+    provider: requestProvider,
+    model: requestModel,
+  } = parsed.data;
 
   // Get the agent system prompt
   const activePrompt = selectPrompt("agent");
@@ -220,13 +227,18 @@ async function handleRequest(
         description:
           "Generate an image from a text description. Use when the user explicitly asks for an image to be generated or when a message starts with 'Generate an image:'.",
         inputSchema: z.object({
-          prompt: z.string().describe("Detailed description of the image to generate"),
+          prompt: z
+            .string()
+            .describe("Detailed description of the image to generate"),
           size: z
             .enum(["1024x1024", "1792x1024", "1024x1792"])
             .default("1024x1024")
             .describe("Image dimensions (square, landscape, or portrait)"),
         }),
-        execute: async (input: { prompt: string; size?: "1024x1024" | "1792x1024" | "1024x1792" }) => {
+        execute: async (input: {
+          prompt: string;
+          size?: "1024x1024" | "1792x1024" | "1024x1792";
+        }) => {
           const result = await executeGenerateImage({
             prompt: input.prompt,
             size: input.size || "1024x1024",
@@ -245,7 +257,7 @@ async function handleRequest(
               {
                 access: "public",
                 contentType: "image/png",
-              }
+              },
             );
 
             return {
@@ -255,7 +267,10 @@ async function handleRequest(
               size: result.size,
             };
           } catch (uploadError) {
-            const message = uploadError instanceof Error ? uploadError.message : "Failed to upload image";
+            const message =
+              uploadError instanceof Error
+                ? uploadError.message
+                : "Failed to upload image";
             return { success: false, error: message };
           }
         },
@@ -351,7 +366,10 @@ async function handleRequest(
 }
 
 // Get text content from message (supports both legacy and new format)
-function getMessageText(msg: { content?: string; parts?: Array<{ type: string; text?: string }> }): string {
+function getMessageText(msg: {
+  content?: string;
+  parts?: Array<{ type: string; text?: string }>;
+}): string {
   if (msg.parts) {
     return msg.parts
       .filter((p) => p.type === "text" && p.text)
@@ -362,8 +380,16 @@ function getMessageText(msg: { content?: string; parts?: Array<{ type: string; t
 }
 
 // Mock streaming response when no API key is set
-function createMockStream(messages: Array<{ role: string; content?: string; parts?: Array<{ type: string; text?: string }> }>) {
-  const lastMessage = getMessageText(messages[messages.length - 1] || {}).toLowerCase();
+function createMockStream(
+  messages: Array<{
+    role: string;
+    content?: string;
+    parts?: Array<{ type: string; text?: string }>;
+  }>,
+) {
+  const lastMessage = getMessageText(
+    messages[messages.length - 1] || {},
+  ).toLowerCase();
   const encoder = new TextEncoder();
 
   let mockResponse =
@@ -532,7 +558,10 @@ function createMockStream(messages: Array<{ role: string; content?: string; part
             `data: ${JSON.stringify({
               type: "tool_result",
               id: "mock_3",
-              result: { success: false, error: "Mock mode - no API key configured" },
+              result: {
+                success: false,
+                error: "Mock mode - no API key configured",
+              },
             })}\n\n`,
           ),
         );

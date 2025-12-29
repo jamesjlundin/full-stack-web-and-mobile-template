@@ -18,7 +18,9 @@ export interface NightlyResult {
  * Emit summary metrics (background work example)
  * Runs after response is sent via runInBackground
  */
-async function emitSummaryMetrics(taskResults: NightlyResult["tasks"]): Promise<void> {
+async function emitSummaryMetrics(
+  taskResults: NightlyResult["tasks"],
+): Promise<void> {
   // Simulate metrics emission - in production, send to observability platform
   const metrics = {
     ts: new Date().toISOString(),
@@ -87,7 +89,7 @@ export async function runNightly(): Promise<NightlyResult> {
         event: "cron.nightly.error",
         error: error.message,
         duration_ms: duration,
-      })
+      }),
     );
 
     return {
@@ -107,14 +109,14 @@ export async function runNightly(): Promise<NightlyResult> {
       event: "cron.nightly.complete",
       tasks,
       duration_ms: duration,
-    })
+    }),
   );
 
   // Schedule non-critical background work (runs after response is sent)
   runInBackground(
     () => emitSummaryMetrics(tasks),
     undefined,
-    "nightly-metrics"
+    "nightly-metrics",
   );
 
   return {

@@ -69,7 +69,10 @@ async function main(): Promise<void> {
   // 5. Validation error example
   console.log("5. Validation error example:");
 
-  const invalidResult = await invokeTool("math.add", { a: "not a number", b: 5 });
+  const invalidResult = await invokeTool("math.add", {
+    a: "not a number",
+    b: 5,
+  });
   console.log(`   math.add({ a: "not a number", b: 5 }):`);
   console.log(`     ${JSON.stringify(invalidResult, null, 2)}`);
   console.log();

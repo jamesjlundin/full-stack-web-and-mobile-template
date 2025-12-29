@@ -5,6 +5,7 @@ This document describes how to configure deep linking for the password reset flo
 ## Overview
 
 The app supports password reset deep links in the format:
+
 ```
 {MOBILE_APP_SCHEME}://reset?token={token}
 ```
@@ -82,24 +83,27 @@ Then configure your server's `/.well-known/assetlinks.json` file.
 
 ## Environment Variables
 
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `MOBILE_APP_SCHEME` | `app-template` | Custom URL scheme for mobile deep links |
-| `MOBILE_DEEP_LINK_ENABLED` | `0` | Set to `1` to include mobile deep links in password reset emails |
+| Variable                   | Default        | Description                                                      |
+| -------------------------- | -------------- | ---------------------------------------------------------------- |
+| `MOBILE_APP_SCHEME`        | `app-template` | Custom URL scheme for mobile deep links                          |
+| `MOBILE_DEEP_LINK_ENABLED` | `0`            | Set to `1` to include mobile deep links in password reset emails |
 
 ## Testing Deep Links
 
 ### iOS Simulator
+
 ```bash
 xcrun simctl openurl booted "app-template://reset?token=test123"
 ```
 
 ### Android Emulator
+
 ```bash
 adb shell am start -W -a android.intent.action.VIEW -d "app-template://reset?token=test123" com.yourpackage.name
 ```
 
 ### React Native CLI
+
 ```bash
 npx uri-scheme open "app-template://reset?token=test123" --ios
 npx uri-scheme open "app-template://reset?token=test123" --android

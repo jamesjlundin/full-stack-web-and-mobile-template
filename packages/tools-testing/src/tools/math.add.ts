@@ -52,10 +52,13 @@ export type MathAddOutput = z.infer<typeof mathAddOutputSchema>;
  * @returns Math.add output with sum
  */
 export const mathAddImpl: ToolImpl<typeof mathAddContract> = (
-  input: MathAddInput
+  input: MathAddInput,
 ): MathAddOutput => {
   return { sum: input.a + input.b };
 };
 
 // Export contract type for external use
-export type MathAddContract = ToolContract<typeof mathAddInputSchema, typeof mathAddOutputSchema>;
+export type MathAddContract = ToolContract<
+  typeof mathAddInputSchema,
+  typeof mathAddOutputSchema
+>;

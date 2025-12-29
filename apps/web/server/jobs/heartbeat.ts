@@ -58,7 +58,7 @@ export async function runHeartbeat(): Promise<HeartbeatResult> {
         event: "cron.heartbeat.error",
         error: error.message,
         duration_ms: duration,
-      })
+      }),
     );
 
     return {
@@ -76,7 +76,7 @@ export async function runHeartbeat(): Promise<HeartbeatResult> {
       event: "cron.heartbeat.complete",
       checks: result,
       duration_ms: duration,
-    })
+    }),
   );
 
   return {

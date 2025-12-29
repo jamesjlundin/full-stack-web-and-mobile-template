@@ -7,5 +7,12 @@
     "moduleResolution": "bundler"
   },
   "include": ["**/*"],
-  "exclude": ["node_modules", "android", "ios", "dist", "build", "__tests__/**/*"]
+  "exclude": [
+    "node_modules",
+    "android",
+    "ios",
+    "dist",
+    "build",
+    "__tests__/**/*"
+  ]
 }

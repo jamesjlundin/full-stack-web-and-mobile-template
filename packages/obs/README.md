@@ -22,7 +22,7 @@ const { result, error, ctx, duration_ms } = await withTrace(
   async (ctx) => {
     // Your request handling code
     return response;
-  }
+  },
 );
 ```
 
@@ -72,24 +72,24 @@ const safe = redact({
 
 ## LLM Log Fields
 
-| Field | Type | Description |
-|-------|------|-------------|
-| span | "llm.call" | Span type identifier |
-| model | string | Model name |
-| provider | string | Provider name |
-| tokens_input | number? | Input token count |
-| tokens_output | number? | Output token count |
-| latency_ms | number | Request duration |
-| cost_usd | number? | Estimated cost |
-| prompt_version | number? | Active prompt version |
-| schema_version | number? | Active schema version |
-| rag_config_version | string? | RAG config version (future) |
-| embed_model | string? | Embedding model name |
-| embed_dims | number? | Embedding dimensions |
-| retrieved_chunks_count | number? | RAG chunks retrieved |
-| tool_calls_count | number? | Tools invoked |
-| error | string? | Error message if failed |
-| status | "ok" \| "error" | Call status |
+| Field                  | Type            | Description                 |
+| ---------------------- | --------------- | --------------------------- |
+| span                   | "llm.call"      | Span type identifier        |
+| model                  | string          | Model name                  |
+| provider               | string          | Provider name               |
+| tokens_input           | number?         | Input token count           |
+| tokens_output          | number?         | Output token count          |
+| latency_ms             | number          | Request duration            |
+| cost_usd               | number?         | Estimated cost              |
+| prompt_version         | number?         | Active prompt version       |
+| schema_version         | number?         | Active schema version       |
+| rag_config_version     | string?         | RAG config version (future) |
+| embed_model            | string?         | Embedding model name        |
+| embed_dims             | number?         | Embedding dimensions        |
+| retrieved_chunks_count | number?         | RAG chunks retrieved        |
+| tool_calls_count       | number?         | Tools invoked               |
+| error                  | string?         | Error message if failed     |
+| status                 | "ok" \| "error" | Call status                 |
 
 ## Extending Pricing
 
@@ -106,6 +106,7 @@ const PRICING_TABLE: Record<string, ModelPricing> = {
 ## Sinks
 
 Placeholder sinks for external vendors are in `src/sinks/`:
+
 - `sentry.ts` - Sentry integration stub
 - `langsmith.ts` - LangSmith integration stub
 

@@ -32,11 +32,14 @@ describe("Password Reset Flow", () => {
       const testPassword = randomPassword();
 
       // Sign up a new user
-      const signUpResponse = await postJson("/api/auth/email-password/sign-up", {
-        email: testEmail,
-        password: testPassword,
-        name: "Test User",
-      });
+      const signUpResponse = await postJson(
+        "/api/auth/email-password/sign-up",
+        {
+          email: testEmail,
+          password: testPassword,
+          name: "Test User",
+        },
+      );
 
       expect([200, 201]).toContain(signUpResponse.status);
 
