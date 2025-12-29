@@ -1,4 +1,9 @@
-import { auth, authHandler, consumeTokenForEmail, getDevToken } from "@acme/auth";
+import {
+  auth,
+  authHandler,
+  consumeTokenForEmail,
+  getDevToken,
+} from "@acme/auth";
 import { createRateLimiter } from "@acme/security";
 import { NextResponse } from "next/server";
 
@@ -51,10 +56,15 @@ async function handleSignUp(request: Request) {
 
   // If email verification is not required, return success with flag
   if (!isEmailVerificationRequired) {
-    return NextResponse.json({
+    const setCookieHeader = response.headers.get("set-cookie");
+    const jsonResponse = NextResponse.json({
       success: true,
       requiresVerification: false,
     });
+    if (setCookieHeader) {
+      jsonResponse.headers.set("set-cookie", setCookieHeader);
+    }
+    return jsonResponse;
   }
 
   // Email verification is required - trigger verification email
