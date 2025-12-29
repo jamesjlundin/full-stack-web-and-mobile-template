@@ -50,7 +50,19 @@ A production-ready GitHub template for building full-stack applications with a s
 
 ## Prerequisites
 
-- Have a [Vercel](https://vercel.com) account and connect your Github account to it
+**Required:**
+
+- Node.js 20+, pnpm (`npm install -g pnpm`), Git, Docker
+
+**For mobile development:**
+
+- iOS: Xcode + CocoaPods (`sudo gem install cocoapods`)
+- Android: Android Studio with SDK configured
+
+**Accounts:**
+
+- GitHub, Vercel (free tier works), Resend (for email)
+- Apple Developer Program ($99/year) for iOS TestFlight deployment
 
 ## Quickstart: From Template to Production
 
@@ -59,7 +71,7 @@ A production-ready GitHub template for building full-stack applications with a s
 1. On this repo, click **"Use this template"** → **"Create a new repository"**
 2. Name your repo and click **"Create repository"**
 
-### 2. Create note to temporarily store creds over the next couple of steps that we will put into Vercel environment variables and github actions all at once later.
+### 2. Create note to temporarily store creds over the next couple of steps that we will put into Vercel environment variables and github actions all at once later
 
 ### 3. Create Vercel Project
 
@@ -375,24 +387,6 @@ rm -rf packages/ai/src/prompts/agent
 
 ---
 
-## Prerequisites
-
-**Required:**
-
-- Node.js 20+, pnpm (`npm install -g pnpm`), Git, Docker
-
-**For mobile development:**
-
-- iOS: Xcode + CocoaPods (`sudo gem install cocoapods`)
-- Android: Android Studio with SDK configured
-
-**Accounts:**
-
-- GitHub, Vercel (free tier works), Resend (for email)
-- Apple Developer Program ($99/year) for iOS TestFlight deployment
-
----
-
 ## Local Development Details
 
 ### No Docker?
@@ -426,7 +420,7 @@ The mobile app connects to `localhost:3000` (iOS) or `10.0.2.2:3000` (Android em
 
 This template includes a GitHub Actions workflow for automated TestFlight deployments. Follow these steps to set it up.
 
-#### Prerequisites
+#### Mobile Prerequisites
 
 - **Apple Developer Program membership** ($99/year) - [developer.apple.com/programs](https://developer.apple.com/programs/)
 - Access to **App Store Connect** - [appstoreconnect.apple.com](https://appstoreconnect.apple.com)
@@ -591,7 +585,7 @@ When running `pnpm db:up`, pgweb is available at [http://localhost:8081](http://
 
 The template includes a complete password reset flow for both web and mobile applications.
 
-### How It Works
+### How Password Reset Works
 
 1. User navigates to `/reset-password` (web) or "Forgot Password" (mobile)
 2. User enters their email address
@@ -642,7 +636,7 @@ No emails are sent in development mode.
 
 When `MOBILE_DEEP_LINK_ENABLED=1`, password reset emails include a mobile deep link:
 
-```
+```xml
 {MOBILE_APP_SCHEME}://reset?token={token}
 ```
 
@@ -703,7 +697,7 @@ The mobile app uses a two-stack navigation pattern:
 
 ### How It Works
 
-```
+```txt
 ┌─────────────────────────────────────────────────────────────┐
 │                      RootNavigator                          │
 │                                                             │
@@ -766,38 +760,38 @@ To add a new protected screen:
 
 1. Create the screen component in `apps/mobile/src/screens/`:
 
-```typescript
-// apps/mobile/src/screens/NewScreen.tsx
-import React from 'react';
-import {SafeAreaView, Text} from 'react-native';
-import {useAuth} from '../auth/AuthContext';
+   ```typescript
+   // apps/mobile/src/screens/NewScreen.tsx
+   import React from 'react';
+   import {SafeAreaView, Text} from 'react-native';
+   import {useAuth} from '../auth/AuthContext';
 
-export default function NewScreen() {
-  const {user} = useAuth();
-  return (
-    <SafeAreaView>
-      <Text>Welcome, {user?.email}</Text>
-    </SafeAreaView>
-  );
-}
-```
+   export default function NewScreen() {
+     const {user} = useAuth();
+     return (
+       <SafeAreaView>
+         <Text>Welcome, {user?.email}</Text>
+       </SafeAreaView>
+     );
+   }
+   ```
 
 2. Add the screen to the `AppStack` in `App.tsx`:
 
-```typescript
-// In AppStack type
-type AppStackScreen = "home" | "agent" | "account" | "newScreen";
+   ```typescript
+   // In AppStack type
+   type AppStackScreen = "home" | "agent" | "account" | "newScreen";
 
-// Add to MENU_ITEMS for drawer navigation
-const MENU_ITEMS = [
-  { id: "home", label: "Dashboard" },
-  { id: "agent", label: "AI Agent" },
-  { id: "account", label: "Account" },
-  { id: "newScreen", label: "New Screen" },
-];
+   // Add to MENU_ITEMS for drawer navigation
+   const MENU_ITEMS = [
+     { id: "home", label: "Dashboard" },
+     { id: "agent", label: "AI Agent" },
+     { id: "account", label: "Account" },
+     { id: "newScreen", label: "New Screen" },
+   ];
 
-// In AppStack component, add screen rendering in renderScreen()
-```
+   // In AppStack component, add screen rendering in renderScreen()
+   ```
 
 The screen is automatically protected—it can only be accessed when `user != null`.
 
@@ -838,7 +832,7 @@ No additional configuration needed. The library uses Android Keystore automatica
 
 ## Project Structure
 
-```
+```txt
 ├── apps/
 │   ├── web/                    # Next.js web application
 │   │   ├── app/
