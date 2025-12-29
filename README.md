@@ -52,7 +52,7 @@ A production-ready GitHub template for building full-stack applications with a s
 
 **Required:**
 
-- Node.js 20+, pnpm (`npm install -g pnpm`), Git, Docker
+- Node.js 20+, pnpm (`npm install -g pnpm`), Git, Docker, TypeScript
 
 **For mobile development:**
 
@@ -176,14 +176,28 @@ If you want users to sign in with their Google account:
 2. Go to [Anthropic Console](https://console.anthropic.com/settings/keys), generate an API key, and add it to the note from step 2 as `ANTHROPIC_API_KEY`
 3. Go to [Google Generative AI Studio](https://makersuite.google.com/app/apikey), create an API key, and add it to the note from step 2 as `GOOGLE_GENERATIVE_AI_API_KEY`
 
-### 12. Add custom secrets
+### 12. Set Up Google Analytics (Optional)
+
+If you want to track website traffic and user engagement:
+
+1. Go to [Google Analytics](https://analytics.google.com/)
+2. Click **"Admin"** (gear icon in bottom left)
+3. Click **"Create"** → **"Account"** (if you don't have one) or **"Property"**
+4. Follow the setup wizard to create a **GA4 Property**
+5. During the setup flow (or under **"Data Streams"**), select **"Web"** as your platform
+6. Enter your website URL (use your Vercel URL or custom domain from previous steps) and a stream name
+7. Click **"Create stream"**. You will be presented with a **"Setup Google tag"** screen; you can **close this window**, as the template handles the tag injection for you.
+8. After closing the tag setup, you will see the **"Web stream details"**. Copy the **"Measurement ID"** (format: `G-XXXXXXXXXX`) from the top right.
+9. Add it to the note from step 2 as `NEXT_PUBLIC_GA_TRACKING_ID`
+
+### 13. Add custom secrets
 
 There are two locations where we need to generate our own custom secrets, feel free to use any generator that satisifed the requirements of the secrets but I will show what I use for generation below.
 
 1. Create a secret key (recommendation is to run `openssl rand -base64 32` in terminal) and store it in the note from step 2 as `BETTER_AUTH_SECRET`
 2. Create a secret key (recommendation is to run `openssl rand -hex 32` in terminal) and store it in the note from step 2 as `CRON_SECRET`
 
-### 13. Configure Vercel Environment Variables
+### 14. Configure Vercel Environment Variables
 
 1. In your Vercel project, click **"Settings"** tab → **"Environment Variables"**
 2. Add each variable below (click **"Add"** after each):
@@ -207,8 +221,9 @@ There are two locations where we need to generate our own custom secrets, feel f
 | `MAIL_FROM`                    | Your verified domain email or `onboarding@resend.dev` |
 | `GOOGLE_CLIENT_ID`             | Google OAuth client ID                                |
 | `GOOGLE_CLIENT_SECRET`         | Google OAuth client secret                            |
+| `NEXT_PUBLIC_GA_TRACKING_ID`   | Google Analytics Measurement ID                       |
 
-### 14. Add GitHub Secrets
+### 15. Add GitHub Secrets
 
 1. Go to your GitHub repo → **"Settings"** tab → **"Secrets and variables"** → **"Actions"**
 2. Click **"New repository secret"** and add each:
@@ -218,7 +233,7 @@ There are two locations where we need to generate our own custom secrets, feel f
 | Secret                   | Value                                                                               |
 | ------------------------ | ----------------------------------------------------------------------------------- |
 | `DATABASE_URL`           | Copy from Vercel: Settings → Environment Variables → click `DATABASE_URL` to reveal |
-| `VERCEL_DEPLOY_HOOK_URL` | The deploy hook URL from step 10                                                    |
+| `VERCEL_DEPLOY_HOOK_URL` | The deploy hook URL from step 8                                                     |
 
 **Optional** (add if using LLM evaluations or related features):
 
@@ -232,9 +247,9 @@ There are two locations where we need to generate our own custom secrets, feel f
 
 These secrets allow GitHub Actions to run migrations against your production database and trigger Vercel deployments as well as optionally LLM evals.
 
-### 15. Delete your custom note with secrets (or store in a reliable encrypted password storage system)
+### 16. Delete your custom note with secrets (or store in a reliable encrypted password storage system)
 
-### 16. Clone and Set Up Locally
+### 17. Clone and Set Up Locally
 
 ```bash
 git clone https://github.com/YOUR_USERNAME/YOUR_REPO.git
@@ -243,16 +258,21 @@ pnpm install
 pnpm env:init
 ```
 
-The `env:init` command creates a `.env` file from `.env.example` with local development defaults pre-configured. The only value you need to set is `BETTER_AUTH_SECRET`:
+The `env:init` command creates a `.env` file from `.env.example` with local development defaults and automatically generates required secrets like `BETTER_AUTH_SECRET`. It also distributes these environment variables to all packages and apps (as `.env.local` for apps to support Next.js).
+
+To add optional environment variables (like `OPENAI_API_KEY`) and ensure they are propagated correctly:
 
 ```bash
-# Generate and set the auth secret (or just use any 32+ character string for local dev)
-echo "BETTER_AUTH_SECRET=$(openssl rand -base64 32)" >> .env
+pnpm env:set OPENAI_API_KEY=your_key_here
 ```
 
-Then re-run `pnpm env:init` to copy your changes to all packages and apps.
+You can set multiple variables at once:
 
-### 17. Run Locally
+```bash
+pnpm env:set RESEND_API_KEY=re_xxx GOOGLE_CLIENT_ID=xxx GOOGLE_CLIENT_SECRET=xxx
+```
+
+### 18. Run Locally
 
 ```bash
 pnpm db:up              # Start local PostgreSQL (requires Docker)
@@ -260,7 +280,7 @@ pnpm -C packages/db migrate:apply  # Run migrations
 pnpm -C apps/web dev    # Start dev server at localhost:3000
 ```
 
-### 18. Deploy to Production
+### 19. Deploy to Production
 
 ```bash
 git add -A && git commit -m "Initial setup"

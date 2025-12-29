@@ -31,6 +31,12 @@ Initialize and configure environment variables:
 pnpm env:init
 ```
 
+To set optional environment variables (like API keys) and propagate them:
+
+```bash
+pnpm env:set OPENAI_API_KEY=your_key_here
+```
+
 Edit the root `.env` file with your configuration (see main README for details).
 
 ### 3. Start the Backend API
@@ -75,11 +81,13 @@ pnpm start
 ### 7. Run the App
 
 **iOS (Mac only):**
+
 ```bash
 pnpm ios
 ```
 
 **Android:**
+
 ```bash
 pnpm android
 ```
@@ -87,6 +95,7 @@ pnpm android
 ## API Configuration
 
 The app automatically connects to:
+
 - **iOS Simulator**: `http://localhost:3000`
 - **Android Emulator**: `http://10.0.2.2:3000`
 
@@ -126,6 +135,7 @@ bundle exec pod install
 ### Build Errors
 
 1. Clean the build:
+
    ```bash
    # iOS
    cd ios && rm -rf Pods Podfile.lock && bundle exec pod install
@@ -135,18 +145,20 @@ bundle exec pod install
    ```
 
 2. Clear Metro cache:
+
    ```bash
    pnpm start --reset-cache
    ```
 
 3. Clear watchman:
+
    ```bash
    watchman watch-del-all
    ```
 
 ## Project Structure
 
-```
+```txt
 apps/mobile/
 ├── src/
 │   ├── auth/           # Authentication context and token storage

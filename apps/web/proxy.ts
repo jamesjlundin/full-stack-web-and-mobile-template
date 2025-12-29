@@ -26,9 +26,7 @@ const securityHeaders: Record<string, string> = {
 function isDevOriginAllowed(origin: string): boolean {
   try {
     const url = new URL(origin);
-    return (
-      url.hostname === "localhost" || url.hostname === "127.0.0.1"
-    );
+    return url.hostname === "localhost" || url.hostname === "127.0.0.1";
   } catch {
     return false;
   }
@@ -47,7 +45,7 @@ function getAllowedOrigin(requestOrigin: string | null): string | null {
     }
   } else {
     // In production, only allow APP_BASE_URL origin
-    const allowedOrigin = process.env.APP_BASE_URL;
+    const allowedOrigin = process.env.APP_BASE_URL?.replace(/\/$/, "");
     if (allowedOrigin && requestOrigin === allowedOrigin) {
       return allowedOrigin;
     }
@@ -66,14 +64,14 @@ function applySecurityHeaders(response: NextResponse): void {
 // Apply CORS headers to response
 function applyCorsHeaders(
   response: NextResponse,
-  allowedOrigin: string | null
+  allowedOrigin: string | null,
 ): void {
   if (allowedOrigin) {
     response.headers.set("Access-Control-Allow-Origin", allowedOrigin);
     response.headers.set("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
     response.headers.set(
       "Access-Control-Allow-Headers",
-      "Content-Type,Authorization"
+      "Content-Type,Authorization",
     );
   }
 }
@@ -102,7 +100,7 @@ function handleApiRoute(request: NextRequest): NextResponse {
 // Check if a path requires authentication
 function isProtectedPath(pathname: string): boolean {
   return PROTECTED_PATH_PREFIXES.some(
-    (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`)
+    (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`),
   );
 }
 
