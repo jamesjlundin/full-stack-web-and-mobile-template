@@ -260,6 +260,18 @@ pnpm env:init
 
 The `env:init` command creates a `.env` file from `.env.example` with local development defaults and automatically generates required secrets like `BETTER_AUTH_SECRET`. It also distributes these environment variables to all packages and apps (as `.env.local` for apps to support Next.js).
 
+To add optional environment variables (like `OPENAI_API_KEY`) and ensure they are propagated correctly:
+
+```bash
+pnpm env:set OPENAI_API_KEY=your_key_here
+```
+
+You can set multiple variables at once:
+
+```bash
+pnpm env:set RESEND_API_KEY=re_xxx GOOGLE_CLIENT_ID=xxx GOOGLE_CLIENT_SECRET=xxx
+```
+
 ### 18. Run Locally
 
 ```bash

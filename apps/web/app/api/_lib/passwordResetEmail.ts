@@ -15,7 +15,7 @@ export type SendPasswordResetEmailResult = {
  */
 export function buildPasswordResetEmailHtml(
   webResetUrl: string,
-  mobileDeepLink?: string
+  mobileDeepLink?: string,
 ): string {
   const mobileSection = mobileDeepLink
     ? `
@@ -65,7 +65,9 @@ export function buildPasswordResetUrls(token: string): {
   webResetUrl: string;
   mobileDeepLink?: string;
 } {
-  const appBaseUrl = process.env.APP_BASE_URL || "http://localhost:3000";
+  const appBaseUrl = (
+    process.env.APP_BASE_URL || "http://localhost:3000"
+  ).replace(/\/$/, "");
   const webResetUrl = `${appBaseUrl}/reset-password/confirm?token=${encodeURIComponent(token)}`;
 
   // Mobile deep linking (optional, controlled by environment)
@@ -117,7 +119,9 @@ export async function sendPasswordResetEmail({
   // PRODUCTION: Check for RESEND_API_KEY
   const resendApiKey = process.env.RESEND_API_KEY;
   if (!resendApiKey) {
-    console.error("[PROD] RESEND_API_KEY is not configured. Cannot send password reset email.");
+    console.error(
+      "[PROD] RESEND_API_KEY is not configured. Cannot send password reset email.",
+    );
     console.log("[PROD] Password reset URLs for manual testing:");
     console.log(`  Web Link: ${webResetUrl}`);
     if (mobileDeepLink) {
@@ -125,7 +129,8 @@ export async function sendPasswordResetEmail({
     }
     return {
       ok: false,
-      error: "Email service not configured. RESEND_API_KEY is required in production.",
+      error:
+        "Email service not configured. RESEND_API_KEY is required in production.",
     };
   }
 
@@ -156,7 +161,10 @@ export async function sendPasswordResetEmail({
       return { ok: false, error: result.error.message };
     }
 
-    console.log("[PROD] Password reset email sent successfully:", result.data?.id);
+    console.log(
+      "[PROD] Password reset email sent successfully:",
+      result.data?.id,
+    );
     return { ok: true };
   } catch (error) {
     console.error("[PROD] Failed to send password reset email:", error);

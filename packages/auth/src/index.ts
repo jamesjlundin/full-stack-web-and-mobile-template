@@ -16,7 +16,10 @@ import { jwtVerify } from "jose";
  * It exists only to allow testing production builds locally.
  */
 function isDevTokenAllowed(): boolean {
-  return process.env.NODE_ENV !== "production" || process.env.ALLOW_DEV_TOKENS === "true";
+  return (
+    process.env.NODE_ENV !== "production" ||
+    process.env.ALLOW_DEV_TOKENS === "true"
+  );
 }
 
 // In-memory store for tokens. Used for:
@@ -30,7 +33,12 @@ const devTokenStore: Map<string, DevTokenEntry> = new Map();
  * Always stores the token (for both dev and prod use cases).
  * In dev mode, logs the token for convenience.
  */
-export function storeDevToken(type: "verify" | "reset", email: string, token: string, url: string): void {
+export function storeDevToken(
+  type: "verify" | "reset",
+  email: string,
+  token: string,
+  url: string,
+): void {
   const key = `${type}:${email.toLowerCase()}`;
   devTokenStore.set(key, { token, url, timestamp: Date.now() });
   if (isDevTokenAllowed()) {
@@ -43,7 +51,10 @@ export function storeDevToken(type: "verify" | "reset", email: string, token: st
  * Returns null in production (unless ALLOW_DEV_TOKENS=true) or if no token exists.
  * Use this for returning devToken in API responses.
  */
-export function getDevToken(type: "verify" | "reset", email: string): string | null {
+export function getDevToken(
+  type: "verify" | "reset",
+  email: string,
+): string | null {
   if (!isDevTokenAllowed()) return null;
   const key = `${type}:${email.toLowerCase()}`;
   const entry = devTokenStore.get(key);
@@ -62,7 +73,10 @@ export function getDevToken(type: "verify" | "reset", email: string): string | n
  * Works in all environments. Used by mailer to get token for sending emails.
  * Returns null if no token exists or token has expired.
  */
-export function consumeTokenForEmail(type: "verify" | "reset", email: string): string | null {
+export function consumeTokenForEmail(
+  type: "verify" | "reset",
+  email: string,
+): string | null {
   const key = `${type}:${email.toLowerCase()}`;
   const entry = devTokenStore.get(key);
   if (!entry) return null;
@@ -75,13 +89,11 @@ export function consumeTokenForEmail(type: "verify" | "reset", email: string): s
   return entry.token;
 }
 
-type SessionResponse =
-  | {
-      headers: Headers | null | undefined;
-      response: { session: Session; user: User } | null;
-      status?: number;
-    }
-  | null;
+type SessionResponse = {
+  headers: Headers | null | undefined;
+  response: { session: Session; user: User } | null;
+  status?: number;
+} | null;
 
 // Lazy initialization for auth - env vars are checked at runtime, not build time
 let _auth: ReturnType<typeof betterAuth> | null = null;
@@ -90,7 +102,7 @@ function getAuth() {
   if (_auth) return _auth;
 
   const secret = process.env.BETTER_AUTH_SECRET;
-  const baseURL = process.env.APP_BASE_URL;
+  const baseURL = process.env.APP_BASE_URL?.replace(/\/$/, "");
 
   if (!secret) {
     throw new Error("BETTER_AUTH_SECRET is not set");
@@ -126,7 +138,9 @@ function getAuth() {
         storeDevToken("reset", user.email, token, url);
         if (!isDevTokenAllowed()) {
           // TODO: Implement production SMTP email sending here
-          console.log(`[PROD] Password reset email would be sent to ${user.email}`);
+          console.log(
+            `[PROD] Password reset email would be sent to ${user.email}`,
+          );
         }
       },
     },
@@ -136,7 +150,9 @@ function getAuth() {
         storeDevToken("verify", user.email, token, url);
         if (!isDevTokenAllowed()) {
           // TODO: Implement production SMTP email sending here
-          console.log(`[PROD] Verification email would be sent to ${user.email}`);
+          console.log(
+            `[PROD] Verification email would be sent to ${user.email}`,
+          );
         }
       },
       sendOnSignUp: false, // Don't auto-send on signup - use explicit request endpoint
@@ -212,7 +228,9 @@ function getJwtSecretKey(): Uint8Array {
 
   const secret = process.env.BETTER_AUTH_SECRET;
   if (!secret || secret.length < 32) {
-    throw new Error("BETTER_AUTH_SECRET must be set and at least 32 characters long");
+    throw new Error(
+      "BETTER_AUTH_SECRET must be set and at least 32 characters long",
+    );
   }
   _jwtSecretKey = new TextEncoder().encode(secret);
   return _jwtSecretKey;
@@ -233,9 +251,13 @@ function extractBearerToken(request: Request): string | null {
 /**
  * Verify a JWT Bearer token and return the user from the database.
  */
-async function verifyBearerToken(token: string): Promise<CurrentUserResult | null> {
+async function verifyBearerToken(
+  token: string,
+): Promise<CurrentUserResult | null> {
   try {
-    const { payload } = await jwtVerify(token, getJwtSecretKey(), { algorithms: ["HS256"] });
+    const { payload } = await jwtVerify(token, getJwtSecretKey(), {
+      algorithms: ["HS256"],
+    });
 
     if (!payload.sub || typeof payload.sub !== "string") {
       return null;
@@ -274,7 +296,9 @@ async function verifyBearerToken(token: string): Promise<CurrentUserResult | nul
   }
 }
 
-export async function getCurrentUser(request: Request): Promise<CurrentUserResult | null> {
+export async function getCurrentUser(
+  request: Request,
+): Promise<CurrentUserResult | null> {
   try {
     // First, check for Bearer token authentication
     const bearerToken = extractBearerToken(request);

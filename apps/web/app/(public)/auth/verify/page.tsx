@@ -3,7 +3,14 @@
 import { CheckCircle, Mail, RefreshCw } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { FormEvent, Suspense, useCallback, useEffect, useRef, useState } from "react";
+import {
+  FormEvent,
+  Suspense,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { toast } from "sonner";
 
 import { AppShell } from "@/components/layout";
@@ -49,43 +56,50 @@ function VerifyEmailForm() {
   }, [emailParam]);
 
   // Auto-verify function
-  const performVerification = useCallback(async (verifyToken: string) => {
-    setError(null);
-    setMessage(null);
-    setLoading(true);
+  const performVerification = useCallback(
+    async (verifyToken: string) => {
+      setError(null);
+      setMessage(null);
+      setLoading(true);
 
-    try {
-      const response = await fetch("/api/auth/email/verify/confirm", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ token: verifyToken }),
-      });
+      try {
+        const response = await fetch("/api/auth/email/verify/confirm", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ token: verifyToken }),
+        });
 
-      const data = await response.json();
+        const data = await response.json();
 
-      if (data.ok) {
-        setVerified(true);
-        setMessage("Email verified successfully!");
-        toast.success("Email verified successfully");
-        setDevToken(null);
-        setToken("");
-        setShowCheckEmailBanner(false);
+        if (data.ok) {
+          setVerified(true);
+          setMessage("Email verified successfully! You can now sign in.");
+          toast.success("Email verified successfully");
+          setDevToken(null);
+          setToken("");
+          setShowCheckEmailBanner(false);
 
-        // Redirect to app after a short delay
-        setTimeout(() => {
-          router.push("/app/home");
-        }, 1500);
-      } else {
-        setError(data.error ?? "Failed to verify email. The link may have expired.");
+          // Redirect to login after a short delay
+          setTimeout(() => {
+            router.push("/login?verified=true");
+          }, 1500);
+        } else {
+          setError(
+            data.error ?? "Failed to verify email. The link may have expired.",
+          );
+          setAutoVerifying(false);
+        }
+      } catch (err) {
+        setError(
+          err instanceof Error ? err.message : "Unexpected error occurred",
+        );
         setAutoVerifying(false);
+      } finally {
+        setLoading(false);
       }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Unexpected error occurred");
-      setAutoVerifying(false);
-    } finally {
-      setLoading(false);
-    }
-  }, [router]);
+    },
+    [router],
+  );
 
   // Auto-verify when token is in URL
   useEffect(() => {
@@ -95,7 +109,9 @@ function VerifyEmailForm() {
     }
   }, [tokenParam, verified, performVerification]);
 
-  const handleRequestVerification = async (event: FormEvent<HTMLFormElement>) => {
+  const handleRequestVerification = async (
+    event: FormEvent<HTMLFormElement>,
+  ) => {
     event.preventDefault();
     setError(null);
     setMessage(null);
@@ -123,7 +139,9 @@ function VerifyEmailForm() {
         setError(data.error ?? "Failed to send verification email");
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Unexpected error occurred");
+      setError(
+        err instanceof Error ? err.message : "Unexpected error occurred",
+      );
     } finally {
       setLoading(false);
     }
@@ -160,13 +178,17 @@ function VerifyEmailForm() {
         setError(data.error ?? "Failed to resend verification email");
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Unexpected error occurred");
+      setError(
+        err instanceof Error ? err.message : "Unexpected error occurred",
+      );
     } finally {
       setLoading(false);
     }
   };
 
-  const handleConfirmVerification = async (event: FormEvent<HTMLFormElement>) => {
+  const handleConfirmVerification = async (
+    event: FormEvent<HTMLFormElement>,
+  ) => {
     event.preventDefault();
     await performVerification(token);
   };
@@ -202,8 +224,8 @@ function VerifyEmailForm() {
                 </AlertTitle>
                 <AlertDescription className="text-blue-700 dark:text-blue-400">
                   We&apos;ve sent a verification email to{" "}
-                  <span className="font-medium">{email}</span>. Click the link in
-                  the email or enter the verification code below.
+                  <span className="font-medium">{email}</span>. Click the link
+                  in the email or enter the verification code below.
                 </AlertDescription>
               </Alert>
             )}
@@ -214,7 +236,7 @@ function VerifyEmailForm() {
                 <CheckCircle className="h-4 w-4 text-green-600" />
                 <AlertDescription className="text-green-700 dark:text-green-300">
                   {message}
-                  {verified && " Redirecting to your dashboard..."}
+                  {verified && " Redirecting to sign in..."}
                 </AlertDescription>
               </Alert>
             )}
@@ -250,7 +272,11 @@ function VerifyEmailForm() {
                           autoComplete="email"
                         />
                       </div>
-                      <Button type="submit" className="w-full" disabled={loading}>
+                      <Button
+                        type="submit"
+                        className="w-full"
+                        disabled={loading}
+                      >
                         {loading && <Spinner size="sm" className="mr-2" />}
                         Send verification email
                       </Button>
@@ -298,7 +324,9 @@ function VerifyEmailForm() {
                 {/* Confirm Verification Form */}
                 <div className="space-y-4">
                   <h3 className="text-sm font-medium">
-                    {showCheckEmailBanner ? "Enter verification code" : "Step 2: Confirm Verification"}
+                    {showCheckEmailBanner
+                      ? "Enter verification code"
+                      : "Step 2: Confirm Verification"}
                   </h3>
                   <form
                     onSubmit={handleConfirmVerification}

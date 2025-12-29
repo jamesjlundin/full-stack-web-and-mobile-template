@@ -36,6 +36,7 @@ function LoginForm() {
 
   const nextUrl = getSafeRedirectUrl(searchParams.get("next"));
   const googleError = searchParams.get("error") === "google";
+  const verified = searchParams.get("verified") === "true";
 
   // Redirect authenticated users to app home
   useEffect(() => {
@@ -76,7 +77,9 @@ function LoginForm() {
         // If verification is required, redirect to verify page
         if (data.requiresVerification) {
           toast.info("Please verify your email to continue");
-          router.push(`/auth/verify?email=${encodeURIComponent(data.email || email)}`);
+          router.push(
+            `/auth/verify?email=${encodeURIComponent(data.email || email)}`,
+          );
           return;
         }
 
@@ -87,10 +90,13 @@ function LoginForm() {
 
       const data = await response.json().catch(() => ({}));
       setError(
-        data?.message ?? "Unable to sign in. Check your credentials and try again."
+        data?.message ??
+          "Unable to sign in. Check your credentials and try again.",
       );
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Unexpected error occurred");
+      setError(
+        err instanceof Error ? err.message : "Unexpected error occurred",
+      );
     } finally {
       setLoading(false);
     }
@@ -126,6 +132,14 @@ function LoginForm() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
+            {verified && !error && (
+              <Alert className="border-green-500 bg-green-50 dark:bg-green-950">
+                <AlertDescription className="text-green-700 dark:text-green-300">
+                  Email verified successfully! You can now sign in to your
+                  account.
+                </AlertDescription>
+              </Alert>
+            )}
             {error && (
               <Alert variant="destructive">
                 <AlertDescription>{error}</AlertDescription>

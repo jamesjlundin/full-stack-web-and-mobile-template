@@ -2,6 +2,8 @@ import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 
+import { distributeEnv } from "./env-utils";
+
 const ROOT_DIR = process.cwd();
 const ENV_EXAMPLE = path.join(ROOT_DIR, ".env.example");
 const ENV_FILE = path.join(ROOT_DIR, ".env");
@@ -84,33 +86,7 @@ function initEnv() {
   }
 
   const finalContent = fs.readFileSync(ENV_FILE, "utf8");
-
-  // Distribute to packages and apps
-  const packagesDir = path.join(ROOT_DIR, "packages");
-  if (fs.existsSync(packagesDir)) {
-    const packages = fs.readdirSync(packagesDir);
-    for (const pkg of packages) {
-      const pkgPath = path.join(packagesDir, pkg);
-      if (fs.statSync(pkgPath).isDirectory()) {
-        const pkgEnvPath = path.join(pkgPath, ".env");
-        fs.writeFileSync(pkgEnvPath, finalContent);
-        // console.log(`   - Written ${path.relative(ROOT_DIR, pkgEnvPath)}`);
-      }
-    }
-  }
-
-  const appsDir = path.join(ROOT_DIR, "apps");
-  if (fs.existsSync(appsDir)) {
-    const apps = fs.readdirSync(appsDir);
-    for (const app of apps) {
-      const appPath = path.join(appsDir, app);
-      if (fs.statSync(appPath).isDirectory()) {
-        const appEnvPath = path.join(appPath, ".env.local");
-        fs.writeFileSync(appEnvPath, finalContent);
-        // console.log(`   - Written ${path.relative(ROOT_DIR, appEnvPath)}`);
-      }
-    }
-  }
+  distributeEnv(finalContent);
 
   console.log("✨ Environment files initialized across the workspace.");
 }

@@ -26,7 +26,9 @@ export async function sendVerificationEmail({
   to: string;
   token: string;
 }): Promise<SendVerificationEmailResult> {
-  const appBaseUrl = process.env.APP_BASE_URL || "http://localhost:3000";
+  const appBaseUrl = (
+    process.env.APP_BASE_URL || "http://localhost:3000"
+  ).replace(/\/$/, "");
   const verifyUrl = `${appBaseUrl}/auth/verify?token=${encodeURIComponent(token)}`;
 
   // DEV MODE: Do not call Resend, just log
@@ -41,10 +43,13 @@ export async function sendVerificationEmail({
   // PRODUCTION: Check for RESEND_API_KEY
   const resendApiKey = process.env.RESEND_API_KEY;
   if (!resendApiKey) {
-    console.error("[PROD] RESEND_API_KEY is not configured. Cannot send verification email.");
+    console.error(
+      "[PROD] RESEND_API_KEY is not configured. Cannot send verification email.",
+    );
     return {
       ok: false,
-      error: "Email service not configured. RESEND_API_KEY is required in production.",
+      error:
+        "Email service not configured. RESEND_API_KEY is required in production.",
     };
   }
 
@@ -99,7 +104,10 @@ export async function sendVerificationEmail({
       return { ok: false, error: result.error.message };
     }
 
-    console.log("[PROD] Verification email sent successfully:", result.data?.id);
+    console.log(
+      "[PROD] Verification email sent successfully:",
+      result.data?.id,
+    );
     return { ok: true };
   } catch (error) {
     console.error("[PROD] Failed to send verification email:", error);
