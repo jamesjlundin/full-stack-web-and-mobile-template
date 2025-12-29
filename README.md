@@ -6,99 +6,6 @@
 
 A production-ready GitHub template for building full-stack applications with a shared codebase across web and mobile platforms. This monorepo provides everything you need to start a new project with authentication, database, API routes, AI chat streaming, email sending, and deployment automation—all wired up and ready to go.
 
-## Built With
-
-<table>
-  <tr>
-    <td align="center" width="96">
-      <a href="https://nextjs.org">
-        <img src="https://img.shields.io/badge/Next.js-black?style=for-the-badge&logo=next.js&logoColor=white" alt="Next.js"/>
-      </a>
-    </td>
-    <td align="center" width="96">
-      <a href="https://reactnative.dev">
-        <img src="https://img.shields.io/badge/React_Native-20232A?style=for-the-badge&logo=react&logoColor=61DAFB" alt="React Native"/>
-      </a>
-    </td>
-    <td align="center" width="96">
-      <a href="https://react.dev">
-        <img src="https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB" alt="React"/>
-      </a>
-    </td>
-    <td align="center" width="96">
-      <a href="https://www.typescriptlang.org">
-        <img src="https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript"/>
-      </a>
-    </td>
-  </tr>
-  <tr>
-    <td align="center" width="96">
-      <a href="https://vercel.com">
-        <img src="https://img.shields.io/badge/Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white" alt="Vercel"/>
-      </a>
-    </td>
-    <td align="center" width="96">
-      <a href="https://neon.tech">
-        <img src="https://img.shields.io/badge/Neon-00E599?style=for-the-badge&logo=neon&logoColor=black" alt="Neon"/>
-      </a>
-    </td>
-    <td align="center" width="96">
-      <a href="https://orm.drizzle.team">
-        <img src="https://img.shields.io/badge/Drizzle-C5F74F?style=for-the-badge&logo=drizzle&logoColor=black" alt="Drizzle"/>
-      </a>
-    </td>
-    <td align="center" width="96">
-      <a href="https://upstash.com">
-        <img src="https://img.shields.io/badge/Upstash-00E9A3?style=for-the-badge&logo=upstash&logoColor=black" alt="Upstash"/>
-      </a>
-    </td>
-  </tr>
-  <tr>
-    <td align="center" width="96">
-      <a href="https://www.better-auth.com">
-        <img src="https://img.shields.io/badge/Better_Auth-000000?style=for-the-badge&logo=auth0&logoColor=white" alt="Better Auth"/>
-      </a>
-    </td>
-    <td align="center" width="96">
-      <a href="https://openai.com">
-        <img src="https://img.shields.io/badge/OpenAI-412991?style=for-the-badge&logo=openai&logoColor=white" alt="OpenAI"/>
-      </a>
-    </td>
-    <td align="center" width="96">
-      <a href="https://resend.com">
-        <img src="https://img.shields.io/badge/Resend-000000?style=for-the-badge&logo=resend&logoColor=white" alt="Resend"/>
-      </a>
-    </td>
-    <td align="center" width="96">
-      <a href="https://tailwindcss.com">
-        <img src="https://img.shields.io/badge/Tailwind-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white" alt="Tailwind CSS"/>
-      </a>
-    </td>
-  </tr>
-  <tr>
-    <td align="center" width="96">
-      <a href="https://turbo.build">
-        <img src="https://img.shields.io/badge/Turborepo-EF4444?style=for-the-badge&logo=turborepo&logoColor=white" alt="Turborepo"/>
-      </a>
-    </td>
-    <td align="center" width="96">
-      <a href="https://pnpm.io">
-        <img src="https://img.shields.io/badge/pnpm-F69220?style=for-the-badge&logo=pnpm&logoColor=white" alt="pnpm"/>
-      </a>
-    </td>
-    <td align="center" width="96">
-      <a href="https://github.com/features/actions">
-        <img src="https://img.shields.io/badge/GitHub_Actions-2088FF?style=for-the-badge&logo=github-actions&logoColor=white" alt="GitHub Actions"/>
-      </a>
-    </td>
-    <td align="center" width="96">
-      <a href="https://www.docker.com">
-        <img src="https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white" alt="Docker"/>
-      </a>
-    </td>
-  </tr>
-</table>
-
 ## Why This Template?
 
 **Stop wasting time on boilerplate.** This template gives you a complete, production-ready foundation so you can focus on building your actual product:
@@ -111,23 +18,24 @@ A production-ready GitHub template for building full-stack applications with a s
 
 ## Features at a Glance
 
-| Feature | Description |
-|---------|-------------|
-| **Monorepo Architecture** | pnpm workspaces + Turborepo for fast, cached builds |
-| **Next.js 16 Web App** | App Router, Server Components, Middleware, API Routes |
-| **React Native Mobile** | Bare workflow iOS & Android app with shared API client |
-| **Better Auth** | Email/password + OAuth, sessions for web, JWT for mobile |
-| **PostgreSQL + Drizzle** | Type-safe ORM with auto-generated migrations |
-| **AI Agent Demo** | Streaming chat with tool calling & image generation |
-| **Rate Limiting** | Upstash Redis-powered protection on auth & API routes |
-| **Email Integration** | Resend for verification & password reset emails |
-| **CI/CD Pipeline** | GitHub Actions with tests, migrations, and auto-deploy |
-| **iOS TestFlight** | Fastlane + Match workflow for automated iOS releases |
+| Feature                   | Description                                              |
+| ------------------------- | -------------------------------------------------------- |
+| **Monorepo Architecture** | pnpm workspaces + Turborepo for fast, cached builds      |
+| **Next.js 16 Web App**    | App Router, Server Components, Middleware, API Routes    |
+| **React Native Mobile**   | Bare workflow iOS & Android app with shared API client   |
+| **Better Auth**           | Email/password + OAuth, sessions for web, JWT for mobile |
+| **PostgreSQL + Drizzle**  | Type-safe ORM with auto-generated migrations             |
+| **AI Agent Demo**         | Streaming chat with tool calling & image generation      |
+| **Rate Limiting**         | Upstash Redis-powered protection on auth & API routes    |
+| **Email Integration**     | Resend for verification & password reset emails          |
+| **CI/CD Pipeline**        | GitHub Actions with tests, migrations, and auto-deploy   |
+| **iOS TestFlight**        | Fastlane + Match workflow for automated iOS releases     |
 
 ---
 
 ## Table of Contents
 
+- [Prerequisites](#prerequisites)
 - [Quickstart](#quickstart-from-template-to-production)
 - [Demo Features](#demo-features)
 - [What's Included](#whats-included)
@@ -140,6 +48,10 @@ A production-ready GitHub template for building full-stack applications with a s
 
 ---
 
+## Prerequisites
+
+- Have a [Vercel](https://vercel.com) account and connect your Github account to it
+
 ## Quickstart: From Template to Production
 
 ### 1. Create Your Repository
@@ -147,18 +59,21 @@ A production-ready GitHub template for building full-stack applications with a s
 1. On this repo, click **"Use this template"** → **"Create a new repository"**
 2. Name your repo and click **"Create repository"**
 
-### 2. Create Vercel Project
+### 2. Create note to temporarily store creds over the next couple of steps that we will put into Vercel environment variables and github actions all at once later.
+
+### 3. Create Vercel Project
 
 1. Go to [vercel.com/new](https://vercel.com/new)
 2. Click **"Import Git Repository"** → select your new repo
 3. Under **"Root Directory"**, click **"Edit"** → type `apps/web` → click **"Continue"**
-4. Click **"Deploy"** — it will fail (that's OK, we need env vars first)
+4. Click **"Deploy"**
+5. Get the domain name Vercel has deployed the app too and store it in the note from step 2 as `APP_BASE_URL`
 
-### 3. Create Neon Database
+### 4. Create Neon Database
 
 1. In your Vercel project, click the **"Storage"** tab
-2. Click **"Create Database"** → select **"Postgres"**
-3. Select **"Neon"** as provider → click **"Continue"** → **"Create"**
+2. Click **"Create Database"** → select **"Neon Serverless Postgres"**
+3. Click **"Continue"** → name the database → **"Create"**
 
 Vercel automatically adds these env vars to your project:
 
@@ -166,52 +81,24 @@ Vercel automatically adds these env vars to your project:
 - `POSTGRES_URL`
 - `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_HOST`, `POSTGRES_DATABASE`
 
-### 4. Create Upstash Redis
+### 5. Create Upstash Redis (Optional)
 
 1. In your Vercel project, click the **"Storage"** tab
-2. Click **"Create Database"** → select **"Redis"**
-3. Select **"Upstash"** as provider → click **"Continue"** → **"Create"**
+2. Click **"Create Database"** → select dropdown for **"Upstash Serverless DB"** → select Upstash for Redis
+3. Click **"Continue"** → name the database → **"Create"**
 
 Vercel automatically adds these env vars to your project:
 
 - `UPSTASH_REDIS_REST_URL`
 - `UPSTASH_REDIS_REST_TOKEN`
 
-### 5. Set Up Resend (Email) (Optional)
-
-If you want email functionality (verification emails, password reset):
-
-1. Go to [resend.com](https://resend.com) and create an account
-2. In the Resend dashboard, click **"API Keys"** → **"Create API Key"**
-3. Copy the API key
-4. (Optional) Click **"Domains"** → **"Add Domain"** to verify your domain, or use `onboarding@resend.dev` for testing
-
-### 6. Set Up Google OAuth (Optional)
-
-If you want users to sign in with their Google account:
-
-1. Go to [Google Cloud Console](https://console.cloud.google.com/)
-2. Create a new project (or select an existing one)
-3. Navigate to **"APIs & Services"** → **"Credentials"**
-4. Click **"Create Credentials"** → **"OAuth client ID"**
-5. If prompted, configure the OAuth consent screen first:
-   - Choose **"External"** user type
-   - Fill in app name, user support email, and developer contact email
-   - Add scopes: `email`, `profile`, `openid`
-   - Add test users if in testing mode
-6. Back in Credentials, create OAuth client ID:
-   - Application type: **"Web application"**
-   - Name: Your app name
-   - Authorized redirect URIs: Add `https://your-app.vercel.app/api/auth/callback/google` (and `http://localhost:3000/api/auth/callback/google` for local dev)
-7. Copy the **Client ID** and **Client Secret**
-
-### 7. Set Up Vercel Blob Storage (Optional)
+### 6. Set Up Vercel Blob Storage (Optional)
 
 If you want image upload and generation features in the AI Agent:
 
 1. In your Vercel project, click the **"Storage"** tab
 2. Click **"Create Database"** → select **"Blob"**
-3. Name it (e.g., "Images") → click **"Create"**
+3. Name it → click **"Create"**
 
 Vercel automatically adds this env var to your project:
 
@@ -223,7 +110,7 @@ This enables:
 - AI-generated image storage
 - Image input to vision-capable models
 
-### 8. Add Custom Domain (Optional)
+### 7. Add Custom Domain (Optional)
 
 If you want to use a custom domain instead of the default `.vercel.app` URL:
 
@@ -231,14 +118,65 @@ If you want to use a custom domain instead of the default `.vercel.app` URL:
 2. Enter your domain name and click **"Add"**
 3. If you don't own a domain, click **"Buy"** to purchase one through Vercel
 4. If you own a domain elsewhere, follow the DNS configuration instructions shown
-5. Once configured, update your `APP_BASE_URL` environment variable to use your custom domain
+5. Configure and connect your domain to your vercel project
+6. Overwrite the `APP_BASE_URL` field in your note from step 2 with your custom domain name
 
-### 9. Configure Vercel Environment Variables
+### 8. Create Deploy Hook (In Vercel)
+
+1. In Vercel, click **"Settings"** → **"Git"** (left sidebar)
+2. Scroll to **"Deploy Hooks"** → click **"Create Hook"**
+3. Name: `GitHub Actions`, Branch: `main` → click **"Create Hook"**
+4. Add the generated url for the hook to the note from step 2 as `VERCEL_DEPLOY_HOOK_URL`
+
+This prevents Vercel from auto-deploying; our GitHub Actions CI/CD handles deployments after running migrations.
+
+### 9. Set Up Resend (Email) (Optional)
+
+If you want email functionality (verification emails, password reset):
+
+1. Go to [resend.com](https://resend.com) and create an account
+2. In the Resend dashboard, click **"API Keys"** → **"Create API Key"**
+3. Add the api key to your note from step 2 as `RESEND_API_KEY`
+4. (Optional) Click **"Domains"** → **"Add Domain"** to verify your domain, if you don't verify a domain you can only send emails from `onboarding@resend.dev` for testing purposes.
+5. (Optional) if you did create a custom domain, add an email address from that custom domain to the note from step 2 as `MAIL_FROM`
+
+### 10. Set Up Google OAuth (Optional)
+
+If you want users to sign in with their Google account:
+
+1. Go to [Google Cloud Console](https://console.cloud.google.com/)
+2. Create a new project (or select an existing one)
+3. Open the project sidebar and navigate to **"APIs & Services"** → **"Credentials"**
+4. If prompted, configure the OAuth consent screen first:
+   - Choose **"External"** user type
+   - Fill in app name, user support email, and developer contact email
+5. Click **"Create Credentials"** → **"OAuth client ID"**
+6. Back in Credentials, create an OAuth client ID:
+   - Application type: **"Web application"**
+   - Name: Your app name
+   - Authorized JavaScript origins: Add `https://your-domain.com` (or your Vercel domain), and `http://localhost:3000` for local development. This is required so the OAuth flow can redirect properly.
+   - Authorized redirect URIs: Add `https://your-domain.com/api/auth/callback/google` (replace with your custom domain, or use your default Vercel domain like `https://your-app.vercel.app/api/auth/callback/google` if you haven't set up a custom domain). For local development, also add: `http://localhost:3000/api/auth/callback/google`
+7. Add the **Client ID** and **Client Secret** to your note from step 2 as `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET`
+
+### 11. Get LLM tokens if you plan to use them, get only the ones you would like to use (Optional) I personally like to generate 2 keys for each provider one being for the CI/CD evals and the other being for use in the application just so you can break down the different usage. If you would like to do that as well just store the CI/CD value in Github actions secrets and the application value in Vercel in steps 14 and 15
+
+1. Go to [OpenAI API Keys](https://platform.openai.com/api-keys), create an API key, and add it to the note from step 2 as `OPENAI_API_KEY`
+2. Go to [Anthropic Console](https://console.anthropic.com/settings/keys), generate an API key, and add it to the note from step 2 as `ANTHROPIC_API_KEY`
+3. Go to [Google Generative AI Studio](https://makersuite.google.com/app/apikey), create an API key, and add it to the note from step 2 as `GOOGLE_GENERATIVE_AI_API_KEY`
+
+### 12. Add custom secrets
+
+There are two locations where we need to generate our own custom secrets, feel free to use any generator that satisifed the requirements of the secrets but I will show what I use for generation below.
+
+1. Create a secret key (recommendation is to run `openssl rand -base64 32` in terminal) and store it in the note from step 2 as `BETTER_AUTH_SECRET`
+2. Create a secret key (recommendation is to run `openssl rand -hex 32` in terminal) and store it in the note from step 2 as `CRON_SECRET`
+
+### 13. Configure Vercel Environment Variables
 
 1. In your Vercel project, click **"Settings"** tab → **"Environment Variables"**
 2. Add each variable below (click **"Add"** after each):
 
-**Required** (you must add these manually):
+**Required** (you must add these manually and they should all be in the note from step 2):
 
 | Variable             | Value                                                                |
 | -------------------- | -------------------------------------------------------------------- |
@@ -246,41 +184,19 @@ If you want to use a custom domain instead of the default `.vercel.app` URL:
 | `APP_BASE_URL`       | `https://your-project.vercel.app` (your Vercel URL)                  |
 | `CRON_SECRET`        | Random string for cron auth (run `openssl rand -hex 32` in terminal) |
 
-**Auto-configured** (set automatically when connecting storage in steps 3-4, 7):
-
-| Variable                   | Source                                            |
-| -------------------------- | ------------------------------------------------- |
-| `DATABASE_URL`             | Auto-set when Neon Postgres is connected          |
-| `UPSTASH_REDIS_REST_URL`   | Auto-set when Upstash Redis is connected          |
-| `UPSTASH_REDIS_REST_TOKEN` | Auto-set when Upstash Redis is connected          |
-| `BLOB_READ_WRITE_TOKEN`    | Auto-set when Vercel Blob is connected (optional) |
-
 **Optional** (add if using these features):
 
-| Variable               | Value                                                 |
-| ---------------------- | ----------------------------------------------------- |
-| `OPENAI_API_KEY`       | For AI chat functionality                             |
-| `RESEND_API_KEY`       | Your Resend API key from step 5                       |
-| `MAIL_FROM`            | Your verified domain email or `onboarding@resend.dev` |
-| `GOOGLE_CLIENT_ID`     | Google OAuth client ID from step 6                    |
-| `GOOGLE_CLIENT_SECRET` | Google OAuth client secret from step 6                |
+| Variable                       | Value                                                 |
+| ------------------------------ | ----------------------------------------------------- |
+| `OPENAI_API_KEY`               | For AI chat functionality                             |
+| `ANTHROPIC_API_KEY`            | For AI chat functionality                             |
+| `GOOGLE_GENERATIVE_AI_API_KEY` | For AI chat functionality                             |
+| `RESEND_API_KEY`               | Your Resend API key                                   |
+| `MAIL_FROM`                    | Your verified domain email or `onboarding@resend.dev` |
+| `GOOGLE_CLIENT_ID`             | Google OAuth client ID                                |
+| `GOOGLE_CLIENT_SECRET`         | Google OAuth client secret                            |
 
-### 10. Create Deploy Hook
-
-1. In Vercel, click **"Settings"** → **"Git"** (left sidebar)
-2. Scroll to **"Deploy Hooks"** → click **"Create Hook"**
-3. Name: `GitHub Actions`, Branch: `main` → click **"Create Hook"**
-4. Copy the generated URL
-
-### 11. Disable Auto-Deploy
-
-1. In Vercel **"Settings"** → **"Git"**, scroll to **"Ignored Build Step"**
-2. Select **"Custom"** and enter: `exit 0`
-3. Click **"Save"**
-
-This prevents Vercel from auto-deploying; our GitHub Actions CI/CD handles deployments after running migrations.
-
-### 12. Add GitHub Secrets
+### 14. Add GitHub Secrets
 
 1. Go to your GitHub repo → **"Settings"** tab → **"Secrets and variables"** → **"Actions"**
 2. Click **"New repository secret"** and add each:
@@ -292,9 +208,21 @@ This prevents Vercel from auto-deploying; our GitHub Actions CI/CD handles deplo
 | `DATABASE_URL`           | Copy from Vercel: Settings → Environment Variables → click `DATABASE_URL` to reveal |
 | `VERCEL_DEPLOY_HOOK_URL` | The deploy hook URL from step 10                                                    |
 
-These secrets allow GitHub Actions to run migrations against your production database and trigger Vercel deployments.
+**Optional** (add if using LLM evaluations or related features):
 
-### 13. Clone and Set Up Locally
+| Secret                         | Value                                  |
+| ------------------------------ | -------------------------------------- |
+| `OPENAI_API_KEY`               | For LLM-powered eval jobs (if enabled) |
+| `ANTHROPIC_API_KEY`            | For LLM-powered eval jobs (if enabled) |
+| `GOOGLE_GENERATIVE_AI_API_KEY` | For LLM-powered eval jobs (if enabled) |
+
+> _Optional LLM API keys should be set if you want GitHub Actions (such as LLM eval workflows) to access LLM providers for evaluations or checks. If these are omitted, those features will be skipped in CI._
+
+These secrets allow GitHub Actions to run migrations against your production database and trigger Vercel deployments as well as optionally LLM evals.
+
+### 15. Delete your custom note with secrets (or store in a reliable encrypted password storage system)
+
+### 16. Clone and Set Up Locally
 
 ```bash
 git clone https://github.com/YOUR_USERNAME/YOUR_REPO.git
@@ -312,7 +240,7 @@ echo "BETTER_AUTH_SECRET=$(openssl rand -base64 32)" >> .env
 
 Then re-run `pnpm env:init` to copy your changes to all packages and apps.
 
-### 14. Run Locally
+### 17. Run Locally
 
 ```bash
 pnpm db:up              # Start local PostgreSQL (requires Docker)
@@ -320,7 +248,7 @@ pnpm -C packages/db migrate:apply  # Run migrations
 pnpm -C apps/web dev    # Start dev server at localhost:3000
 ```
 
-### 15. Deploy to Production
+### 18. Deploy to Production
 
 ```bash
 git add -A && git commit -m "Initial setup"
@@ -329,7 +257,7 @@ git push origin main
 
 This triggers: GitHub Actions → runs migrations → calls Vercel deploy hook → production live.
 
-**Verify:** Visit `https://your-project.vercel.app/api/health` — should return `{"ok":true}`
+**Verify:** Visit `https://your-domain/api/health` — should return `{"ok":true}`
 
 ---
 
