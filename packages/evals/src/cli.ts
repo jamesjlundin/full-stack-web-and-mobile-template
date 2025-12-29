@@ -8,13 +8,13 @@
  *   node dist/cli.js --rag --model=mock
  */
 
-import minimist from "minimist";
+import minimist from 'minimist';
 
-import { ragPackageExists } from "./hooks/rag.js";
-import { getModel } from "./models/index.js";
-import { getReporter } from "./reporters/index.js";
-import { runEvaluations } from "./runner.js";
-import { parseThresholdConstraints, mergeThresholds } from "./thresholds.js";
+import { ragPackageExists } from './hooks/rag.js';
+import { getModel } from './models/index.js';
+import { getReporter } from './reporters/index.js';
+import { runEvaluations } from './runner.js';
+import { parseThresholdConstraints, mergeThresholds } from './thresholds.js';
 
 interface CliArgs {
   model?: string;
@@ -65,17 +65,11 @@ Examples:
 
 async function main(): Promise<void> {
   const args = minimist<CliArgs>(process.argv.slice(2), {
-    string: [
-      "model",
-      "report",
-      "suites",
-      "thresholdSchema",
-      "thresholdConstraints",
-    ],
-    boolean: ["rag", "help"],
+    string: ['model', 'report', 'suites', 'thresholdSchema', 'thresholdConstraints'],
+    boolean: ['rag', 'help'],
     default: {
-      model: "mock",
-      report: "console",
+      model: 'mock',
+      report: 'console',
       rag: false,
     },
   });
@@ -87,23 +81,21 @@ async function main(): Promise<void> {
   }
 
   // Parse arguments
-  const modelName = args.model ?? "mock";
-  const reporterName = args.report ?? "console";
+  const modelName = args.model ?? 'mock';
+  const reporterName = args.report ?? 'console';
   const suitesArg = args.suites;
   const enableRag = args.rag ?? false;
   const limit = args.limit ? Number(args.limit) : undefined;
 
   // Parse suites
-  const suites = suitesArg
-    ? suitesArg.split(",").map((s) => s.trim())
-    : undefined;
+  const suites = suitesArg ? suitesArg.split(',').map((s) => s.trim()) : undefined;
 
   // Check RAG availability if requested
   if (enableRag) {
     const ragExists = await ragPackageExists();
     if (!ragExists) {
       console.warn(
-        "Warning: --rag flag set but packages/rag not found. RAG evaluation will be skipped.",
+        'Warning: --rag flag set but packages/rag not found. RAG evaluation will be skipped.',
       );
     }
   }
@@ -120,10 +112,10 @@ async function main(): Promise<void> {
 
   console.log(`\nStarting evaluation with model: ${model.name}`);
   if (suites) {
-    console.log(`Suites: ${suites.join(", ")}`);
+    console.log(`Suites: ${suites.join(', ')}`);
   }
   if (enableRag) {
-    console.log("RAG evaluation: enabled");
+    console.log('RAG evaluation: enabled');
   }
   console.log();
 
@@ -141,16 +133,16 @@ async function main(): Promise<void> {
 
   // Exit with appropriate code
   if (!results.thresholdsPassed) {
-    console.error("\nEvaluation FAILED: Thresholds not met");
+    console.error('\nEvaluation FAILED: Thresholds not met');
     process.exit(1);
   }
 
-  console.log("\nEvaluation PASSED: All thresholds met");
+  console.log('\nEvaluation PASSED: All thresholds met');
   process.exit(0);
 }
 
 // Run CLI
 main().catch((error) => {
-  console.error("Fatal error:", error);
+  console.error('Fatal error:', error);
   process.exit(1);
 });

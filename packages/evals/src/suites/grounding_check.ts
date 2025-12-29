@@ -5,18 +5,18 @@
  * Metric: % of responses that contain expected context-based facts.
  */
 
-import type { Suite, EvalContext } from "./types.js";
-import type { GroundingFixture } from "../fixtures/types.js";
-import type { CaseResult } from "../reporters/types.js";
+import type { Suite, EvalContext } from './types.js';
+import type { GroundingFixture } from '../fixtures/types.js';
+import type { CaseResult } from '../reporters/types.js';
 
 export const groundingCheckSuite: Suite = {
-  name: "Grounding Check",
-  description: "Evaluates context-fact matching in model outputs",
-  metricName: "grounding_check",
+  name: 'Grounding Check',
+  description: 'Evaluates context-fact matching in model outputs',
+  metricName: 'grounding_check',
 
   async run(context: EvalContext): Promise<CaseResult[]> {
     const groundingFixtures = context.fixtures.filter(
-      (f): f is GroundingFixture => f.category === "grounding",
+      (f): f is GroundingFixture => f.category === 'grounding',
     );
 
     const results: CaseResult[] = [];
@@ -40,11 +40,10 @@ async function evaluateGrounding(
     const prompt = `Context: ${fixture.context}\n\nQuestion: ${fixture.question}`;
     const response = await context.model.generate([
       {
-        role: "system",
-        content:
-          "Answer questions based only on the provided context. Be specific and factual.",
+        role: 'system',
+        content: 'Answer questions based only on the provided context. Be specific and factual.',
       },
-      { role: "user", content: prompt },
+      { role: 'user', content: prompt },
     ]);
 
     const lowerResponse = response.content.toLowerCase();
@@ -66,23 +65,23 @@ async function evaluateGrounding(
 
     return {
       id: fixture.id,
-      suite: "grounding_check",
+      suite: 'grounding_check',
       name: fixture.name,
       passed,
       score,
       details:
         missingFacts.length > 0
-          ? `Missing facts: ${missingFacts.join(", ")}`
-          : `Found all expected facts: ${foundFacts.join(", ")}`,
+          ? `Missing facts: ${missingFacts.join(', ')}`
+          : `Found all expected facts: ${foundFacts.join(', ')}`,
     };
   } catch (error) {
     return {
       id: fixture.id,
-      suite: "grounding_check",
+      suite: 'grounding_check',
       name: fixture.name,
       passed: false,
       score: 0,
-      error: error instanceof Error ? error.message : "Unknown error",
+      error: error instanceof Error ? error.message : 'Unknown error',
     };
   }
 }

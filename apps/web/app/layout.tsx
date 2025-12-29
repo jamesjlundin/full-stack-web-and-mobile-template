@@ -1,15 +1,15 @@
-import "./globals.css";
+import './globals.css';
 
-import { GoogleAnalytics } from "@/components/google-analytics";
-import { ThemeProvider } from "@/components/theme-provider";
-import { Toaster } from "@/components/ui/sonner";
+import { GoogleAnalytics } from '@/components/google-analytics';
+import { ThemeProvider } from '@/components/theme-provider';
+import { Toaster } from '@/components/ui/sonner';
 
-import type { Metadata } from "next";
-import type { ReactNode } from "react";
+import type { Metadata } from 'next';
+import type { ReactNode } from 'react';
 
 export const metadata: Metadata = {
-  title: "Template",
-  description: "Full-stack web and mobile template.",
+  title: 'Template',
+  description: 'Full-stack web and mobile template.',
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {

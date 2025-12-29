@@ -7,19 +7,19 @@
  * - Tests
  */
 
-import { runHeartbeat } from "./heartbeat";
-import { runNightly } from "./nightly";
+import { runHeartbeat } from './heartbeat';
+import { runNightly } from './nightly';
 
-export { runHeartbeat } from "./heartbeat";
-export type { HeartbeatResult } from "./heartbeat";
+export { runHeartbeat } from './heartbeat';
+export type { HeartbeatResult } from './heartbeat';
 
-export { runNightly } from "./nightly";
-export type { NightlyResult } from "./nightly";
+export { runNightly } from './nightly';
+export type { NightlyResult } from './nightly';
 
 /**
  * Available job names for the manual trigger endpoint
  */
-export type JobName = "heartbeat" | "nightly";
+export type JobName = 'heartbeat' | 'nightly';
 
 /**
  * Run a job by name
@@ -30,9 +30,9 @@ export type JobName = "heartbeat" | "nightly";
  */
 export async function runJob(name: JobName) {
   switch (name) {
-    case "heartbeat":
+    case 'heartbeat':
       return runHeartbeat();
-    case "nightly":
+    case 'nightly':
       return runNightly();
     default:
       throw new Error(`Unknown job: ${name}`);

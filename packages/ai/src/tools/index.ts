@@ -4,4 +4,4 @@ export {
   executeGenerateImage,
   type GenerateImageInput,
   type GenerateImageResult,
-} from "./generateImage";
+} from './generateImage';

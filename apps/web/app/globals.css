@@ -1,5 +1,5 @@
-@import "tailwindcss";
-@import "tw-animate-css";
+@import 'tailwindcss';
+@import 'tw-animate-css';
 
 @custom-variant dark (&:is(.dark *));
 
@@ -15,8 +15,7 @@
 }
 
 @theme {
-  --font-sans:
-    system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif;
+  --font-sans: system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif;
 
   --color-border: hsl(var(--border));
   --color-input: hsl(var(--input));

@@ -1,12 +1,12 @@
-import { Github, Linkedin } from "lucide-react";
-import { cookies, headers } from "next/headers";
-import Link from "next/link";
-import { redirect } from "next/navigation";
+import { Github, Linkedin } from 'lucide-react';
+import { cookies, headers } from 'next/headers';
+import Link from 'next/link';
+import { redirect } from 'next/navigation';
 
-import { AppShell } from "@/components/layout";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
+import { AppShell } from '@/components/layout';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Separator } from '@/components/ui/separator';
 
 interface AuthStatus {
   isAuthenticated: boolean;
@@ -17,13 +17,13 @@ interface AuthStatus {
 async function getAuthStatus(): Promise<AuthStatus> {
   const cookieStore = await cookies();
   const headersList = await headers();
-  const host = headersList.get("host") || "localhost:3000";
-  const protocol = process.env.NODE_ENV === "production" ? "https" : "http";
+  const host = headersList.get('host') || 'localhost:3000';
+  const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
 
   try {
     const response = await fetch(`${protocol}://${host}/api/me`, {
       headers: { cookie: cookieStore.toString() },
-      cache: "no-store",
+      cache: 'no-store',
     });
 
     if (response.status === 401) {
@@ -46,7 +46,7 @@ export default async function HomePage() {
 
   // Redirect logged-in users to the app home page
   if (isAuthenticated) {
-    redirect("/app/home");
+    redirect('/app/home');
   }
 
   return (
@@ -61,8 +61,8 @@ export default async function HomePage() {
           <span className="text-primary">great project</span>
         </h1>
         <p className="mt-6 max-w-[600px] text-lg text-muted-foreground sm:text-xl">
-          A complete full-stack foundation with authentication, database, and
-          modern tooling ready to go.
+          A complete full-stack foundation with authentication, database, and modern tooling ready
+          to go.
         </p>
 
         <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
@@ -79,12 +79,10 @@ export default async function HomePage() {
           <Separator className="mb-6" />
           <div className="flex flex-col items-center gap-3 text-sm text-muted-foreground">
             <p>
-              Created by{" "}
-              <span className="font-medium text-foreground">James Lundin</span>
+              Created by <span className="font-medium text-foreground">James Lundin</span>
             </p>
             <p className="text-xs max-w-sm">
-              Full-stack engineer passionate about building modern web and
-              mobile applications
+              Full-stack engineer passionate about building modern web and mobile applications
             </p>
             <div className="flex items-center gap-4 mt-2">
               <a

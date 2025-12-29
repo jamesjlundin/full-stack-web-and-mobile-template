@@ -800,14 +800,14 @@ To add a new protected screen:
 
    ```typescript
    // In AppStack type
-   type AppStackScreen = "home" | "agent" | "account" | "newScreen";
+   type AppStackScreen = 'home' | 'agent' | 'account' | 'newScreen';
 
    // Add to MENU_ITEMS for drawer navigation
    const MENU_ITEMS = [
-     { id: "home", label: "Dashboard" },
-     { id: "agent", label: "AI Agent" },
-     { id: "account", label: "Account" },
-     { id: "newScreen", label: "New Screen" },
+     { id: 'home', label: 'Dashboard' },
+     { id: 'agent', label: 'AI Agent' },
+     { id: 'account', label: 'Account' },
+     { id: 'newScreen', label: 'New Screen' },
    ];
 
    // In AppStack component, add screen rendering in renderScreen()

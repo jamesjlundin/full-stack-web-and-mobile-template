@@ -8,15 +8,14 @@ const EMAIL_PATTERN = /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b/g;
 
 // Phone-like pattern: sequences of digits with optional separators
 // Matches common formats like 123-456-7890, (123) 456-7890, +1 234 567 8901
-const PHONE_PATTERN =
-  /(?:\+?1[-.\s]?)?(?:\(?\d{3}\)?[-.\s]?)?\d{3}[-.\s]?\d{4}\b/g;
+const PHONE_PATTERN = /(?:\+?1[-.\s]?)?(?:\(?\d{3}\)?[-.\s]?)?\d{3}[-.\s]?\d{4}\b/g;
 
 // Long alphanumeric strings (>= 32 chars) that look like secrets/tokens
 const SECRET_PATTERN = /\b[A-Za-z0-9]{32,}\b/g;
 
-const REDACTED_EMAIL = "[REDACTED_EMAIL]";
-const REDACTED_PHONE = "[REDACTED_PHONE]";
-const REDACTED_SECRET = "[REDACTED_SECRET]";
+const REDACTED_EMAIL = '[REDACTED_EMAIL]';
+const REDACTED_PHONE = '[REDACTED_PHONE]';
+const REDACTED_SECRET = '[REDACTED_SECRET]';
 
 /**
  * Redact PII patterns from a string
@@ -40,11 +39,11 @@ export function redact(input: unknown): unknown {
     return input;
   }
 
-  if (typeof input === "string") {
+  if (typeof input === 'string') {
     return redactString(input);
   }
 
-  if (typeof input === "number" || typeof input === "boolean") {
+  if (typeof input === 'number' || typeof input === 'boolean') {
     return input;
   }
 
@@ -52,7 +51,7 @@ export function redact(input: unknown): unknown {
     return input.map((item) => redact(item));
   }
 
-  if (typeof input === "object") {
+  if (typeof input === 'object') {
     const result: Record<string, unknown> = {};
     for (const [key, value] of Object.entries(input)) {
       result[key] = redact(value);

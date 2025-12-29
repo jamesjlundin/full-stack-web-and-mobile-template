@@ -3,10 +3,10 @@
  * Deterministic mock tool for testing purposes.
  */
 
-import { defineContract } from "@acme/tools";
-import { z } from "zod";
+import { defineContract } from '@acme/tools';
+import { z } from 'zod';
 
-import type { ToolContract, ToolImpl } from "@acme/tools";
+import type { ToolContract, ToolImpl } from '@acme/tools';
 
 // =============================================================================
 // Contract
@@ -28,8 +28,8 @@ export const mathAddOutputSchema = z.object({
 
 /** Math.add tool contract */
 export const mathAddContract = defineContract({
-  name: "math.add",
-  description: "Add two numbers together",
+  name: 'math.add',
+  description: 'Add two numbers together',
   input: mathAddInputSchema,
   output: mathAddOutputSchema,
 });
@@ -58,7 +58,4 @@ export const mathAddImpl: ToolImpl<typeof mathAddContract> = (
 };
 
 // Export contract type for external use
-export type MathAddContract = ToolContract<
-  typeof mathAddInputSchema,
-  typeof mathAddOutputSchema
->;
+export type MathAddContract = ToolContract<typeof mathAddInputSchema, typeof mathAddOutputSchema>;

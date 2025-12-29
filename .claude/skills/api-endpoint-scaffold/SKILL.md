@@ -38,8 +38,8 @@ Use the template in [templates.md](./templates.md).
 Import from existing pattern:
 
 ```typescript
-import { withUserRateLimit } from "../_lib/withUserRateLimit";
-import { createRateLimiter } from "@acme/security";
+import { withUserRateLimit } from '../_lib/withUserRateLimit';
+import { createRateLimiter } from '@acme/security';
 ```
 
 ### Step 3: Add Request Validation
@@ -47,7 +47,7 @@ import { createRateLimiter } from "@acme/security";
 Use Zod for schema validation:
 
 ```typescript
-import { z } from "zod";
+import { z } from 'zod';
 
 const RequestSchema = z.object({
   field: z.string().min(1),

@@ -1,16 +1,10 @@
-"use client";
+'use client';
 
 // eslint-disable-next-line import/no-unresolved
-import { upload } from "@vercel/blob/client";
-import { useCallback, useRef, useState } from "react";
+import { upload } from '@vercel/blob/client';
+import { useCallback, useRef, useState } from 'react';
 
-import type {
-  ImagePart,
-  Message,
-  MessagePart,
-  StreamEvent,
-  ToolCall,
-} from "./types";
+import type { ImagePart, Message, MessagePart, StreamEvent, ToolCall } from './types';
 
 function generateId() {
   return Math.random().toString(36).substring(2, 9);
@@ -35,36 +29,33 @@ export function useAgentChat(options: UseAgentChatOptions = {}) {
   const abortControllerRef = useRef<AbortController | null>(null);
 
   // Upload images to Vercel Blob
-  const uploadImages = useCallback(
-    async (files: File[]): Promise<ImagePart[]> => {
-      const uploadedImages: ImagePart[] = [];
+  const uploadImages = useCallback(async (files: File[]): Promise<ImagePart[]> => {
+    const uploadedImages: ImagePart[] = [];
 
-      for (const file of files) {
-        try {
-          const blob = await upload(file.name, file, {
-            access: "public",
-            handleUploadUrl: "/api/upload",
-          });
+    for (const file of files) {
+      try {
+        const blob = await upload(file.name, file, {
+          access: 'public',
+          handleUploadUrl: '/api/upload',
+        });
 
-          uploadedImages.push({
-            type: "image",
-            url: blob.url,
-            alt: file.name,
-          });
-        } catch (err) {
-          console.error("Failed to upload image:", err);
-          throw new Error(`Failed to upload ${file.name}`);
-        }
+        uploadedImages.push({
+          type: 'image',
+          url: blob.url,
+          alt: file.name,
+        });
+      } catch (err) {
+        console.error('Failed to upload image:', err);
+        throw new Error(`Failed to upload ${file.name}`);
       }
+    }
 
-      return uploadedImages;
-    },
-    [],
-  );
+    return uploadedImages;
+  }, []);
 
   // Process /image command
   const processImageCommand = useCallback((text: string): string => {
-    if (text.startsWith("/image ")) {
+    if (text.startsWith('/image ')) {
       const prompt = text.slice(7).trim();
       return `Generate an image: ${prompt}`;
     }
@@ -75,9 +66,7 @@ export function useAgentChat(options: UseAgentChatOptions = {}) {
     async (options: SendMessageOptions | string) => {
       // Support both string (legacy) and options object
       const { text: rawText, images } =
-        typeof options === "string"
-          ? { text: options, images: undefined }
-          : options;
+        typeof options === 'string' ? { text: options, images: undefined } : options;
 
       const text = processImageCommand(rawText.trim());
       if (!text && (!images || images.length === 0)) return;
@@ -95,9 +84,7 @@ export function useAgentChat(options: UseAgentChatOptions = {}) {
             imageParts = await uploadImages(images);
           } catch (uploadError) {
             setError(
-              uploadError instanceof Error
-                ? uploadError.message
-                : "Failed to upload images",
+              uploadError instanceof Error ? uploadError.message : 'Failed to upload images',
             );
             setIsStreaming(false);
             setIsUploading(false);
@@ -109,21 +96,21 @@ export function useAgentChat(options: UseAgentChatOptions = {}) {
         // Build message parts
         const parts: MessagePart[] = [];
         if (text) {
-          parts.push({ type: "text", text });
+          parts.push({ type: 'text', text });
         }
         parts.push(...imageParts);
 
         // Add user message
         const userMessage: Message = {
           id: generateId(),
-          role: "user",
+          role: 'user',
           parts,
         };
 
         // Add placeholder assistant message
         const assistantMessage: Message = {
           id: generateId(),
-          role: "assistant",
+          role: 'assistant',
           parts: [],
           toolCalls: [],
         };
@@ -152,26 +139,24 @@ export function useAgentChat(options: UseAgentChatOptions = {}) {
           requestBody.model = model;
         }
 
-        const response = await fetch("/api/agent/stream", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
+        const response = await fetch('/api/agent/stream', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(requestBody),
-          credentials: "include",
+          credentials: 'include',
           signal: abortControllerRef.current.signal,
         });
 
         if (!response.ok) {
           const errorData = await response.json().catch(() => ({}));
-          throw new Error(
-            errorData.error || `Request failed: ${response.status}`,
-          );
+          throw new Error(errorData.error || `Request failed: ${response.status}`);
         }
 
         const reader = response.body?.getReader();
-        if (!reader) throw new Error("No response body");
+        if (!reader) throw new Error('No response body');
 
         const decoder = new TextDecoder();
-        let buffer = "";
+        let buffer = '';
         const toolCallsMap = new Map<string, ToolCall>();
 
         while (true) {
@@ -179,11 +164,11 @@ export function useAgentChat(options: UseAgentChatOptions = {}) {
           if (done) break;
 
           buffer += decoder.decode(value, { stream: true });
-          const lines = buffer.split("\n");
-          buffer = lines.pop() || "";
+          const lines = buffer.split('\n');
+          buffer = lines.pop() || '';
 
           for (const line of lines) {
-            if (!line.startsWith("data: ")) continue;
+            if (!line.startsWith('data: ')) continue;
 
             const data = line.slice(6);
             if (!data) continue;
@@ -192,26 +177,21 @@ export function useAgentChat(options: UseAgentChatOptions = {}) {
               const event: StreamEvent = JSON.parse(data);
 
               switch (event.type) {
-                case "text":
+                case 'text':
                   if (event.text) {
                     const textToAdd = event.text;
                     setMessages((prev) =>
                       prev.map((msg, index) => {
-                        if (
-                          index !== prev.length - 1 ||
-                          msg.role !== "assistant"
-                        ) {
+                        if (index !== prev.length - 1 || msg.role !== 'assistant') {
                           return msg;
                         }
                         // Find existing text part
-                        const textPartIndex = msg.parts.findIndex(
-                          (p) => p.type === "text",
-                        );
+                        const textPartIndex = msg.parts.findIndex((p) => p.type === 'text');
                         if (textPartIndex >= 0) {
                           return {
                             ...msg,
                             parts: msg.parts.map((part, pIndex) =>
-                              pIndex === textPartIndex && part.type === "text"
+                              pIndex === textPartIndex && part.type === 'text'
                                 ? { ...part, text: part.text + textToAdd }
                                 : part,
                             ),
@@ -219,10 +199,7 @@ export function useAgentChat(options: UseAgentChatOptions = {}) {
                         } else {
                           return {
                             ...msg,
-                            parts: [
-                              ...msg.parts,
-                              { type: "text", text: textToAdd },
-                            ],
+                            parts: [...msg.parts, { type: 'text', text: textToAdd }],
                           };
                         }
                       }),
@@ -230,14 +207,11 @@ export function useAgentChat(options: UseAgentChatOptions = {}) {
                   }
                   break;
 
-                case "image":
+                case 'image':
                   if (event.url) {
                     setMessages((prev) =>
                       prev.map((msg, index) => {
-                        if (
-                          index !== prev.length - 1 ||
-                          msg.role !== "assistant"
-                        ) {
+                        if (index !== prev.length - 1 || msg.role !== 'assistant') {
                           return msg;
                         }
                         return {
@@ -245,7 +219,7 @@ export function useAgentChat(options: UseAgentChatOptions = {}) {
                           parts: [
                             ...msg.parts,
                             {
-                              type: "image" as const,
+                              type: 'image' as const,
                               url: event.url!,
                               alt: event.alt,
                             },
@@ -256,22 +230,19 @@ export function useAgentChat(options: UseAgentChatOptions = {}) {
                   }
                   break;
 
-                case "tool_call":
+                case 'tool_call':
                   if (event.id && event.name) {
                     const toolCall: ToolCall = {
                       id: event.id,
                       name: event.name,
                       args: event.args || {},
-                      status: "pending",
+                      status: 'pending',
                     };
                     toolCallsMap.set(event.id, toolCall);
 
                     setMessages((prev) =>
                       prev.map((msg, index) => {
-                        if (
-                          index !== prev.length - 1 ||
-                          msg.role !== "assistant"
-                        ) {
+                        if (index !== prev.length - 1 || msg.role !== 'assistant') {
                           return msg;
                         }
                         return {
@@ -283,20 +254,17 @@ export function useAgentChat(options: UseAgentChatOptions = {}) {
                   }
                   break;
 
-                case "tool_result":
+                case 'tool_result':
                   if (event.id) {
                     const existing = toolCallsMap.get(event.id);
                     if (existing) {
                       existing.result = event.result;
-                      existing.status = "complete";
+                      existing.status = 'complete';
                       toolCallsMap.set(event.id, existing);
 
                       setMessages((prev) =>
                         prev.map((msg, index) => {
-                          if (
-                            index !== prev.length - 1 ||
-                            msg.role !== "assistant"
-                          ) {
+                          if (index !== prev.length - 1 || msg.role !== 'assistant') {
                             return msg;
                           }
                           return {
@@ -309,11 +277,11 @@ export function useAgentChat(options: UseAgentChatOptions = {}) {
                   }
                   break;
 
-                case "error":
-                  setError(event.error || "An error occurred");
+                case 'error':
+                  setError(event.error || 'An error occurred');
                   break;
 
-                case "done":
+                case 'done':
                   // Stream complete
                   break;
               }
@@ -323,21 +291,16 @@ export function useAgentChat(options: UseAgentChatOptions = {}) {
           }
         }
       } catch (err) {
-        if ((err as Error).name === "AbortError") {
+        if ((err as Error).name === 'AbortError') {
           // Request was aborted, not an error
         } else {
-          const errorMessage =
-            err instanceof Error ? err.message : "An error occurred";
+          const errorMessage = err instanceof Error ? err.message : 'An error occurred';
           setError(errorMessage);
           // Remove the empty assistant message on error
           setMessages((prev) => {
             const updated = [...prev];
             const last = updated[updated.length - 1];
-            if (
-              last?.role === "assistant" &&
-              last.parts.length === 0 &&
-              !last.toolCalls?.length
-            ) {
+            if (last?.role === 'assistant' && last.parts.length === 0 && !last.toolCalls?.length) {
               updated.pop();
             }
             return updated;

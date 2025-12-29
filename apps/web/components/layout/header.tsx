@@ -1,24 +1,19 @@
-import { Menu } from "lucide-react";
-import Link from "next/link";
+import { Menu } from 'lucide-react';
+import Link from 'next/link';
 
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
-  Sheet,
-  SheetContent,
-  SheetTrigger,
-  SheetTitle,
-} from "@/components/ui/sheet";
+} from '@/components/ui/dropdown-menu';
+import { Sheet, SheetContent, SheetTrigger, SheetTitle } from '@/components/ui/sheet';
 
-import { SignOutMenuItem } from "./sign-out-menu-item";
-import { ThemeToggle } from "./theme-toggle";
+import { SignOutMenuItem } from './sign-out-menu-item';
+import { ThemeToggle } from './theme-toggle';
 
 interface HeaderProps {
   user?: {
@@ -30,16 +25,16 @@ interface HeaderProps {
 function getInitials(name?: string, email?: string): string {
   if (name) {
     return name
-      .split(" ")
+      .split(' ')
       .map((n) => n[0])
-      .join("")
+      .join('')
       .toUpperCase()
       .slice(0, 2);
   }
   if (email) {
     return email[0].toUpperCase();
   }
-  return "U";
+  return 'U';
 }
 
 export function Header({ user }: HeaderProps) {
@@ -59,23 +54,16 @@ export function Header({ user }: HeaderProps) {
                 <ThemeToggle />
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      className="relative h-8 w-8 rounded-full"
-                    >
+                    <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                       <Avatar className="h-8 w-8">
-                        <AvatarFallback>
-                          {getInitials(user?.name, user?.email)}
-                        </AvatarFallback>
+                        <AvatarFallback>{getInitials(user?.name, user?.email)}</AvatarFallback>
                       </Avatar>
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent className="w-56" align="end" forceMount>
                     <div className="flex items-center justify-start gap-2 p-2">
                       <div className="flex flex-col space-y-1 leading-none">
-                        {user?.name && (
-                          <p className="font-medium">{user.name}</p>
-                        )}
+                        {user?.name && <p className="font-medium">{user.name}</p>}
                         {user?.email && (
                           <p className="w-[200px] truncate text-sm text-muted-foreground">
                             {user.email}
@@ -122,14 +110,10 @@ export function Header({ user }: HeaderProps) {
                     <>
                       <div className="flex items-center gap-2 pb-4 border-b">
                         <Avatar className="h-10 w-10">
-                          <AvatarFallback>
-                            {getInitials(user?.name, user?.email)}
-                          </AvatarFallback>
+                          <AvatarFallback>{getInitials(user?.name, user?.email)}</AvatarFallback>
                         </Avatar>
                         <div className="flex flex-col">
-                          {user?.name && (
-                            <p className="font-medium">{user.name}</p>
-                          )}
+                          {user?.name && <p className="font-medium">{user.name}</p>}
                           {user?.email && (
                             <p className="text-sm text-muted-foreground truncate max-w-[200px]">
                               {user.email}

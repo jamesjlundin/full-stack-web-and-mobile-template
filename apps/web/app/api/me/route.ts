@@ -1,10 +1,10 @@
-import { getAvailableProviders, getDefaultProvider } from "@acme/ai";
-import { getCurrentUser } from "@acme/auth";
-import { db, schema } from "@acme/db";
-import { eq } from "drizzle-orm";
-import { NextResponse } from "next/server";
+import { getAvailableProviders, getDefaultProvider } from '@acme/ai';
+import { getCurrentUser } from '@acme/auth';
+import { db, schema } from '@acme/db';
+import { eq } from 'drizzle-orm';
+import { NextResponse } from 'next/server';
 
-import { verifyAuthToken } from "../../../lib/jwt";
+import { verifyAuthToken } from '../../../lib/jwt';
 
 function getConfig() {
   const providers = getAvailableProviders();
@@ -46,10 +46,10 @@ export async function GET(request: Request) {
     return response;
   }
 
-  const authHeader = request.headers.get("authorization");
+  const authHeader = request.headers.get('authorization');
 
-  if (authHeader?.toLowerCase().startsWith("bearer ")) {
-    const token = authHeader.slice("bearer ".length).trim();
+  if (authHeader?.toLowerCase().startsWith('bearer ')) {
+    const token = authHeader.slice('bearer '.length).trim();
 
     try {
       const payload = await verifyAuthToken(token);
@@ -77,12 +77,12 @@ export async function GET(request: Request) {
         { status: 200 },
       );
     } catch {
-      return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+      return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
     }
   }
 
   const status = result?.status ?? 401;
-  const response = NextResponse.json({ error: "unauthorized" }, { status });
+  const response = NextResponse.json({ error: 'unauthorized' }, { status });
 
   if (result?.headers) {
     result.headers.forEach((value, key) => {

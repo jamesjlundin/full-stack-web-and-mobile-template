@@ -1,16 +1,16 @@
-"use client";
+'use client';
 
-import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
-import { FormEvent, useState, useEffect, Suspense } from "react";
-import { toast } from "sonner";
+import Link from 'next/link';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { FormEvent, useState, useEffect, Suspense } from 'react';
+import { toast } from 'sonner';
 
-import { useUser } from "@/app/_components/useUser";
-import { DividerWithText } from "@/components/auth/divider-with-text";
-import { GoogleSignInButton } from "@/components/auth/google-sign-in-button";
-import { AppShell } from "@/components/layout";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Button } from "@/components/ui/button";
+import { useUser } from '@/app/_components/useUser';
+import { DividerWithText } from '@/components/auth/divider-with-text';
+import { GoogleSignInButton } from '@/components/auth/google-sign-in-button';
+import { AppShell } from '@/components/layout';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
@@ -18,35 +18,35 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Spinner } from "@/components/ui/spinner";
-import { getSafeRedirectUrl } from "@/lib/utils";
+} from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Spinner } from '@/components/ui/spinner';
+import { getSafeRedirectUrl } from '@/lib/utils';
 
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user, loading: userLoading } = useUser();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [isGoogleAuthEnabled, setIsGoogleAuthEnabled] = useState(false);
 
-  const nextUrl = getSafeRedirectUrl(searchParams.get("next"));
-  const googleError = searchParams.get("error") === "google";
-  const verified = searchParams.get("verified") === "true";
+  const nextUrl = getSafeRedirectUrl(searchParams.get('next'));
+  const googleError = searchParams.get('error') === 'google';
+  const verified = searchParams.get('verified') === 'true';
 
   // Redirect authenticated users to app home
   useEffect(() => {
     if (!userLoading && user) {
-      router.replace("/app/home");
+      router.replace('/app/home');
     }
   }, [user, userLoading, router]);
 
   useEffect(() => {
-    fetch("/api/config")
+    fetch('/api/config')
       .then((res) => res.json())
       .then((data) => setIsGoogleAuthEnabled(data.isGoogleAuthEnabled ?? false))
       .catch(() => {});
@@ -54,7 +54,7 @@ function LoginForm() {
 
   useEffect(() => {
     if (googleError) {
-      setError("Failed to sign in with Google. Please try again.");
+      setError('Failed to sign in with Google. Please try again.');
     }
   }, [googleError]);
 
@@ -64,11 +64,11 @@ function LoginForm() {
     setLoading(true);
 
     try {
-      const response = await fetch("/api/auth/email-password/sign-in", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
+      const response = await fetch('/api/auth/email-password/sign-in', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ email, password }),
-        credentials: "include",
+        credentials: 'include',
       });
 
       if (response.ok) {
@@ -76,27 +76,20 @@ function LoginForm() {
 
         // If verification is required, redirect to verify page
         if (data.requiresVerification) {
-          toast.info("Please verify your email to continue");
-          router.push(
-            `/auth/verify?email=${encodeURIComponent(data.email || email)}`,
-          );
+          toast.info('Please verify your email to continue');
+          router.push(`/auth/verify?email=${encodeURIComponent(data.email || email)}`);
           return;
         }
 
-        toast.success("Signed in successfully");
+        toast.success('Signed in successfully');
         router.push(nextUrl);
         return;
       }
 
       const data = await response.json().catch(() => ({}));
-      setError(
-        data?.message ??
-          "Unable to sign in. Check your credentials and try again.",
-      );
+      setError(data?.message ?? 'Unable to sign in. Check your credentials and try again.');
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Unexpected error occurred",
-      );
+      setError(err instanceof Error ? err.message : 'Unexpected error occurred');
     } finally {
       setLoading(false);
     }
@@ -127,16 +120,13 @@ function LoginForm() {
         <Card className="w-full max-w-md min-h-[440px]">
           <CardHeader className="space-y-1">
             <CardTitle className="text-2xl font-bold">Sign in</CardTitle>
-            <CardDescription>
-              Enter your email and password to access your account
-            </CardDescription>
+            <CardDescription>Enter your email and password to access your account</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             {verified && !error && (
               <Alert className="border-green-500 bg-green-50 dark:bg-green-950">
                 <AlertDescription className="text-green-700 dark:text-green-300">
-                  Email verified successfully! You can now sign in to your
-                  account.
+                  Email verified successfully! You can now sign in to your account.
                 </AlertDescription>
               </Alert>
             )}
@@ -181,11 +171,11 @@ function LoginForm() {
             <CardFooter className="flex flex-col space-y-4">
               <Button type="submit" className="w-full" disabled={loading}>
                 {loading && <Spinner size="sm" className="mr-2" />}
-                {loading ? "Signing in..." : "Sign in"}
+                {loading ? 'Signing in...' : 'Sign in'}
               </Button>
               <div className="text-sm text-center space-y-2">
                 <p className="text-muted-foreground">
-                  Need an account?{" "}
+                  Need an account?{' '}
                   <Link
                     href="/register"
                     className="text-primary underline-offset-4 hover:underline"
@@ -200,7 +190,7 @@ function LoginForm() {
                   >
                     Forgot password?
                   </Link>
-                  {" | "}
+                  {' | '}
                   <Link
                     href="/auth/verify"
                     className="text-primary underline-offset-4 hover:underline"

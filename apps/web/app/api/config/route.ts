@@ -1,6 +1,6 @@
-import { getAvailableProviders, getDefaultProvider } from "@acme/ai";
-import { isGoogleAuthEnabled } from "@acme/auth";
-import { NextResponse } from "next/server";
+import { getAvailableProviders, getDefaultProvider } from '@acme/ai';
+import { isGoogleAuthEnabled } from '@acme/auth';
+import { NextResponse } from 'next/server';
 
 /**
  * Public configuration endpoint.

@@ -45,12 +45,12 @@ pnpm test:integration
 3. Tests run against `http://localhost:3000`
 
 ```typescript
-import { describe, it, expect } from "vitest";
-import { http } from "./http";
+import { describe, it, expect } from 'vitest';
+import { http } from './http';
 
-describe("my feature", () => {
-  it("should work", async () => {
-    const res = await http.get("/api/my-endpoint");
+describe('my feature', () => {
+  it('should work', async () => {
+    const res = await http.get('/api/my-endpoint');
     expect(res.status).toBe(200);
   });
 });

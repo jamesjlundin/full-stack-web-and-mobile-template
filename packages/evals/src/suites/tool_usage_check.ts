@@ -5,19 +5,17 @@
  * Metric: % of responses with correct tool selection and arguments.
  */
 
-import type { Suite, EvalContext } from "./types.js";
-import type { ToolFixture } from "../fixtures/types.js";
-import type { CaseResult } from "../reporters/types.js";
+import type { Suite, EvalContext } from './types.js';
+import type { ToolFixture } from '../fixtures/types.js';
+import type { CaseResult } from '../reporters/types.js';
 
 export const toolUsageCheckSuite: Suite = {
-  name: "Tool Usage Check",
-  description: "Evaluates correct structured tool call usage",
-  metricName: "tool_usage_check",
+  name: 'Tool Usage Check',
+  description: 'Evaluates correct structured tool call usage',
+  metricName: 'tool_usage_check',
 
   async run(context: EvalContext): Promise<CaseResult[]> {
-    const toolFixtures = context.fixtures.filter(
-      (f): f is ToolFixture => f.category === "tool",
-    );
+    const toolFixtures = context.fixtures.filter((f): f is ToolFixture => f.category === 'tool');
 
     const results: CaseResult[] = [];
     const limit = context.limit ?? toolFixtures.length;
@@ -32,19 +30,16 @@ export const toolUsageCheckSuite: Suite = {
   },
 };
 
-async function evaluateToolUsage(
-  context: EvalContext,
-  fixture: ToolFixture,
-): Promise<CaseResult> {
+async function evaluateToolUsage(context: EvalContext, fixture: ToolFixture): Promise<CaseResult> {
   try {
     const response = await context.model.generate(
       [
         {
-          role: "system",
+          role: 'system',
           content:
-            "You are a helpful assistant with access to tools. Use the appropriate tool to complete the task.",
+            'You are a helpful assistant with access to tools. Use the appropriate tool to complete the task.',
         },
-        { role: "user", content: fixture.prompt },
+        { role: 'user', content: fixture.prompt },
       ],
       { tools: fixture.tools },
     );
@@ -53,11 +48,11 @@ async function evaluateToolUsage(
     if (!response.toolCalls || response.toolCalls.length === 0) {
       return {
         id: fixture.id,
-        suite: "tool_usage_check",
+        suite: 'tool_usage_check',
         name: fixture.name,
         passed: false,
         score: 0,
-        error: "No tool call was made",
+        error: 'No tool call was made',
         details: `Response: ${response.content.substring(0, 200)}`,
       };
     }
@@ -68,7 +63,7 @@ async function evaluateToolUsage(
     if (toolCall.name !== fixture.expectedTool) {
       return {
         id: fixture.id,
-        suite: "tool_usage_check",
+        suite: 'tool_usage_check',
         name: fixture.name,
         passed: false,
         score: 0.5, // Partial credit for making a tool call
@@ -81,10 +76,8 @@ async function evaluateToolUsage(
     if (fixture.expectedArguments) {
       const missingValues: string[] = [];
 
-      for (const [expectedKey, expectedValue] of Object.entries(
-        fixture.expectedArguments,
-      )) {
-        if (typeof expectedValue !== "string") continue;
+      for (const [expectedKey, expectedValue] of Object.entries(fixture.expectedArguments)) {
+        if (typeof expectedValue !== 'string') continue;
 
         const expectedStr = expectedValue.toLowerCase();
 
@@ -117,19 +110,19 @@ async function evaluateToolUsage(
       if (missingValues.length > 0) {
         return {
           id: fixture.id,
-          suite: "tool_usage_check",
+          suite: 'tool_usage_check',
           name: fixture.name,
           passed: false,
           score: 0.75, // Partial credit for correct tool
-          error: "Expected values not found in arguments",
-          details: `Missing: ${missingValues.join(", ")}. Got: ${JSON.stringify(toolCall.arguments)}`,
+          error: 'Expected values not found in arguments',
+          details: `Missing: ${missingValues.join(', ')}. Got: ${JSON.stringify(toolCall.arguments)}`,
         };
       }
     }
 
     return {
       id: fixture.id,
-      suite: "tool_usage_check",
+      suite: 'tool_usage_check',
       name: fixture.name,
       passed: true,
       score: 1,
@@ -138,11 +131,11 @@ async function evaluateToolUsage(
   } catch (error) {
     return {
       id: fixture.id,
-      suite: "tool_usage_check",
+      suite: 'tool_usage_check',
       name: fixture.name,
       passed: false,
       score: 0,
-      error: error instanceof Error ? error.message : "Unknown error",
+      error: error instanceof Error ? error.message : 'Unknown error',
     };
   }
 }

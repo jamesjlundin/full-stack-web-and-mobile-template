@@ -1,5 +1,5 @@
-import { auth, getDevToken } from "@acme/auth";
-import { NextResponse } from "next/server";
+import { auth, getDevToken } from '@acme/auth';
+import { NextResponse } from 'next/server';
 
 /**
  * POST /api/auth/password/reset/request
@@ -11,23 +11,19 @@ import { NextResponse } from "next/server";
 export async function POST(request: Request) {
   // Check if dev token echoing is allowed (dev mode OR ALLOW_DEV_TOKENS=true for testing)
   const isDevTokenAllowed =
-    process.env.NODE_ENV !== "production" ||
-    process.env.ALLOW_DEV_TOKENS === "true";
+    process.env.NODE_ENV !== 'production' || process.env.ALLOW_DEV_TOKENS === 'true';
 
   try {
     const body = await request.json();
     const { email } = body;
 
-    if (!email || typeof email !== "string") {
-      return NextResponse.json(
-        { ok: false, error: "Email is required" },
-        { status: 400 },
-      );
+    if (!email || typeof email !== 'string') {
+      return NextResponse.json({ ok: false, error: 'Email is required' }, { status: 400 });
     }
 
     // Call Better Auth's request password reset API
     await auth.api.requestPasswordReset({
-      body: { email, redirectTo: "/auth/reset/confirm" },
+      body: { email, redirectTo: '/auth/reset/confirm' },
       headers: request.headers,
     });
 
@@ -36,15 +32,15 @@ export async function POST(request: Request) {
     if (isDevTokenAllowed) {
       // Small delay to ensure token is stored
       await new Promise((resolve) => setTimeout(resolve, 100));
-      const devToken = getDevToken("reset", email);
+      const devToken = getDevToken('reset', email);
       return NextResponse.json({ ok: true, devToken: devToken ?? undefined });
     }
 
     // Production: never expose tokens
     return NextResponse.json({ ok: true });
   } catch (error) {
-    console.error("[password/reset/request] Error:", error);
-    const message = error instanceof Error ? error.message : "Unknown error";
+    console.error('[password/reset/request] Error:', error);
+    const message = error instanceof Error ? error.message : 'Unknown error';
     return NextResponse.json({ ok: false, error: message }, { status: 500 });
   }
 }

@@ -1,11 +1,11 @@
-import { describe, it, expect, beforeAll } from "vitest";
+import { describe, it, expect, beforeAll } from 'vitest';
 
-import { postJson, randomEmail, randomPassword, streamText } from "./http.js";
+import { postJson, randomEmail, randomPassword, streamText } from './http.js';
 
-describe("Agent Stream", () => {
+describe('Agent Stream', () => {
   const testEmail = randomEmail();
   const testPassword = randomPassword();
-  let bearerToken: string = "";
+  let bearerToken: string = '';
 
   beforeAll(async () => {
     // Sign up a test user
@@ -14,10 +14,10 @@ describe("Agent Stream", () => {
       requiresVerification?: boolean;
       devToken?: string;
       email?: string;
-    }>("/api/auth/email-password/sign-up", {
+    }>('/api/auth/email-password/sign-up', {
       email: testEmail,
       password: testPassword,
-      name: "Stream Test User",
+      name: 'Stream Test User',
     });
 
     expect([200, 201]).toContain(signUpResponse.status);
@@ -31,24 +31,21 @@ describe("Agent Stream", () => {
         const verifyRequestResponse = await postJson<{
           ok: boolean;
           devToken?: string;
-        }>("/api/auth/email/verify/request", { email: testEmail });
+        }>('/api/auth/email/verify/request', { email: testEmail });
         expect(verifyRequestResponse.status).toBe(200);
         devToken = verifyRequestResponse.data.devToken;
       }
 
       // Verify the email with the token
       if (devToken) {
-        const verifyResponse = await postJson(
-          "/api/auth/email/verify/confirm",
-          {
-            token: devToken,
-          },
-        );
+        const verifyResponse = await postJson('/api/auth/email/verify/confirm', {
+          token: devToken,
+        });
         expect(verifyResponse.status).toBe(200);
       } else {
         throw new Error(
-          "Email verification is required but no devToken was provided. " +
-            "Set ALLOW_DEV_TOKENS=true in CI environment for integration tests.",
+          'Email verification is required but no devToken was provided. ' +
+            'Set ALLOW_DEV_TOKENS=true in CI environment for integration tests.',
         );
       }
     }
@@ -57,7 +54,7 @@ describe("Agent Stream", () => {
     const tokenResponse = await postJson<{
       token: string;
       user: { id: string; email: string };
-    }>("/api/auth/token", {
+    }>('/api/auth/token', {
       email: testEmail,
       password: testPassword,
     });
@@ -67,11 +64,11 @@ describe("Agent Stream", () => {
     bearerToken = tokenResponse.data.token;
   });
 
-  it("should stream multiple chunks from /api/agent/stream via POST", async () => {
-    const response = await streamText("/api/agent/stream", {
-      method: "POST",
+  it('should stream multiple chunks from /api/agent/stream via POST', async () => {
+    const response = await streamText('/api/agent/stream', {
+      method: 'POST',
       body: JSON.stringify({
-        messages: [{ role: "user", content: "integration test" }],
+        messages: [{ role: 'user', content: 'integration test' }],
       }),
       maxChunks: 5,
       headers: {
@@ -82,8 +79,8 @@ describe("Agent Stream", () => {
     expect(response.status).toBe(200);
 
     // Check content type is SSE
-    const contentType = response.headers.get("Content-Type");
-    expect(contentType).toContain("text/event-stream");
+    const contentType = response.headers.get('Content-Type');
+    expect(contentType).toContain('text/event-stream');
 
     // Should have received chunks
     expect(response.chunks.length).toBeGreaterThan(0);
@@ -95,18 +92,16 @@ describe("Agent Stream", () => {
     });
 
     // Verify chunks contain SSE data format
-    const allText = response.chunks.join("");
+    const allText = response.chunks.join('');
     expect(allText.length).toBeGreaterThan(0);
-    expect(allText).toContain("data:");
+    expect(allText).toContain('data:');
   });
 
-  it("should stream weather tool response from /api/agent/stream", async () => {
-    const response = await streamText("/api/agent/stream", {
-      method: "POST",
+  it('should stream weather tool response from /api/agent/stream', async () => {
+    const response = await streamText('/api/agent/stream', {
+      method: 'POST',
       body: JSON.stringify({
-        messages: [
-          { role: "user", content: "What is the weather in San Francisco?" },
-        ],
+        messages: [{ role: 'user', content: 'What is the weather in San Francisco?' }],
       }),
       maxChunks: 10,
       headers: {
@@ -116,8 +111,8 @@ describe("Agent Stream", () => {
 
     expect(response.status).toBe(200);
 
-    const contentType = response.headers.get("Content-Type");
-    expect(contentType).toContain("text/event-stream");
+    const contentType = response.headers.get('Content-Type');
+    expect(contentType).toContain('text/event-stream');
 
     // Should have received chunks
     expect(response.chunks.length).toBeGreaterThan(0);
@@ -129,11 +124,11 @@ describe("Agent Stream", () => {
     });
   });
 
-  it("should include done marker in stream", async () => {
-    const response = await streamText("/api/agent/stream", {
-      method: "POST",
+  it('should include done marker in stream', async () => {
+    const response = await streamText('/api/agent/stream', {
+      method: 'POST',
       body: JSON.stringify({
-        messages: [{ role: "user", content: "short test" }],
+        messages: [{ role: 'user', content: 'short test' }],
       }),
       maxChunks: 20, // Get more chunks to ensure we see the done marker
       headers: {
@@ -143,21 +138,21 @@ describe("Agent Stream", () => {
 
     expect(response.status).toBe(200);
 
-    const allText = response.chunks.join("");
+    const allText = response.chunks.join('');
 
     // The stream should contain type indicators
     // Either "type":"done" or "type":"text" depending on implementation
-    console.log("Stream content sample:", allText.substring(0, 500));
+    console.log('Stream content sample:', allText.substring(0, 500));
 
     // Verify we got actual content
     expect(allText.length).toBeGreaterThan(10);
   });
 
-  it("should return 401 without authentication", async () => {
-    const response = await streamText("/api/agent/stream", {
-      method: "POST",
+  it('should return 401 without authentication', async () => {
+    const response = await streamText('/api/agent/stream', {
+      method: 'POST',
       body: JSON.stringify({
-        messages: [{ role: "user", content: "unauthorized test" }],
+        messages: [{ role: 'user', content: 'unauthorized test' }],
       }),
       maxChunks: 1,
       // No Authorization header

@@ -4,7 +4,7 @@
  * Falls back to mock model if OPENAI_API_KEY is not available.
  */
 
-import { createMockModel } from "./mock.js";
+import { createMockModel } from './mock.js';
 
 import type {
   ModelAdapter,
@@ -13,7 +13,7 @@ import type {
   GenerateOptions,
   ToolCall,
   ToolDefinition,
-} from "./types.js";
+} from './types.js';
 
 /**
  * Check if OpenAI API key is available
@@ -26,37 +26,34 @@ export function hasOpenAIKey(): boolean {
  * OpenAI model adapter using Vercel AI SDK
  */
 export class OpenAIModel implements ModelAdapter {
-  name = "openai";
+  name = 'openai';
   private modelId: string;
 
-  constructor(modelId: string = "gpt-4o-mini") {
+  constructor(modelId: string = 'gpt-4o-mini') {
     this.modelId = modelId;
   }
 
-  async generate(
-    messages: Message[],
-    options?: GenerateOptions,
-  ): Promise<ModelResponse> {
+  async generate(messages: Message[], options?: GenerateOptions): Promise<ModelResponse> {
     if (!hasOpenAIKey()) {
-      console.warn("OPENAI_API_KEY not found, falling back to mock model");
+      console.warn('OPENAI_API_KEY not found, falling back to mock model');
       const mock = createMockModel();
       return mock.generate(messages, options);
     }
 
     try {
-      const ai = await import("ai");
-      const { openai } = await import("@ai-sdk/openai");
+      const ai = await import('ai');
+      const { openai } = await import('@ai-sdk/openai');
 
       const model = openai(this.modelId);
 
       // Convert messages to AI SDK format
       const aiMessages = messages.map((m) => ({
-        role: m.role as "system" | "user" | "assistant",
+        role: m.role as 'system' | 'user' | 'assistant',
         content: m.content,
       }));
 
       // Handle JSON response format with structured output
-      if (options?.responseFormat === "json") {
+      if (options?.responseFormat === 'json') {
         // Add JSON instruction to prompt for better structured output
         const jsonMessages = [
           ...aiMessages.slice(0, -1),
@@ -64,7 +61,7 @@ export class OpenAIModel implements ModelAdapter {
             ...aiMessages[aiMessages.length - 1],
             content:
               aiMessages[aiMessages.length - 1].content +
-              "\n\nRespond with valid JSON only. No markdown, no explanation.",
+              '\n\nRespond with valid JSON only. No markdown, no explanation.',
           },
         ];
 
@@ -75,7 +72,7 @@ export class OpenAIModel implements ModelAdapter {
           temperature: options?.temperature ?? 0,
           providerOptions: {
             openai: {
-              response_format: { type: "json_object" },
+              response_format: { type: 'json_object' },
             },
           },
         });
@@ -84,19 +81,19 @@ export class OpenAIModel implements ModelAdapter {
         let jsonContent = result.text.trim();
 
         // Remove markdown code blocks if present (fallback safety)
-        if (jsonContent.startsWith("```json")) {
+        if (jsonContent.startsWith('```json')) {
           jsonContent = jsonContent.slice(7);
-        } else if (jsonContent.startsWith("```")) {
+        } else if (jsonContent.startsWith('```')) {
           jsonContent = jsonContent.slice(3);
         }
-        if (jsonContent.endsWith("```")) {
+        if (jsonContent.endsWith('```')) {
           jsonContent = jsonContent.slice(0, -3);
         }
         jsonContent = jsonContent.trim();
 
         return {
           content: jsonContent,
-          finishReason: "stop",
+          finishReason: 'stop',
         };
       }
 
@@ -109,7 +106,7 @@ export class OpenAIModel implements ModelAdapter {
           messages: aiMessages,
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           tools: tools as any,
-          toolChoice: "auto",
+          toolChoice: 'auto',
           temperature: options?.temperature ?? 0,
         });
 
@@ -138,11 +135,7 @@ export class OpenAIModel implements ModelAdapter {
         }
 
         // Fallback: try result.toolCalls directly (older pattern)
-        if (
-          toolCalls.length === 0 &&
-          result.toolCalls &&
-          Array.isArray(result.toolCalls)
-        ) {
+        if (toolCalls.length === 0 && result.toolCalls && Array.isArray(result.toolCalls)) {
           for (const tc of result.toolCalls) {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const toolCall = tc as any;
@@ -158,9 +151,7 @@ export class OpenAIModel implements ModelAdapter {
           content: result.text,
           toolCalls: toolCalls.length > 0 ? toolCalls : undefined,
           finishReason:
-            toolCalls.length > 0
-              ? "tool_calls"
-              : this.mapFinishReason(result.finishReason),
+            toolCalls.length > 0 ? 'tool_calls' : this.mapFinishReason(result.finishReason),
         };
       }
 
@@ -176,8 +167,8 @@ export class OpenAIModel implements ModelAdapter {
         finishReason: this.mapFinishReason(result.finishReason),
       };
     } catch (error) {
-      console.error("OpenAI generation failed:", error);
-      console.warn("Falling back to mock model");
+      console.error('OpenAI generation failed:', error);
+      console.warn('Falling back to mock model');
       const mock = createMockModel();
       return mock.generate(messages, options);
     }
@@ -190,12 +181,12 @@ export class OpenAIModel implements ModelAdapter {
     tools: ToolDefinition[],
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ): Promise<Record<string, any>> {
-    const ai = await import("ai");
+    const ai = await import('ai');
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const result: Record<string, any> = {};
 
     // Import jsonSchema helper for direct JSON Schema support (AI SDK v5)
-    const { jsonSchema } = await import("ai");
+    const { jsonSchema } = await import('ai');
 
     for (const toolDef of tools) {
       result[toolDef.name] = ai.tool({
@@ -207,20 +198,18 @@ export class OpenAIModel implements ModelAdapter {
     return result;
   }
 
-  private mapFinishReason(
-    reason: string | undefined,
-  ): ModelResponse["finishReason"] {
+  private mapFinishReason(reason: string | undefined): ModelResponse['finishReason'] {
     switch (reason) {
-      case "stop":
-        return "stop";
-      case "tool-calls":
-        return "tool_calls";
-      case "length":
-        return "length";
-      case "error":
-        return "error";
+      case 'stop':
+        return 'stop';
+      case 'tool-calls':
+        return 'tool_calls';
+      case 'length':
+        return 'length';
+      case 'error':
+        return 'error';
       default:
-        return "stop";
+        return 'stop';
     }
   }
 }

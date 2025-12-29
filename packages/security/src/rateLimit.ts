@@ -5,8 +5,8 @@
  * @see https://upstash.com/docs/redis/sdks/ratelimit-ts/overview
  */
 
-import { Ratelimit } from "@upstash/ratelimit";
-import { Redis } from "@upstash/redis";
+import { Ratelimit } from '@upstash/ratelimit';
+import { Redis } from '@upstash/redis';
 
 export interface RateLimiterConfig {
   /** Maximum number of requests allowed in the window */
@@ -20,7 +20,7 @@ export interface RateLimiterConfig {
  * Useful for CI/testing environments.
  */
 function isRateLimitDisabled(): boolean {
-  return process.env.DISABLE_RATE_LIMIT === "true";
+  return process.env.DISABLE_RATE_LIMIT === 'true';
 }
 
 /**
@@ -48,9 +48,7 @@ export interface RateLimitResult {
  * Check if Upstash Redis is configured via environment variables.
  */
 function isRedisConfigured(): boolean {
-  return !!(
-    process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN
-  );
+  return !!(process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN);
 }
 
 /**
@@ -133,10 +131,7 @@ const rateLimiterCache = new Map<string, Ratelimit>();
  * Get or create an Upstash Ratelimit instance.
  * Instances are cached to enable request coalescing and analytics.
  */
-function getOrCreateRatelimiter(
-  limit: number,
-  windowSeconds: number,
-): Ratelimit {
+function getOrCreateRatelimiter(limit: number, windowSeconds: number): Ratelimit {
   const cacheKey = `${limit}:${windowSeconds}`;
 
   let ratelimiter = rateLimiterCache.get(cacheKey);
@@ -150,7 +145,7 @@ function getOrCreateRatelimiter(
     redis,
     limiter: Ratelimit.slidingWindow(limit, `${windowSeconds} s`),
     analytics: true,
-    prefix: "ratelimit",
+    prefix: 'ratelimit',
   });
 
   rateLimiterCache.set(cacheKey, ratelimiter);
@@ -200,8 +195,8 @@ export function createRateLimiter(config: RateLimiterConfig) {
     if (!useRedis) {
       if (!hasLoggedFallback) {
         console.warn(
-          "[RateLimit] Upstash Redis not configured (UPSTASH_REDIS_REST_URL, UPSTASH_REDIS_REST_TOKEN). " +
-            "Using in-memory fallback. This is fine for local development but will NOT work correctly in serverless production.",
+          '[RateLimit] Upstash Redis not configured (UPSTASH_REDIS_REST_URL, UPSTASH_REDIS_REST_TOKEN). ' +
+            'Using in-memory fallback. This is fine for local development but will NOT work correctly in serverless production.',
         );
         hasLoggedFallback = true;
       }

@@ -1,4 +1,4 @@
-import type { AppConfig, ChatChunk, User } from "@acme/types";
+import type { AppConfig, ChatChunk, User } from '@acme/types';
 
 type ApiClientConfig = {
   baseUrl?: string;
@@ -59,10 +59,7 @@ function resolveUrl(path: string, baseUrl: string) {
   return new URL(path, baseUrl).toString();
 }
 
-export async function* streamFetch(
-  url: string,
-  init?: RequestInit,
-): AsyncGenerator<ChatChunk> {
+export async function* streamFetch(url: string, init?: RequestInit): AsyncGenerator<ChatChunk> {
   const response = await fetch(url, init);
 
   if (!response.ok) {
@@ -70,7 +67,7 @@ export async function* streamFetch(
   }
 
   if (!response.body) {
-    throw new Error("Response body is not readable");
+    throw new Error('Response body is not readable');
   }
 
   const reader = response.body.getReader();
@@ -98,10 +95,10 @@ export async function* streamFetch(
     yield { content: remaining };
   }
 
-  yield { content: "", done: true };
+  yield { content: '', done: true };
 }
 
-export function createApiClient({ baseUrl = "" }: ApiClientConfig = {}) {
+export function createApiClient({ baseUrl = '' }: ApiClientConfig = {}) {
   const buildUrl = (path: string) => resolveUrl(path, baseUrl);
 
   const defaultConfig: AppConfig = {
@@ -119,7 +116,7 @@ export function createApiClient({ baseUrl = "" }: ApiClientConfig = {}) {
       headers.Authorization = `Bearer ${token}`;
     }
 
-    const response = await fetch(buildUrl("/api/me"), { headers });
+    const response = await fetch(buildUrl('/api/me'), { headers });
 
     if (!response.ok) {
       return { user: null, config: defaultConfig };
@@ -137,7 +134,7 @@ export function createApiClient({ baseUrl = "" }: ApiClientConfig = {}) {
   };
 
   const getConfig = async (): Promise<AppConfig> => {
-    const response = await fetch(buildUrl("/api/config"));
+    const response = await fetch(buildUrl('/api/config'));
 
     if (!response.ok) {
       return defaultConfig;
@@ -147,14 +144,11 @@ export function createApiClient({ baseUrl = "" }: ApiClientConfig = {}) {
     return data ?? defaultConfig;
   };
 
-  const signIn = async ({
-    email,
-    password,
-  }: SignInParams): Promise<SignInResult> => {
-    const response = await fetch(buildUrl("/api/auth/token"), {
-      method: "POST",
+  const signIn = async ({ email, password }: SignInParams): Promise<SignInResult> => {
+    const response = await fetch(buildUrl('/api/auth/token'), {
+      method: 'POST',
       headers: {
-        "content-type": "application/json",
+        'content-type': 'application/json',
       },
       body: JSON.stringify({ email, password }),
     });
@@ -176,9 +170,9 @@ export function createApiClient({ baseUrl = "" }: ApiClientConfig = {}) {
     }
 
     if (!response.ok) {
-      const errorText = await response.text().catch(() => "");
+      const errorText = await response.text().catch(() => '');
       throw new Error(
-        `Sign-in failed with status ${response.status}${errorText ? `: ${errorText}` : ""}`,
+        `Sign-in failed with status ${response.status}${errorText ? `: ${errorText}` : ''}`,
       );
     }
 
@@ -188,7 +182,7 @@ export function createApiClient({ baseUrl = "" }: ApiClientConfig = {}) {
     } | null;
 
     if (!payload?.token || !payload.user) {
-      throw new Error("Invalid sign-in response");
+      throw new Error('Invalid sign-in response');
     }
 
     return {
@@ -203,43 +197,37 @@ export function createApiClient({ baseUrl = "" }: ApiClientConfig = {}) {
     token,
   }: RequestVerificationParams): Promise<RequestVerificationResult> => {
     const headers: HeadersInit = {
-      "content-type": "application/json",
+      'content-type': 'application/json',
     };
 
     if (token) {
       headers.Authorization = `Bearer ${token}`;
     }
 
-    const response = await fetch(buildUrl("/api/auth/email/verify/request"), {
-      method: "POST",
+    const response = await fetch(buildUrl('/api/auth/email/verify/request'), {
+      method: 'POST',
       headers,
       body: JSON.stringify({ email }),
     });
 
-    const data = (await response
-      .json()
-      .catch(() => null)) as RequestVerificationResult | null;
+    const data = (await response.json().catch(() => null)) as RequestVerificationResult | null;
 
-    return data ?? { ok: false, error: "Unknown error" };
+    return data ?? { ok: false, error: 'Unknown error' };
   };
 
-  const streamChat = async function* ({
-    prompt,
-    token,
-    signal,
-  }: StreamChatParams) {
+  const streamChat = async function* ({ prompt, token, signal }: StreamChatParams) {
     const headers: HeadersInit = {
-      "content-type": "application/json",
+      'content-type': 'application/json',
     };
 
     if (token) {
       headers.Authorization = `Bearer ${token}`;
     }
 
-    const url = buildUrl("/api/chat/stream");
+    const url = buildUrl('/api/chat/stream');
 
     yield* streamFetch(url, {
-      method: "POST",
+      method: 'POST',
       headers,
       body: JSON.stringify({ prompt }),
       signal,
@@ -263,10 +251,4 @@ export const requestVerificationEmail = defaultClient.requestVerificationEmail;
 export const signIn = defaultClient.signIn;
 export const streamChat = defaultClient.streamChat;
 
-export type {
-  AiModelInfo,
-  AiProviderInfo,
-  AppConfig,
-  ChatChunk,
-  User,
-} from "@acme/types";
+export type { AiModelInfo, AiProviderInfo, AppConfig, ChatChunk, User } from '@acme/types';

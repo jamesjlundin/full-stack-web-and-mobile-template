@@ -1,25 +1,19 @@
-import { Home, Bot } from "lucide-react";
-import Link from "next/link";
+import { Home, Bot } from 'lucide-react';
+import Link from 'next/link';
 
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
-import { getServerSession } from "../../../../lib/session";
+import { getServerSession } from '../../../../lib/session';
 
-import { SignOutButton } from "./_components/SignOutButton";
+import { SignOutButton } from './_components/SignOutButton';
 
 export default async function ProtectedHomePage() {
   const { user } = await getServerSession();
 
-  const displayName = user?.name || user?.email || "User";
+  const displayName = user?.name || user?.email || 'User';
 
   return (
     <div className="container py-8">
@@ -27,9 +21,7 @@ export default async function ProtectedHomePage() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
-            <p className="text-muted-foreground">
-              Welcome to your protected area
-            </p>
+            <p className="text-muted-foreground">Welcome to your protected area</p>
           </div>
           <Badge variant="secondary">Protected</Badge>
         </div>
@@ -45,9 +37,7 @@ export default async function ProtectedHomePage() {
           <CardContent className="space-y-4">
             <Alert>
               <AlertTitle>Signed in as</AlertTitle>
-              <AlertDescription className="font-medium">
-                {displayName}
-              </AlertDescription>
+              <AlertDescription className="font-medium">{displayName}</AlertDescription>
             </Alert>
 
             <div className="flex flex-wrap gap-3">

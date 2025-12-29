@@ -25,7 +25,7 @@ export function durationMs(startMs: number): number {
  * Log a background task event as single-line JSON
  */
 function logBackgroundEvent(
-  event: "start" | "complete" | "error",
+  event: 'start' | 'complete' | 'error',
   taskName: string,
   duration_ms?: number,
   error?: string,
@@ -65,7 +65,7 @@ export interface BackgroundContext {
 function isBackgroundEnabled(): boolean {
   const val = process.env.BACKGROUND_ENABLED;
   // Enabled by default, only disabled if explicitly set to "0" or "false"
-  if (val === "0" || val === "false") {
+  if (val === '0' || val === 'false') {
     return false;
   }
   return true;
@@ -84,7 +84,7 @@ function getWaitUntil(ctx?: BackgroundContext): WaitUntilFn | undefined {
   // In Node.js/Vercel Edge runtime, waitUntil might be on globalThis
   // This is a best-effort detection
   const global = globalThis as unknown as { waitUntil?: WaitUntilFn };
-  if (typeof global.waitUntil === "function") {
+  if (typeof global.waitUntil === 'function') {
     return global.waitUntil;
   }
 
@@ -121,34 +121,28 @@ function getWaitUntil(ctx?: BackgroundContext): WaitUntilFn | undefined {
 export function runInBackground(
   promiseOrFn: Promise<unknown> | (() => Promise<unknown>),
   ctx?: BackgroundContext,
-  taskName = "anonymous",
+  taskName = 'anonymous',
 ): void {
   // Check if background work is enabled
   if (!isBackgroundEnabled()) {
-    logBackgroundEvent(
-      "complete",
-      taskName,
-      0,
-      "disabled via BACKGROUND_ENABLED",
-    );
+    logBackgroundEvent('complete', taskName, 0, 'disabled via BACKGROUND_ENABLED');
     return;
   }
 
   const startMs = nowMs();
-  logBackgroundEvent("start", taskName);
+  logBackgroundEvent('start', taskName);
 
   // Convert function to promise if needed
-  const promise =
-    typeof promiseOrFn === "function" ? promiseOrFn() : promiseOrFn;
+  const promise = typeof promiseOrFn === 'function' ? promiseOrFn() : promiseOrFn;
 
   // Wrap with logging
   const wrappedPromise = promise
     .then(() => {
-      logBackgroundEvent("complete", taskName, durationMs(startMs));
+      logBackgroundEvent('complete', taskName, durationMs(startMs));
     })
     .catch((err: unknown) => {
       const errorMessage = err instanceof Error ? err.message : String(err);
-      logBackgroundEvent("error", taskName, durationMs(startMs), errorMessage);
+      logBackgroundEvent('error', taskName, durationMs(startMs), errorMessage);
       // Don't rethrow - background tasks should never crash the process
     });
 

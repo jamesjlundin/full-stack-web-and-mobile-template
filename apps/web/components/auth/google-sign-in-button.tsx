@@ -1,14 +1,14 @@
-"use client";
+'use client';
 
-import { useState } from "react";
+import { useState } from 'react';
 
-import { Button } from "@/components/ui/button";
-import { Spinner } from "@/components/ui/spinner";
-import { authClient } from "@/lib/auth-client";
+import { Button } from '@/components/ui/button';
+import { Spinner } from '@/components/ui/spinner';
+import { authClient } from '@/lib/auth-client';
 
 type GoogleSignInButtonProps = {
   callbackURL?: string;
-  mode?: "signin" | "signup";
+  mode?: 'signin' | 'signup';
 };
 
 function GoogleIcon() {
@@ -35,8 +35,8 @@ function GoogleIcon() {
 }
 
 export function GoogleSignInButton({
-  callbackURL = "/app/home",
-  mode = "signin",
+  callbackURL = '/app/home',
+  mode = 'signin',
 }: GoogleSignInButtonProps) {
   const [loading, setLoading] = useState(false);
 
@@ -44,18 +44,16 @@ export function GoogleSignInButton({
     setLoading(true);
     try {
       await authClient.signIn.social({
-        provider: "google",
+        provider: 'google',
         callbackURL,
-        errorCallbackURL:
-          mode === "signin" ? "/login?error=google" : "/register?error=google",
+        errorCallbackURL: mode === 'signin' ? '/login?error=google' : '/register?error=google',
       });
     } catch {
       setLoading(false);
     }
   };
 
-  const buttonText =
-    mode === "signin" ? "Sign in with Google" : "Sign up with Google";
+  const buttonText = mode === 'signin' ? 'Sign in with Google' : 'Sign up with Google';
 
   return (
     <Button
@@ -66,7 +64,7 @@ export function GoogleSignInButton({
       disabled={loading}
     >
       {loading ? <Spinner size="sm" className="mr-2" /> : <GoogleIcon />}
-      {loading ? "Redirecting..." : buttonText}
+      {loading ? 'Redirecting...' : buttonText}
     </Button>
   );
 }

@@ -1,4 +1,4 @@
-import { withTrace, runInBackground, nowMs, durationMs } from "@acme/obs";
+import { withTrace, runInBackground, nowMs, durationMs } from '@acme/obs';
 
 /**
  * Nightly job result
@@ -6,7 +6,7 @@ import { withTrace, runInBackground, nowMs, durationMs } from "@acme/obs";
 export interface NightlyResult {
   ok: boolean;
   ts: number;
-  job: "nightly";
+  job: 'nightly';
   tasks: {
     healthCheck: boolean;
     cleanup?: boolean;
@@ -18,13 +18,11 @@ export interface NightlyResult {
  * Emit summary metrics (background work example)
  * Runs after response is sent via runInBackground
  */
-async function emitSummaryMetrics(
-  taskResults: NightlyResult["tasks"],
-): Promise<void> {
+async function emitSummaryMetrics(taskResults: NightlyResult['tasks']): Promise<void> {
   // Simulate metrics emission - in production, send to observability platform
   const metrics = {
     ts: new Date().toISOString(),
-    event: "cron.nightly.metrics",
+    event: 'cron.nightly.metrics',
     tasks_completed: Object.values(taskResults).filter(Boolean).length,
     tasks_total: Object.keys(taskResults).length,
   };
@@ -48,8 +46,8 @@ async function emitSummaryMetrics(
 export async function runNightly(): Promise<NightlyResult> {
   const startMs = nowMs();
 
-  const { result, error } = await withTrace("cron.nightly", async () => {
-    const tasks: NightlyResult["tasks"] = {
+  const { result, error } = await withTrace('cron.nightly', async () => {
+    const tasks: NightlyResult['tasks'] = {
       healthCheck: false,
       cleanup: false,
     };
@@ -57,9 +55,7 @@ export async function runNightly(): Promise<NightlyResult> {
     // Task 1: Health check
     try {
       // Simple sanity check - verify environment is healthy
-      const envCheck =
-        typeof process.env.NODE_ENV === "string" &&
-        typeof Date.now === "function";
+      const envCheck = typeof process.env.NODE_ENV === 'string' && typeof Date.now === 'function';
       tasks.healthCheck = envCheck;
     } catch {
       tasks.healthCheck = false;
@@ -86,7 +82,7 @@ export async function runNightly(): Promise<NightlyResult> {
     console.log(
       JSON.stringify({
         ts: new Date().toISOString(),
-        event: "cron.nightly.error",
+        event: 'cron.nightly.error',
         error: error.message,
         duration_ms: duration,
       }),
@@ -95,7 +91,7 @@ export async function runNightly(): Promise<NightlyResult> {
     return {
       ok: false,
       ts: Date.now(),
-      job: "nightly",
+      job: 'nightly',
       tasks: { healthCheck: false },
       duration_ms: duration,
     };
@@ -106,23 +102,19 @@ export async function runNightly(): Promise<NightlyResult> {
   console.log(
     JSON.stringify({
       ts: new Date().toISOString(),
-      event: "cron.nightly.complete",
+      event: 'cron.nightly.complete',
       tasks,
       duration_ms: duration,
     }),
   );
 
   // Schedule non-critical background work (runs after response is sent)
-  runInBackground(
-    () => emitSummaryMetrics(tasks),
-    undefined,
-    "nightly-metrics",
-  );
+  runInBackground(() => emitSummaryMetrics(tasks), undefined, 'nightly-metrics');
 
   return {
     ok: true,
     ts: Date.now(),
-    job: "nightly",
+    job: 'nightly',
     tasks,
     duration_ms: duration,
   };

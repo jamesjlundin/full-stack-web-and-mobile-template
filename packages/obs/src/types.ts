@@ -12,7 +12,7 @@ export interface TraceContext {
  * Includes fields for pgvector-aware RAG (populated once Step 26 lands)
  */
 export interface LlmLog {
-  span: "llm.call";
+  span: 'llm.call';
   model: string;
   provider: string;
   tokens_input?: number;
@@ -27,18 +27,18 @@ export interface LlmLog {
   retrieved_chunks_count?: number;
   tool_calls_count?: number;
   error?: string;
-  status: "ok" | "error";
+  status: 'ok' | 'error';
 }
 
 /**
  * Log entry for tool calls
  */
 export interface ToolLog {
-  span: "tool.call";
+  span: 'tool.call';
   name: string;
   duration_ms: number;
   error?: string;
-  status: "ok" | "error";
+  status: 'ok' | 'error';
   args_sample?: unknown;
 }
 

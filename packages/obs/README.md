@@ -15,25 +15,22 @@ Minimal, provider-agnostic observability layer for LLM and tool calls.
 ### Wrap requests with tracing
 
 ```typescript
-import { withTrace } from "@acme/obs";
+import { withTrace } from '@acme/obs';
 
-const { result, error, ctx, duration_ms } = await withTrace(
-  "chat.stream",
-  async (ctx) => {
-    // Your request handling code
-    return response;
-  },
-);
+const { result, error, ctx, duration_ms } = await withTrace('chat.stream', async (ctx) => {
+  // Your request handling code
+  return response;
+});
 ```
 
 ### Log LLM calls
 
 ```typescript
-import { logLlmCall } from "@acme/obs";
+import { logLlmCall } from '@acme/obs';
 
 await logLlmCall({
-  provider: "openai",
-  model: "gpt-4o-mini",
+  provider: 'openai',
+  model: 'gpt-4o-mini',
   startedAt: startTime,
   finishedAt: Date.now(),
   tokensIn: 100,
@@ -47,13 +44,13 @@ await logLlmCall({
 ### Log tool calls
 
 ```typescript
-import { logToolCall } from "@acme/obs";
+import { logToolCall } from '@acme/obs';
 
 await logToolCall({
-  name: "search",
+  name: 'search',
   startedAt: startTime,
   finishedAt: Date.now(),
-  args: { query: "user@example.com" }, // PII will be redacted
+  args: { query: 'user@example.com' }, // PII will be redacted
   traceId: ctx.traceId,
 });
 ```
@@ -61,11 +58,11 @@ await logToolCall({
 ### Redact PII
 
 ```typescript
-import { redact } from "@acme/obs";
+import { redact } from '@acme/obs';
 
 const safe = redact({
-  email: "user@example.com",
-  token: "abcd1234abcd1234abcd1234abcd1234",
+  email: 'user@example.com',
+  token: 'abcd1234abcd1234abcd1234abcd1234',
 });
 // { email: "[REDACTED_EMAIL]", token: "[REDACTED_SECRET]" }
 ```
@@ -97,9 +94,9 @@ Edit `src/pricing.ts` to add models:
 
 ```typescript
 const PRICING_TABLE: Record<string, ModelPricing> = {
-  "openai:gpt-4o-mini": { input: 0.15, output: 0.6 },
+  'openai:gpt-4o-mini': { input: 0.15, output: 0.6 },
   // Add your model here:
-  "provider:model-name": { input: X, output: Y },
+  'provider:model-name': { input: X, output: Y },
 };
 ```
 

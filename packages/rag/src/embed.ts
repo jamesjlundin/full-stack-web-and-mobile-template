@@ -4,10 +4,10 @@
  * Provides an abstraction over embedding models, with OpenAI as the primary provider.
  */
 
-import { openai } from "@ai-sdk/openai";
-import { embed, embedMany } from "ai";
+import { openai } from '@ai-sdk/openai';
+import { embed, embedMany } from 'ai';
 
-import { EMBED_DIMS, EMBED_MODEL } from "./config";
+import { EMBED_DIMS, EMBED_MODEL } from './config';
 
 /**
  * Interface for embedding providers
@@ -29,11 +29,11 @@ export interface Embedder {
 export class MissingApiKeyError extends Error {
   constructor() {
     super(
-      "OPENAI_API_KEY environment variable is not set. " +
-        "Embedding requires an OpenAI API key. " +
-        "Set OPENAI_API_KEY in your environment or .env file.",
+      'OPENAI_API_KEY environment variable is not set. ' +
+        'Embedding requires an OpenAI API key. ' +
+        'Set OPENAI_API_KEY in your environment or .env file.',
     );
-    this.name = "MissingApiKeyError";
+    this.name = 'MissingApiKeyError';
   }
 }
 
@@ -41,10 +41,7 @@ export class MissingApiKeyError extends Error {
  * Check if OpenAI API key is available
  */
 export function hasOpenAIKey(): boolean {
-  return (
-    typeof process.env.OPENAI_API_KEY === "string" &&
-    process.env.OPENAI_API_KEY.length > 0
-  );
+  return typeof process.env.OPENAI_API_KEY === 'string' && process.env.OPENAI_API_KEY.length > 0;
 }
 
 /**
@@ -62,7 +59,7 @@ export function hasOpenAIKey(): boolean {
  */
 export function openaiEmbedder(): Embedder {
   // Extract model name from EMBED_MODEL (format: "openai:model-name")
-  const modelName = EMBED_MODEL.split(":")[1] || "text-embedding-3-small";
+  const modelName = EMBED_MODEL.split(':')[1] || 'text-embedding-3-small';
 
   return {
     model: EMBED_MODEL,

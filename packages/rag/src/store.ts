@@ -4,10 +4,10 @@
  * Provides upsertChunks and querySimilar functions using Drizzle ORM and pgvector.
  */
 
-import { sql } from "drizzle-orm";
+import { sql } from 'drizzle-orm';
 
-import type { NeonHttpDatabase } from "drizzle-orm/neon-http";
-import type { NodePgDatabase } from "drizzle-orm/node-postgres";
+import type { NeonHttpDatabase } from 'drizzle-orm/neon-http';
+import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
 
 /**
  * Row type for inserting/upserting chunks
@@ -70,17 +70,14 @@ type DbInstance = NodePgDatabase<any> | NeonHttpDatabase<any>;
  * ]);
  * ```
  */
-export async function upsertChunks(
-  db: DbInstance,
-  rows: ChunkRow[],
-): Promise<void> {
+export async function upsertChunks(db: DbInstance, rows: ChunkRow[]): Promise<void> {
   if (rows.length === 0) {
     return;
   }
 
   // Use raw SQL for upsert with vector type
   for (const row of rows) {
-    const embeddingStr = `[${row.embedding.join(",")}]`;
+    const embeddingStr = `[${row.embedding.join(',')}]`;
     const metadataStr = row.metadata ? JSON.stringify(row.metadata) : null;
 
     await db.execute(sql`
@@ -124,7 +121,7 @@ export async function querySimilar(
   queryEmbedding: number[],
   k: number,
 ): Promise<SimilarChunk[]> {
-  const embeddingStr = `[${queryEmbedding.join(",")}]`;
+  const embeddingStr = `[${queryEmbedding.join(',')}]`;
 
   // Use raw SQL for vector similarity search
   const results = await db.execute<{
@@ -160,10 +157,7 @@ export async function querySimilar(
  * @param db - Drizzle database instance
  * @param docId - Document identifier
  */
-export async function deleteDocChunks(
-  db: DbInstance,
-  docId: string,
-): Promise<void> {
+export async function deleteDocChunks(db: DbInstance, docId: string): Promise<void> {
   await db.execute(sql`DELETE FROM rag_chunks WHERE doc_id = ${docId}`);
 }
 
@@ -174,5 +168,5 @@ export async function countChunks(db: DbInstance): Promise<number> {
   const result = await db.execute<{ count: string }>(
     sql`SELECT COUNT(*)::text as count FROM rag_chunks`,
   );
-  return parseInt(result.rows[0]?.count || "0", 10);
+  return parseInt(result.rows[0]?.count || '0', 10);
 }

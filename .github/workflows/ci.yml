@@ -17,7 +17,7 @@ jobs:
           POSTGRES_PASSWORD: postgres
           POSTGRES_DB: postgres
         ports:
-          - "5432:5432"
+          - '5432:5432'
         options: >-
           --health-cmd="pg_isready -U postgres"
           --health-interval=10s
@@ -33,7 +33,7 @@ jobs:
       # Enable dev token echoing for email verification in tests
       ALLOW_DEV_TOKENS: true
       # Disable rate limiting entirely for integration tests
-      DISABLE_RATE_LIMIT: "true"
+      DISABLE_RATE_LIMIT: 'true'
 
     steps:
       - name: Checkout repository
@@ -52,6 +52,11 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install
+
+      - name: Check formatting
+        run: |
+          pnpm format
+          git diff --exit-code
 
       - name: Typecheck
         run: pnpm tsc --noEmit

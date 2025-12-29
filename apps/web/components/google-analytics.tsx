@@ -1,4 +1,4 @@
-import Script from "next/script";
+import Script from 'next/script';
 
 const GA_TRACKING_ID = process.env.NEXT_PUBLIC_GA_TRACKING_ID;
 

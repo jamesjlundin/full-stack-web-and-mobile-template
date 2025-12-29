@@ -8,21 +8,21 @@
  * Usage: pnpm -C packages/rag seed
  */
 
-import "dotenv/config";
+import 'dotenv/config';
 
-import { db } from "@acme/db";
+import { db } from '@acme/db';
 
-import { fixedSizeChunks } from "../chunk";
-import { openaiEmbedder, hasOpenAIKey } from "../embed";
-import { upsertChunks, countChunks, deleteDocChunks } from "../store";
+import { fixedSizeChunks } from '../chunk';
+import { openaiEmbedder, hasOpenAIKey } from '../embed';
+import { upsertChunks, countChunks, deleteDocChunks } from '../store';
 
 /**
  * Sample documents for seeding
  */
 const SAMPLE_DOCS = [
   {
-    id: "seed-typescript",
-    title: "Introduction to TypeScript",
+    id: 'seed-typescript',
+    title: 'Introduction to TypeScript',
     content: `TypeScript is a strongly typed programming language that builds on JavaScript, giving you better tooling at any scale. TypeScript adds optional static typing and class-based object-oriented programming to the language. It is designed for the development of large applications and transcompiles to JavaScript.
 
 TypeScript was developed by Microsoft and is maintained by them. It was first released in October 2012. The language is designed for development of large applications and transcompiles to JavaScript. As TypeScript is a superset of JavaScript, existing JavaScript programs are also valid TypeScript programs.
@@ -37,8 +37,8 @@ Key features of TypeScript include:
 TypeScript compiles to readable, standards-based JavaScript. You can use existing JavaScript libraries with TypeScript seamlessly.`,
   },
   {
-    id: "seed-react",
-    title: "React Framework Overview",
+    id: 'seed-react',
+    title: 'React Framework Overview',
     content: `React is a free and open-source front-end JavaScript library for building user interfaces based on components. It is maintained by Meta and a community of individual developers and companies. React can be used to develop single-page, mobile, or server-rendered applications.
 
 React was created by Jordan Walke, a software engineer at Facebook (now Meta). It was first deployed on Facebook's News Feed in 2011 and later on Instagram in 2012. It was open-sourced at JSConf US in May 2013.
@@ -53,8 +53,8 @@ Core concepts in React:
 React uses a declarative paradigm that makes your code more predictable and easier to debug.`,
   },
   {
-    id: "seed-postgres",
-    title: "PostgreSQL and pgvector",
+    id: 'seed-postgres',
+    title: 'PostgreSQL and pgvector',
     content: `PostgreSQL is a powerful, open source object-relational database system that uses and extends the SQL language combined with many features that safely store and scale the most complicated data workloads. PostgreSQL has earned a strong reputation for its proven architecture, reliability, data integrity, robust feature set, and extensibility.
 
 pgvector is an open-source extension for PostgreSQL that adds support for vector similarity search. It enables storing vector embeddings alongside your other data in PostgreSQL and performing efficient similarity searches.
@@ -77,16 +77,16 @@ The combination of PostgreSQL's reliability and pgvector's vector search capabil
 ];
 
 async function main() {
-  console.log("RAG Seed Script\n");
+  console.log('RAG Seed Script\n');
 
   // Check for API key
   if (!hasOpenAIKey()) {
-    console.log("⚠️  OPENAI_API_KEY not set - skipping seed");
-    console.log("   Set OPENAI_API_KEY environment variable to enable seeding");
+    console.log('⚠️  OPENAI_API_KEY not set - skipping seed');
+    console.log('   Set OPENAI_API_KEY environment variable to enable seeding');
     process.exit(0);
   }
 
-  console.log("✓ OPENAI_API_KEY found");
+  console.log('✓ OPENAI_API_KEY found');
 
   const embedder = openaiEmbedder();
   console.log(`✓ Using embedding model: ${embedder.model}`);
@@ -137,6 +137,6 @@ async function main() {
 }
 
 main().catch((error) => {
-  console.error("Seed failed:", error);
+  console.error('Seed failed:', error);
   process.exit(1);
 });

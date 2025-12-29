@@ -1,14 +1,14 @@
-"use client";
+'use client';
 
-import { LogOut, CheckCircle } from "lucide-react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { toast } from "sonner";
+import { LogOut, CheckCircle } from 'lucide-react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import { toast } from 'sonner';
 
-import { AppShell } from "@/components/layout";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Button } from "@/components/ui/button";
+import { AppShell } from '@/components/layout';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
@@ -16,8 +16,8 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Spinner } from "@/components/ui/spinner";
+} from '@/components/ui/card';
+import { Spinner } from '@/components/ui/spinner';
 
 export default function LogoutPage() {
   const router = useRouter();
@@ -31,26 +31,24 @@ export default function LogoutPage() {
     setLoading(true);
 
     try {
-      const response = await fetch("/api/auth/sign-out", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+      const response = await fetch('/api/auth/sign-out', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({}),
-        credentials: "include",
+        credentials: 'include',
       });
 
       if (!response.ok) {
         const data = await response.json().catch(() => ({}));
-        setError(data?.message ?? "Failed to sign out. Please try again.");
+        setError(data?.message ?? 'Failed to sign out. Please try again.');
         return;
       }
 
-      setStatus("Signed out successfully.");
-      toast.success("Signed out successfully");
-      router.push("/");
+      setStatus('Signed out successfully.');
+      toast.success('Signed out successfully');
+      router.push('/');
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Unexpected error occurred",
-      );
+      setError(err instanceof Error ? err.message : 'Unexpected error occurred');
     } finally {
       setLoading(false);
     }
@@ -65,9 +63,7 @@ export default function LogoutPage() {
               <LogOut className="h-6 w-6" />
               Sign out
             </CardTitle>
-            <CardDescription>
-              You are about to sign out of your account.
-            </CardDescription>
+            <CardDescription>You are about to sign out of your account.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             {status && (
@@ -93,22 +89,16 @@ export default function LogoutPage() {
               className="w-full"
             >
               {loading && <Spinner size="sm" className="mr-2" />}
-              {loading ? "Signing out..." : "Sign out"}
+              {loading ? 'Signing out...' : 'Sign out'}
             </Button>
             <div className="text-sm text-center space-y-2">
               <p className="text-muted-foreground">
-                Go back to the{" "}
-                <Link
-                  href="/"
-                  className="text-primary underline-offset-4 hover:underline"
-                >
+                Go back to the{' '}
+                <Link href="/" className="text-primary underline-offset-4 hover:underline">
                   home page
-                </Link>{" "}
-                or{" "}
-                <Link
-                  href="/login"
-                  className="text-primary underline-offset-4 hover:underline"
-                >
+                </Link>{' '}
+                or{' '}
+                <Link href="/login" className="text-primary underline-offset-4 hover:underline">
                   sign in
                 </Link>
                 .

@@ -1,13 +1,13 @@
-"use client";
+'use client';
 
-import { CheckCircle } from "lucide-react";
-import Link from "next/link";
-import { FormEvent, useState } from "react";
-import { toast } from "sonner";
+import { CheckCircle } from 'lucide-react';
+import Link from 'next/link';
+import { FormEvent, useState } from 'react';
+import { toast } from 'sonner';
 
-import { AppShell } from "@/components/layout";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Button } from "@/components/ui/button";
+import { AppShell } from '@/components/layout';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
@@ -15,13 +15,13 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Spinner } from "@/components/ui/spinner";
+} from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Spinner } from '@/components/ui/spinner';
 
 export default function ResetPasswordPage() {
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState('');
   const [devToken, setDevToken] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -35,27 +35,25 @@ export default function ResetPasswordPage() {
     setLoading(true);
 
     try {
-      const response = await fetch("/api/auth/password/reset/request", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
+      const response = await fetch('/api/auth/password/reset/request', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ email }),
       });
 
       const data = await response.json();
 
       if (data.ok) {
-        setMessage("Password reset email sent! Check your inbox.");
-        toast.success("Reset email sent");
+        setMessage('Password reset email sent! Check your inbox.');
+        toast.success('Reset email sent');
         if (data.devToken) {
           setDevToken(data.devToken);
         }
       } else {
-        setError(data.error ?? "Failed to send reset email");
+        setError(data.error ?? 'Failed to send reset email');
       }
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Unexpected error occurred",
-      );
+      setError(err instanceof Error ? err.message : 'Unexpected error occurred');
     } finally {
       setLoading(false);
     }
@@ -68,8 +66,7 @@ export default function ResetPasswordPage() {
           <CardHeader className="space-y-1">
             <CardTitle className="text-2xl font-bold">Reset Password</CardTitle>
             <CardDescription>
-              Enter your email address and we&apos;ll send you a link to reset
-              your password.
+              Enter your email address and we&apos;ll send you a link to reset your password.
             </CardDescription>
           </CardHeader>
           <form onSubmit={handleRequestReset}>
@@ -99,7 +96,7 @@ export default function ResetPasswordPage() {
                       {devToken}
                     </code>
                     <p className="text-sm text-yellow-700 dark:text-yellow-400">
-                      Copy this token and use it on the{" "}
+                      Copy this token and use it on the{' '}
                       <Link
                         href={`/auth/reset/confirm?token=${encodeURIComponent(devToken)}`}
                         className="text-primary underline-offset-4 hover:underline"
@@ -128,14 +125,11 @@ export default function ResetPasswordPage() {
             <CardFooter className="flex flex-col space-y-4">
               <Button type="submit" className="w-full" disabled={loading}>
                 {loading && <Spinner size="sm" className="mr-2" />}
-                {loading ? "Sending..." : "Request password reset"}
+                {loading ? 'Sending...' : 'Request password reset'}
               </Button>
               <div className="text-sm text-center space-y-2">
                 <p className="text-muted-foreground">
-                  <Link
-                    href="/login"
-                    className="text-primary underline-offset-4 hover:underline"
-                  >
+                  <Link href="/login" className="text-primary underline-offset-4 hover:underline">
                     Back to Sign in
                   </Link>
                 </p>
@@ -146,7 +140,7 @@ export default function ResetPasswordPage() {
                   >
                     Verify your email
                   </Link>
-                  {" | "}
+                  {' | '}
                   <Link
                     href="/auth/reset/confirm"
                     className="text-primary underline-offset-4 hover:underline"

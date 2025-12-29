@@ -67,12 +67,12 @@ export function buildVersionMeta(args: BuildVersionMetaArgs): VersionMeta {
  * These headers are additive and do not modify existing response behavior.
  */
 export const VERSION_HEADERS = {
-  PROMPT_ID: "X-Prompt-Id",
-  PROMPT_VERSION: "X-Prompt-Version",
-  SCHEMA_ID: "X-Schema-Id",
-  SCHEMA_VERSION: "X-Schema-Version",
-  RAG_CONFIG_VERSION: "X-Rag-Config-Version",
-  EMBED_MODEL: "X-Embed-Model",
+  PROMPT_ID: 'X-Prompt-Id',
+  PROMPT_VERSION: 'X-Prompt-Version',
+  SCHEMA_ID: 'X-Schema-Id',
+  SCHEMA_VERSION: 'X-Schema-Version',
+  RAG_CONFIG_VERSION: 'X-Rag-Config-Version',
+  EMBED_MODEL: 'X-Embed-Model',
 } as const;
 
 /**
@@ -95,10 +95,7 @@ export const VERSION_HEADERS = {
  * const response = new Response(stream, { headers: { "Content-Type": "text/event-stream" } });
  * const withVersions = attachVersionHeaders(response, versionMeta);
  */
-export function attachVersionHeaders(
-  response: Response,
-  meta: VersionMeta,
-): Response {
+export function attachVersionHeaders(response: Response, meta: VersionMeta): Response {
   const headers = new Headers(response.headers);
 
   headers.set(VERSION_HEADERS.PROMPT_ID, meta.prompt_id);
@@ -127,9 +124,7 @@ export function attachVersionHeaders(
  * @param response - Response to extract headers from
  * @returns Partial VersionMeta from the headers
  */
-export function extractVersionHeaders(
-  response: Response,
-): Partial<VersionMeta> {
+export function extractVersionHeaders(response: Response): Partial<VersionMeta> {
   const headers = response.headers;
   const result: Partial<VersionMeta> = {};
 

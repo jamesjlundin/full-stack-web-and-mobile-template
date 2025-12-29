@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from 'react';
 
 type User = {
   id?: string;
@@ -21,7 +21,7 @@ let inflightRequest: Promise<User | null> | null = null;
 
 async function fetchUser(): Promise<User | null> {
   if (!inflightRequest) {
-    inflightRequest = fetch("/api/me", { credentials: "include" })
+    inflightRequest = fetch('/api/me', { credentials: 'include' })
       .then(async (response) => {
         if (response.status === 401) {
           cachedUser = null;
@@ -38,8 +38,7 @@ async function fetchUser(): Promise<User | null> {
         return user;
       })
       .catch((error) => {
-        cachedError =
-          error instanceof Error ? error : new Error("Failed to load user");
+        cachedError = error instanceof Error ? error : new Error('Failed to load user');
         throw cachedError;
       })
       .finally(() => {
@@ -53,9 +52,7 @@ async function fetchUser(): Promise<User | null> {
 export function useUser(): UseUserResult {
   const [user, setUser] = useState<User | null>(cachedUser ?? null);
   const [error, setError] = useState<Error | null>(cachedError);
-  const [loading, setLoading] = useState<boolean>(
-    cachedUser === undefined && !cachedError,
-  );
+  const [loading, setLoading] = useState<boolean>(cachedUser === undefined && !cachedError);
 
   useEffect(() => {
     let isMounted = true;

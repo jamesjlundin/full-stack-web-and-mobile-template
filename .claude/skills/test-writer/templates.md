@@ -4,25 +4,25 @@
 
 ```typescript
 // packages/tests/src/{feature}.test.ts
-import { describe, it, expect, beforeAll, afterAll } from "vitest";
-import { http, getTestToken } from "./http";
+import { describe, it, expect, beforeAll, afterAll } from 'vitest';
+import { http, getTestToken } from './http';
 
-describe("{Feature} API", () => {
+describe('{Feature} API', () => {
   let token: string;
 
   beforeAll(async () => {
     token = await getTestToken();
   });
 
-  describe("POST /api/{path}", () => {
-    it("requires authentication", async () => {
-      const response = await http.post("/api/{path}", {});
+  describe('POST /api/{path}', () => {
+    it('requires authentication', async () => {
+      const response = await http.post('/api/{path}', {});
       expect(response.status).toBe(401);
     });
 
-    it("validates request body", async () => {
+    it('validates request body', async () => {
       const response = await http.post(
-        "/api/{path}",
+        '/api/{path}',
         {},
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -33,11 +33,11 @@ describe("{Feature} API", () => {
       expect(data.error).toBeDefined();
     });
 
-    it("succeeds with valid input", async () => {
+    it('succeeds with valid input', async () => {
       const response = await http.post(
-        "/api/{path}",
+        '/api/{path}',
         {
-          field: "valid value",
+          field: 'valid value',
         },
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -49,14 +49,14 @@ describe("{Feature} API", () => {
     });
   });
 
-  describe("GET /api/{path}", () => {
-    it("returns data for authenticated user", async () => {
-      const response = await http.get("/api/{path}", {
+  describe('GET /api/{path}', () => {
+    it('returns data for authenticated user', async () => {
+      const response = await http.get('/api/{path}', {
         headers: { Authorization: `Bearer ${token}` },
       });
       expect(response.status).toBe(200);
       const data = await response.json();
-      expect(data).toHaveProperty("data");
+      expect(data).toHaveProperty('data');
     });
   });
 });
@@ -66,12 +66,12 @@ describe("{Feature} API", () => {
 
 ```typescript
 // packages/tests/src/{feature}.test.ts
-import { describe, it, expect, beforeAll, afterAll } from "vitest";
-import { http, getTestToken } from "./http";
-import { db, schema } from "@acme/db";
-import { eq } from "drizzle-orm";
+import { describe, it, expect, beforeAll, afterAll } from 'vitest';
+import { http, getTestToken } from './http';
+import { db, schema } from '@acme/db';
+import { eq } from 'drizzle-orm';
 
-describe("{Feature} with DB", () => {
+describe('{Feature} with DB', () => {
   let token: string;
   let testItemId: string;
 
@@ -82,7 +82,7 @@ describe("{Feature} with DB", () => {
     const [item] = await db
       .insert(schema.items)
       .values({
-        name: "Test Item",
+        name: 'Test Item',
       })
       .returning();
     testItemId = item.id;
@@ -93,13 +93,13 @@ describe("{Feature} with DB", () => {
     await db.delete(schema.items).where(eq(schema.items.id, testItemId));
   });
 
-  it("fetches item by id", async () => {
+  it('fetches item by id', async () => {
     const response = await http.get(`/api/items/${testItemId}`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     expect(response.status).toBe(200);
     const data = await response.json();
-    expect(data.data.name).toBe("Test Item");
+    expect(data.data.name).toBe('Test Item');
   });
 });
 ```
@@ -140,18 +140,18 @@ describe('ComponentName', () => {
 
 ```typescript
 // packages/tests/src/auth.{flow}.test.ts
-import { describe, it, expect } from "vitest";
-import { http } from "./http";
+import { describe, it, expect } from 'vitest';
+import { http } from './http';
 
-describe("Auth Flow: {Flow Name}", () => {
+describe('Auth Flow: {Flow Name}', () => {
   const testUser = {
     email: `test-${Date.now()}@example.com`,
-    password: "Test123!@#",
-    name: "Test User",
+    password: 'Test123!@#',
+    name: 'Test User',
   };
 
-  it("registers new user", async () => {
-    const response = await http.post("/api/auth/sign-up/email", {
+  it('registers new user', async () => {
+    const response = await http.post('/api/auth/sign-up/email', {
       email: testUser.email,
       password: testUser.password,
       name: testUser.name,
@@ -159,8 +159,8 @@ describe("Auth Flow: {Flow Name}", () => {
     expect(response.status).toBe(200);
   });
 
-  it("logs in with credentials", async () => {
-    const response = await http.post("/api/auth/sign-in/email", {
+  it('logs in with credentials', async () => {
+    const response = await http.post('/api/auth/sign-in/email', {
       email: testUser.email,
       password: testUser.password,
     });
@@ -169,14 +169,14 @@ describe("Auth Flow: {Flow Name}", () => {
     expect(data.token).toBeDefined();
   });
 
-  it("accesses protected route with token", async () => {
-    const loginResponse = await http.post("/api/auth/sign-in/email", {
+  it('accesses protected route with token', async () => {
+    const loginResponse = await http.post('/api/auth/sign-in/email', {
       email: testUser.email,
       password: testUser.password,
     });
     const { token } = await loginResponse.json();
 
-    const meResponse = await http.get("/api/me", {
+    const meResponse = await http.get('/api/me', {
       headers: { Authorization: `Bearer ${token}` },
     });
     expect(meResponse.status).toBe(200);
@@ -188,11 +188,11 @@ describe("Auth Flow: {Flow Name}", () => {
 
 ```typescript
 // packages/tests/src/ratelimit.{endpoint}.test.ts
-import { describe, it, expect } from "vitest";
-import { http, getTestToken } from "./http";
+import { describe, it, expect } from 'vitest';
+import { http, getTestToken } from './http';
 
-describe("Rate Limiting: /api/{path}", () => {
-  it("enforces rate limit", async () => {
+describe('Rate Limiting: /api/{path}', () => {
+  it('enforces rate limit', async () => {
     const token = await getTestToken();
     const requests = [];
 
@@ -200,7 +200,7 @@ describe("Rate Limiting: /api/{path}", () => {
     for (let i = 0; i < 15; i++) {
       requests.push(
         http.post(
-          "/api/{path}",
+          '/api/{path}',
           { data: i },
           {
             headers: { Authorization: `Bearer ${token}` },
@@ -223,31 +223,31 @@ describe("Rate Limiting: /api/{path}", () => {
 
 ```typescript
 // packages/tests/src/stream.{feature}.test.ts
-import { describe, it, expect } from "vitest";
-import { http, getTestToken } from "./http";
+import { describe, it, expect } from 'vitest';
+import { http, getTestToken } from './http';
 
-describe("Streaming: /api/{path}", () => {
-  it("returns SSE stream", async () => {
+describe('Streaming: /api/{path}', () => {
+  it('returns SSE stream', async () => {
     const token = await getTestToken();
 
     const response = await http.post(
-      "/api/{path}",
+      '/api/{path}',
       {
-        message: "test",
+        message: 'test',
       },
       {
         headers: {
           Authorization: `Bearer ${token}`,
-          Accept: "text/event-stream",
+          Accept: 'text/event-stream',
         },
       },
     );
 
     expect(response.status).toBe(200);
-    expect(response.headers.get("content-type")).toContain("text/event-stream");
+    expect(response.headers.get('content-type')).toContain('text/event-stream');
 
     const text = await response.text();
-    expect(text).toContain("data:");
+    expect(text).toContain('data:');
   });
 });
 ```

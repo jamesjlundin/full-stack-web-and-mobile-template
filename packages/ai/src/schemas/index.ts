@@ -5,8 +5,8 @@
  * To add a new schema version, create a new JSON file and register it here.
  */
 
-import chatResponseSchema from "./chat/response.json" with { type: "json" };
-import toolsCallSchema from "./tools/call.json" with { type: "json" };
+import chatResponseSchema from './chat/response.json' with { type: 'json' };
+import toolsCallSchema from './tools/call.json' with { type: 'json' };
 
 export interface SchemaInfo {
   id: string;
@@ -27,7 +27,7 @@ function parseSchemaId(rawId: string): { id: string; version: number } {
 }
 
 function createSchemaInfo(schema: { $id?: string }): SchemaInfo {
-  const rawId = schema.$id ?? "unknown";
+  const rawId = schema.$id ?? 'unknown';
   const { id, version } = parseSchemaId(rawId);
   return { id, version, schema };
 }

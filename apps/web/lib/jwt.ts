@@ -1,4 +1,4 @@
-import { SignJWT, jwtVerify } from "jose";
+import { SignJWT, jwtVerify } from 'jose';
 
 export type AuthTokenPayload = {
   email: string;
@@ -15,9 +15,7 @@ function getSecretKey(): Uint8Array {
 
   const secret = process.env.BETTER_AUTH_SECRET;
   if (!secret || secret.length < 32) {
-    throw new Error(
-      "BETTER_AUTH_SECRET must be set and at least 32 characters long",
-    );
+    throw new Error('BETTER_AUTH_SECRET must be set and at least 32 characters long');
   }
   _secretKey = new TextEncoder().encode(secret);
   return _secretKey;
@@ -25,26 +23,24 @@ function getSecretKey(): Uint8Array {
 
 export async function signAuthToken(payload: AuthTokenPayload) {
   return new SignJWT({ email: payload.email })
-    .setProtectedHeader({ alg: "HS256" })
+    .setProtectedHeader({ alg: 'HS256' })
     .setSubject(payload.sub)
     .setIssuedAt()
-    .setExpirationTime("24h")
+    .setExpirationTime('24h')
     .sign(getSecretKey());
 }
 
-export async function verifyAuthToken(
-  token: string,
-): Promise<AuthTokenPayload> {
+export async function verifyAuthToken(token: string): Promise<AuthTokenPayload> {
   const { payload } = await jwtVerify(token, getSecretKey(), {
-    algorithms: ["HS256"],
+    algorithms: ['HS256'],
   });
 
-  if (!payload.sub || typeof payload.sub !== "string") {
-    throw new Error("Invalid token subject");
+  if (!payload.sub || typeof payload.sub !== 'string') {
+    throw new Error('Invalid token subject');
   }
 
-  if (!payload.email || typeof payload.email !== "string") {
-    throw new Error("Invalid token payload");
+  if (!payload.email || typeof payload.email !== 'string') {
+    throw new Error('Invalid token payload');
   }
 
   return {

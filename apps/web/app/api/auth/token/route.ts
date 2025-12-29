@@ -1,11 +1,11 @@
-import auth from "@acme/auth";
-import { db, schema } from "@acme/db";
-import { createRateLimiter } from "@acme/security";
-import { eq } from "drizzle-orm";
-import { NextRequest, NextResponse } from "next/server";
+import auth from '@acme/auth';
+import { db, schema } from '@acme/db';
+import { createRateLimiter } from '@acme/security';
+import { eq } from 'drizzle-orm';
+import { NextRequest, NextResponse } from 'next/server';
 
-import { signAuthToken } from "../../../../lib/jwt";
-import { withRateLimit } from "../../_lib/withRateLimit";
+import { signAuthToken } from '../../../../lib/jwt';
+import { withRateLimit } from '../../_lib/withRateLimit';
 
 const isEmailVerificationRequired = !!process.env.RESEND_API_KEY;
 
@@ -38,19 +38,19 @@ async function handler(request: NextRequest) {
   try {
     body = await request.json();
   } catch {
-    return NextResponse.json({ error: "invalid_request" }, { status: 400 });
+    return NextResponse.json({ error: 'invalid_request' }, { status: 400 });
   }
 
   const { email, password } = (body ?? {}) as Record<string, unknown>;
 
-  if (typeof email !== "string" || typeof password !== "string") {
-    return NextResponse.json({ error: "invalid_request" }, { status: 400 });
+  if (typeof email !== 'string' || typeof password !== 'string') {
+    return NextResponse.json({ error: 'invalid_request' }, { status: 400 });
   }
 
   const user = await authenticateUser(email, password);
 
   if (!user) {
-    return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+    return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
   }
 
   // Check if verification is required and user is not verified
@@ -66,7 +66,7 @@ async function handler(request: NextRequest) {
       // User is not verified - do NOT return a token
       return NextResponse.json(
         {
-          error: "email_not_verified",
+          error: 'email_not_verified',
           requiresVerification: true,
           email: user.email,
         },
@@ -87,4 +87,4 @@ async function handler(request: NextRequest) {
   });
 }
 
-export const POST = withRateLimit("/api/auth/token", tokenLimiter, handler);
+export const POST = withRateLimit('/api/auth/token', tokenLimiter, handler);

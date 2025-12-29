@@ -1,6 +1,6 @@
-import { getCostUsd } from "./pricing";
+import { getCostUsd } from './pricing';
 
-import type { LlmLog, LogLlmCallArgs } from "./types";
+import type { LlmLog, LogLlmCallArgs } from './types';
 
 /**
  * Log an LLM call with timing, cost, and version metadata
@@ -23,11 +23,11 @@ export async function logLlmCall(args: LogLlmCallArgs): Promise<void> {
   }
 
   const log: LlmLog = {
-    span: "llm.call",
+    span: 'llm.call',
     model: args.model,
     provider: args.provider,
     latency_ms,
-    status: args.error ? "error" : "ok",
+    status: args.error ? 'error' : 'ok',
   };
 
   // Add optional fields only if present

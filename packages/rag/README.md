@@ -44,19 +44,14 @@ This creates:
 ### Basic Pipeline
 
 ```typescript
-import { db } from "@acme/db";
-import {
-  fixedSizeChunks,
-  openaiEmbedder,
-  upsertChunks,
-  ragQuery,
-} from "@acme/rag";
+import { db } from '@acme/db';
+import { fixedSizeChunks, openaiEmbedder, upsertChunks, ragQuery } from '@acme/rag';
 
 // 1. Chunk your document
 const chunks = fixedSizeChunks(documentText, {
   size: 800, // characters per chunk
   overlap: 200, // overlap between chunks
-  source: "my-doc.md",
+  source: 'my-doc.md',
 });
 
 // 2. Generate embeddings
@@ -68,7 +63,7 @@ await upsertChunks(
   db,
   chunks.map((c, i) => ({
     id: c.id,
-    docId: "doc-123",
+    docId: 'doc-123',
     content: c.content,
     embedding: embeddings[i],
     metadata: c.metadata,
@@ -77,7 +72,7 @@ await upsertChunks(
 
 // 4. Query for relevant chunks
 const results = await ragQuery(db, {
-  query: "What is TypeScript?",
+  query: 'What is TypeScript?',
   k: 5, // return top 5 results
 });
 
@@ -89,13 +84,13 @@ for (const chunk of results.chunks) {
 ### Markdown Processing
 
 ```typescript
-import { mdToText, fixedSizeChunks } from "@acme/rag";
+import { mdToText, fixedSizeChunks } from '@acme/rag';
 
 // Convert markdown to plain text (removes formatting)
 const plainText = mdToText(markdownContent);
 
 // Then chunk the plain text
-const chunks = fixedSizeChunks(plainText, { source: "readme.md" });
+const chunks = fixedSizeChunks(plainText, { source: 'readme.md' });
 ```
 
 ## Configuration

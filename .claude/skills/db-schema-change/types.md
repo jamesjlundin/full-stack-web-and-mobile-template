@@ -19,7 +19,7 @@ import {
   real,
   doublePrecision,
   numeric,
-} from "drizzle-orm/pg-core";
+} from 'drizzle-orm/pg-core';
 ```
 
 ## Type Mappings
@@ -46,26 +46,26 @@ import {
 ### Standard Table with Timestamps
 
 ```typescript
-export const items = pgTable("items", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  name: text("name").notNull(),
-  description: text("description"),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+export const items = pgTable('items', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  name: text('name').notNull(),
+  description: text('description'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
 ```
 
 ### Foreign Key Relationship
 
 ```typescript
-import { relations } from "drizzle-orm";
+import { relations } from 'drizzle-orm';
 
-export const posts = pgTable("posts", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  title: text("title").notNull(),
-  authorId: uuid("author_id")
+export const posts = pgTable('posts', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  title: text('title').notNull(),
+  authorId: uuid('author_id')
     .notNull()
-    .references(() => users.id, { onDelete: "cascade" }),
+    .references(() => users.id, { onDelete: 'cascade' }),
 });
 
 export const postsRelations = relations(posts, ({ one }) => ({
@@ -79,18 +79,18 @@ export const postsRelations = relations(posts, ({ one }) => ({
 ### Indexes
 
 ```typescript
-import { index, uniqueIndex } from "drizzle-orm/pg-core";
+import { index, uniqueIndex } from 'drizzle-orm/pg-core';
 
 export const users = pgTable(
-  "users",
+  'users',
   {
-    id: uuid("id").primaryKey().defaultRandom(),
-    email: text("email").notNull(),
-    username: text("username").notNull(),
+    id: uuid('id').primaryKey().defaultRandom(),
+    email: text('email').notNull(),
+    username: text('username').notNull(),
   },
   (table) => [
-    uniqueIndex("users_email_idx").on(table.email),
-    index("users_username_idx").on(table.username),
+    uniqueIndex('users_email_idx').on(table.email),
+    index('users_username_idx').on(table.username),
   ],
 );
 ```
@@ -98,40 +98,40 @@ export const users = pgTable(
 ### Enum Type
 
 ```typescript
-import { pgEnum } from "drizzle-orm/pg-core";
+import { pgEnum } from 'drizzle-orm/pg-core';
 
-export const statusEnum = pgEnum("status", ["pending", "active", "archived"]);
+export const statusEnum = pgEnum('status', ['pending', 'active', 'archived']);
 
-export const items = pgTable("items", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  status: statusEnum("status").default("pending").notNull(),
+export const items = pgTable('items', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  status: statusEnum('status').default('pending').notNull(),
 });
 ```
 
 ### JSON with Type Safety
 
 ```typescript
-import { jsonb } from "drizzle-orm/pg-core";
+import { jsonb } from 'drizzle-orm/pg-core';
 
 type Metadata = {
   tags: string[];
   settings: Record<string, unknown>;
 };
 
-export const items = pgTable("items", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  metadata: jsonb("metadata").$type<Metadata>(),
+export const items = pgTable('items', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  metadata: jsonb('metadata').$type<Metadata>(),
 });
 ```
 
 ### Soft Delete Pattern
 
 ```typescript
-export const items = pgTable("items", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  name: text("name").notNull(),
-  deletedAt: timestamp("deleted_at"),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
+export const items = pgTable('items', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  name: text('name').notNull(),
+  deletedAt: timestamp('deleted_at'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
 });
 ```
 

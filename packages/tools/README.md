@@ -21,13 +21,13 @@ pnpm add @acme/tools
 ### Define a Tool Contract
 
 ```typescript
-import { z } from "zod";
-import { defineContract, registerTool, invokeTool } from "@acme/tools";
+import { z } from 'zod';
+import { defineContract, registerTool, invokeTool } from '@acme/tools';
 
 // Define the contract with Zod schemas
 const greetContract = defineContract({
-  name: "greet",
-  description: "Greet a user by name",
+  name: 'greet',
+  description: 'Greet a user by name',
   input: z.object({
     name: z.string().min(1),
     formal: z.boolean().optional().default(false),
@@ -39,7 +39,7 @@ const greetContract = defineContract({
 
 // Implement the tool
 const greetImpl = (input) => {
-  const greeting = input.formal ? "Good day" : "Hello";
+  const greeting = input.formal ? 'Good day' : 'Hello';
   return { message: `${greeting}, ${input.name}!` };
 };
 
@@ -47,17 +47,17 @@ const greetImpl = (input) => {
 registerTool(greetContract, greetImpl);
 
 // Invoke the tool
-const result = await invokeTool("greet", { name: "Alice" });
+const result = await invokeTool('greet', { name: 'Alice' });
 // { ok: true, result: { message: "Hello, Alice!" } }
 ```
 
 ### Use Common Zod Helpers
 
 ```typescript
-import { nonemptyString, positiveInt, safeJson } from "@acme/tools";
+import { nonemptyString, positiveInt, safeJson } from '@acme/tools';
 
 const myContract = defineContract({
-  name: "example",
+  name: 'example',
   input: z.object({
     title: nonemptyString,
     count: positiveInt,
@@ -70,7 +70,7 @@ const myContract = defineContract({
 ### Expose Tools via MCP Adapter
 
 ```typescript
-import { toMcpEndpoints } from "@acme/tools";
+import { toMcpEndpoints } from '@acme/tools';
 
 // Create MCP-compatible endpoints
 const mcp = toMcpEndpoints();
@@ -80,7 +80,7 @@ const tools = mcp.list_tools();
 // [{ name: "greet", description: "...", input_schema: {...} }]
 
 // Call a tool
-const result = await mcp.call_tool("greet", { name: "Bob" });
+const result = await mcp.call_tool('greet', { name: 'Bob' });
 // { ok: true, result: { message: "Hello, Bob!" } }
 ```
 
@@ -89,12 +89,12 @@ The MCP adapter returns pure objects - you wire up the network transport (HTTP, 
 ### HTTP Client (for remote tools)
 
 ```typescript
-import { buildHttpClient } from "@acme/tools/adapters/http";
+import { buildHttpClient } from '@acme/tools/adapters/http';
 
-const client = buildHttpClient("http://localhost:3000");
+const client = buildHttpClient('http://localhost:3000');
 
 // Call remote tool
-const result = await client.callTool("greet", { name: "Charlie" });
+const result = await client.callTool('greet', { name: 'Charlie' });
 
 // List remote tools
 const tools = await client.listTools();
@@ -149,7 +149,7 @@ Arguments are automatically redacted to remove PII (emails, phone numbers, secre
 A placeholder contract for RAG integration is provided:
 
 ```typescript
-import { ragQueryContract } from "@acme/tools";
+import { ragQueryContract } from '@acme/tools';
 
 // Contract shape:
 // Input: { query: string, k: number }

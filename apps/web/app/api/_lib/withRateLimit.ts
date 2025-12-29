@@ -1,6 +1,6 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse } from 'next/server';
 
-import type { createRateLimiter } from "@acme/security";
+import type { createRateLimiter } from '@acme/security';
 
 type RateLimiter = ReturnType<typeof createRateLimiter>;
 type RouteHandler = (request: NextRequest) => Promise<Response>;
@@ -10,16 +10,16 @@ type RouteHandler = (request: NextRequest) => Promise<Response>;
  * Uses x-forwarded-for (first IP) or falls back to x-real-ip.
  */
 function getClientIp(request: NextRequest): string {
-  const forwarded = request.headers.get("x-forwarded-for");
+  const forwarded = request.headers.get('x-forwarded-for');
   if (forwarded) {
     // x-forwarded-for can contain multiple IPs; take the first one
-    return forwarded.split(",")[0]?.trim() ?? "unknown";
+    return forwarded.split(',')[0]?.trim() ?? 'unknown';
   }
-  const realIp = request.headers.get("x-real-ip");
+  const realIp = request.headers.get('x-real-ip');
   if (realIp) {
     return realIp.trim();
   }
-  return "unknown";
+  return 'unknown';
 }
 
 /**
@@ -39,17 +39,17 @@ export function withRateLimit(
     const resetSeconds = Math.ceil((result.resetAt - Date.now()) / 1000);
 
     const rateLimitHeaders: Record<string, string> = {
-      "X-RateLimit-Limit": String(limiter.limit),
-      "X-RateLimit-Remaining": String(result.remaining),
-      "X-RateLimit-Reset": String(result.resetAt),
+      'X-RateLimit-Limit': String(limiter.limit),
+      'X-RateLimit-Remaining': String(result.remaining),
+      'X-RateLimit-Reset': String(result.resetAt),
     };
 
     if (!result.allowed) {
       // Add Retry-After header when rate limited
-      rateLimitHeaders["Retry-After"] = String(Math.max(1, resetSeconds));
+      rateLimitHeaders['Retry-After'] = String(Math.max(1, resetSeconds));
 
       return NextResponse.json(
-        { error: "rate_limited" },
+        { error: 'rate_limited' },
         {
           status: 429,
           headers: rateLimitHeaders,

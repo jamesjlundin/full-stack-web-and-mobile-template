@@ -1,14 +1,9 @@
-import {
-  auth,
-  authHandler,
-  consumeTokenForEmail,
-  getDevToken,
-} from "@acme/auth";
-import { createRateLimiter } from "@acme/security";
-import { NextResponse } from "next/server";
+import { auth, authHandler, consumeTokenForEmail, getDevToken } from '@acme/auth';
+import { createRateLimiter } from '@acme/security';
+import { NextResponse } from 'next/server';
 
-import { sendVerificationEmail } from "../../../_lib/mailer";
-import { withRateLimit } from "../../../_lib/withRateLimit";
+import { sendVerificationEmail } from '../../../_lib/mailer';
+import { withRateLimit } from '../../../_lib/withRateLimit';
 
 // Rate limiter: 5 requests per 60 seconds per IP
 const authLimiter = createRateLimiter({
@@ -16,14 +11,13 @@ const authLimiter = createRateLimiter({
   windowMs: 60_000,
 });
 
-const routeId = "/api/auth/email-password/sign-up";
+const routeId = '/api/auth/email-password/sign-up';
 
 async function handleSignUp(request: Request) {
   const isEmailVerificationRequired = !!process.env.RESEND_API_KEY;
   const isDevTokenAllowed =
-    process.env.NODE_ENV !== "production" ||
-    process.env.ALLOW_DEV_TOKENS === "true";
-  const isProduction = process.env.NODE_ENV === "production";
+    process.env.NODE_ENV !== 'production' || process.env.ALLOW_DEV_TOKENS === 'true';
+  const isProduction = process.env.NODE_ENV === 'production';
 
   // Clone the request to read the body (we need the email for verification)
   const clonedRequest = request.clone();
@@ -38,13 +32,13 @@ async function handleSignUp(request: Request) {
 
   // Rewrite the request URL to the Better Auth endpoint path
   const url = new URL(request.url);
-  url.pathname = "/api/auth/sign-up/email";
+  url.pathname = '/api/auth/sign-up/email';
 
   const newRequest = new Request(url.toString(), {
     method: request.method,
     headers: request.headers,
     body: request.body,
-    duplex: "half",
+    duplex: 'half',
   } as RequestInit);
 
   const response = await authHandler.POST(newRequest);
@@ -56,13 +50,13 @@ async function handleSignUp(request: Request) {
 
   // If email verification is not required, return success with flag
   if (!isEmailVerificationRequired) {
-    const setCookieHeader = response.headers.get("set-cookie");
+    const setCookieHeader = response.headers.get('set-cookie');
     const jsonResponse = NextResponse.json({
       success: true,
       requiresVerification: false,
     });
     if (setCookieHeader) {
-      jsonResponse.headers.set("set-cookie", setCookieHeader);
+      jsonResponse.headers.set('set-cookie', setCookieHeader);
     }
     return jsonResponse;
   }
@@ -82,12 +76,12 @@ async function handleSignUp(request: Request) {
       // In dev mode, get the token for testing convenience
       let devToken: string | undefined;
       if (isDevTokenAllowed) {
-        devToken = getDevToken("verify", email) ?? undefined;
+        devToken = getDevToken('verify', email) ?? undefined;
       }
 
       // In production, send the actual email
       if (isProduction && !isDevTokenAllowed) {
-        const token = consumeTokenForEmail("verify", email);
+        const token = consumeTokenForEmail('verify', email);
         if (token) {
           await sendVerificationEmail({ to: email, token });
         }
@@ -100,7 +94,7 @@ async function handleSignUp(request: Request) {
         devToken,
       });
     } catch (error) {
-      console.error("[sign-up] Failed to send verification email:", error);
+      console.error('[sign-up] Failed to send verification email:', error);
       // Still return success - account was created, just email failed
       return NextResponse.json({
         success: true,

@@ -2,13 +2,13 @@
  * JSON reporter for evaluation results
  */
 
-import type { Reporter, EvalResults } from "./types.js";
+import type { Reporter, EvalResults } from './types.js';
 
 /**
  * JSON reporter that outputs results as JSON to stdout
  */
 export class JsonReporter implements Reporter {
-  name = "json";
+  name = 'json';
   private pretty: boolean;
 
   constructor(pretty: boolean = true) {
@@ -16,9 +16,7 @@ export class JsonReporter implements Reporter {
   }
 
   report(results: EvalResults): void {
-    const output = this.pretty
-      ? JSON.stringify(results, null, 2)
-      : JSON.stringify(results);
+    const output = this.pretty ? JSON.stringify(results, null, 2) : JSON.stringify(results);
 
     console.log(output);
   }

@@ -1,42 +1,29 @@
-"use client";
+'use client';
 
-import { CheckCircle, Mail, RefreshCw } from "lucide-react";
-import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
-import {
-  FormEvent,
-  Suspense,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
-import { toast } from "sonner";
+import { CheckCircle, Mail, RefreshCw } from 'lucide-react';
+import Link from 'next/link';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { FormEvent, Suspense, useCallback, useEffect, useRef, useState } from 'react';
+import { toast } from 'sonner';
 
-import { AppShell } from "@/components/layout";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
-import { Spinner } from "@/components/ui/spinner";
+import { AppShell } from '@/components/layout';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Separator } from '@/components/ui/separator';
+import { Spinner } from '@/components/ui/spinner';
 
 function VerifyEmailForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const emailParam = searchParams.get("email");
-  const sentParam = searchParams.get("sent") === "true";
-  const tokenParam = searchParams.get("token");
+  const emailParam = searchParams.get('email');
+  const sentParam = searchParams.get('sent') === 'true';
+  const tokenParam = searchParams.get('token');
 
-  const [email, setEmail] = useState(emailParam ?? "");
-  const [token, setToken] = useState(tokenParam ?? "");
+  const [email, setEmail] = useState(emailParam ?? '');
+  const [token, setToken] = useState(tokenParam ?? '');
   const [devToken, setDevToken] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -63,9 +50,9 @@ function VerifyEmailForm() {
       setLoading(true);
 
       try {
-        const response = await fetch("/api/auth/email/verify/confirm", {
-          method: "POST",
-          headers: { "content-type": "application/json" },
+        const response = await fetch('/api/auth/email/verify/confirm', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
           body: JSON.stringify({ token: verifyToken }),
         });
 
@@ -73,26 +60,22 @@ function VerifyEmailForm() {
 
         if (data.ok) {
           setVerified(true);
-          setMessage("Email verified successfully! You can now sign in.");
-          toast.success("Email verified successfully");
+          setMessage('Email verified successfully! You can now sign in.');
+          toast.success('Email verified successfully');
           setDevToken(null);
-          setToken("");
+          setToken('');
           setShowCheckEmailBanner(false);
 
           // Redirect to login after a short delay
           setTimeout(() => {
-            router.push("/login?verified=true");
+            router.push('/login?verified=true');
           }, 1500);
         } else {
-          setError(
-            data.error ?? "Failed to verify email. The link may have expired.",
-          );
+          setError(data.error ?? 'Failed to verify email. The link may have expired.');
           setAutoVerifying(false);
         }
       } catch (err) {
-        setError(
-          err instanceof Error ? err.message : "Unexpected error occurred",
-        );
+        setError(err instanceof Error ? err.message : 'Unexpected error occurred');
         setAutoVerifying(false);
       } finally {
         setLoading(false);
@@ -109,9 +92,7 @@ function VerifyEmailForm() {
     }
   }, [tokenParam, verified, performVerification]);
 
-  const handleRequestVerification = async (
-    event: FormEvent<HTMLFormElement>,
-  ) => {
+  const handleRequestVerification = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setError(null);
     setMessage(null);
@@ -119,29 +100,27 @@ function VerifyEmailForm() {
     setLoading(true);
 
     try {
-      const response = await fetch("/api/auth/email/verify/request", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
+      const response = await fetch('/api/auth/email/verify/request', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ email }),
       });
 
       const data = await response.json();
 
       if (data.ok) {
-        setMessage("Verification email sent! Check your inbox.");
+        setMessage('Verification email sent! Check your inbox.');
         setShowCheckEmailBanner(true);
-        toast.success("Verification email sent");
+        toast.success('Verification email sent');
         if (data.devToken) {
           setDevToken(data.devToken);
           setToken(data.devToken);
         }
       } else {
-        setError(data.error ?? "Failed to send verification email");
+        setError(data.error ?? 'Failed to send verification email');
       }
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Unexpected error occurred",
-      );
+      setError(err instanceof Error ? err.message : 'Unexpected error occurred');
     } finally {
       setLoading(false);
     }
@@ -149,7 +128,7 @@ function VerifyEmailForm() {
 
   const handleResendVerification = async () => {
     if (!email) {
-      setError("Please enter your email address first");
+      setError('Please enter your email address first');
       return;
     }
 
@@ -159,36 +138,32 @@ function VerifyEmailForm() {
     setLoading(true);
 
     try {
-      const response = await fetch("/api/auth/email/verify/request", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
+      const response = await fetch('/api/auth/email/verify/request', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ email }),
       });
 
       const data = await response.json();
 
       if (data.ok) {
-        setMessage("Verification email resent! Check your inbox.");
-        toast.success("Verification email resent");
+        setMessage('Verification email resent! Check your inbox.');
+        toast.success('Verification email resent');
         if (data.devToken) {
           setDevToken(data.devToken);
           setToken(data.devToken);
         }
       } else {
-        setError(data.error ?? "Failed to resend verification email");
+        setError(data.error ?? 'Failed to resend verification email');
       }
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Unexpected error occurred",
-      );
+      setError(err instanceof Error ? err.message : 'Unexpected error occurred');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleConfirmVerification = async (
-    event: FormEvent<HTMLFormElement>,
-  ) => {
+  const handleConfirmVerification = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     await performVerification(token);
   };
@@ -202,9 +177,7 @@ function VerifyEmailForm() {
               <Mail className="h-6 w-6" />
               Verify Email
             </CardTitle>
-            <CardDescription>
-              Verify your email address to access your account
-            </CardDescription>
+            <CardDescription>Verify your email address to access your account</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             {/* Auto-verifying state */}
@@ -223,9 +196,9 @@ function VerifyEmailForm() {
                   Check your email
                 </AlertTitle>
                 <AlertDescription className="text-blue-700 dark:text-blue-400">
-                  We&apos;ve sent a verification email to{" "}
-                  <span className="font-medium">{email}</span>. Click the link
-                  in the email or enter the verification code below.
+                  We&apos;ve sent a verification email to{' '}
+                  <span className="font-medium">{email}</span>. Click the link in the email or enter
+                  the verification code below.
                 </AlertDescription>
               </Alert>
             )}
@@ -236,7 +209,7 @@ function VerifyEmailForm() {
                 <CheckCircle className="h-4 w-4 text-green-600" />
                 <AlertDescription className="text-green-700 dark:text-green-300">
                   {message}
-                  {verified && " Redirecting to sign in..."}
+                  {verified && ' Redirecting to sign in...'}
                 </AlertDescription>
               </Alert>
             )}
@@ -253,13 +226,8 @@ function VerifyEmailForm() {
                 {/* Request Verification Form */}
                 {!showCheckEmailBanner && (
                   <div className="space-y-4">
-                    <h3 className="text-sm font-medium">
-                      Step 1: Request Verification
-                    </h3>
-                    <form
-                      onSubmit={handleRequestVerification}
-                      className="space-y-4"
-                    >
+                    <h3 className="text-sm font-medium">Step 1: Request Verification</h3>
+                    <form onSubmit={handleRequestVerification} className="space-y-4">
                       <div className="space-y-2">
                         <Label htmlFor="email">Email</Label>
                         <Input
@@ -272,11 +240,7 @@ function VerifyEmailForm() {
                           autoComplete="email"
                         />
                       </div>
-                      <Button
-                        type="submit"
-                        className="w-full"
-                        disabled={loading}
-                      >
+                      <Button type="submit" className="w-full" disabled={loading}>
                         {loading && <Spinner size="sm" className="mr-2" />}
                         Send verification email
                       </Button>
@@ -325,13 +289,10 @@ function VerifyEmailForm() {
                 <div className="space-y-4">
                   <h3 className="text-sm font-medium">
                     {showCheckEmailBanner
-                      ? "Enter verification code"
-                      : "Step 2: Confirm Verification"}
+                      ? 'Enter verification code'
+                      : 'Step 2: Confirm Verification'}
                   </h3>
-                  <form
-                    onSubmit={handleConfirmVerification}
-                    className="space-y-4"
-                  >
+                  <form onSubmit={handleConfirmVerification} className="space-y-4">
                     <div className="space-y-2">
                       <Label htmlFor="token">Verification Token</Label>
                       <Input
@@ -343,11 +304,7 @@ function VerifyEmailForm() {
                         required
                       />
                     </div>
-                    <Button
-                      type="submit"
-                      className="w-full"
-                      disabled={loading || !token}
-                    >
+                    <Button type="submit" className="w-full" disabled={loading || !token}>
                       {loading && <Spinner size="sm" className="mr-2" />}
                       Verify email
                     </Button>
@@ -358,10 +315,7 @@ function VerifyEmailForm() {
 
                 <div className="text-sm text-center space-y-2">
                   <p className="text-muted-foreground">
-                    <Link
-                      href="/login"
-                      className="text-primary underline-offset-4 hover:underline"
-                    >
+                    <Link href="/login" className="text-primary underline-offset-4 hover:underline">
                       Back to Sign in
                     </Link>
                   </p>

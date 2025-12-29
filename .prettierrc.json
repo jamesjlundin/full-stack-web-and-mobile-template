@@ -1,4 +1,10 @@
 {
   "$schema": "https://json.schemastore.org/prettierrc",
-  "$ref": "./packages/config/.prettierrc.json"
+  "printWidth": 100,
+  "semi": true,
+  "singleQuote": true,
+  "trailingComma": "all",
+  "tabWidth": 2,
+  "bracketSpacing": true,
+  "arrowParens": "always"
 }

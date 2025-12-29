@@ -4,8 +4,8 @@
  * This is a pure function adapter that returns plain objects.
  */
 
-import { zodToJsonSchema } from "../contracts.js";
-import { listTools, getTool, invokeTool } from "../registry.js";
+import { zodToJsonSchema } from '../contracts.js';
+import { listTools, getTool, invokeTool } from '../registry.js';
 
 // =============================================================================
 // MCP Types
@@ -43,9 +43,7 @@ export interface McpCallResultError {
 /**
  * MCP call_tool result union
  */
-export type McpCallResult<T = unknown> =
-  | McpCallResultOk<T>
-  | McpCallResultError;
+export type McpCallResult<T = unknown> = McpCallResultOk<T> | McpCallResultError;
 
 /**
  * Options for MCP endpoints
@@ -73,10 +71,7 @@ export interface McpEndpoints {
    * @param input - Input data for the tool
    * @returns Promise resolving to result or error
    */
-  call_tool<T = unknown>(
-    name: string,
-    input: unknown,
-  ): Promise<McpCallResult<T>>;
+  call_tool<T = unknown>(name: string, input: unknown): Promise<McpCallResult<T>>;
 }
 
 // =============================================================================
@@ -127,10 +122,7 @@ export function toMcpEndpoints(options: McpEndpointOptions = {}): McpEndpoints {
       return result;
     },
 
-    async call_tool<T = unknown>(
-      name: string,
-      input: unknown,
-    ): Promise<McpCallResult<T>> {
+    async call_tool<T = unknown>(name: string, input: unknown): Promise<McpCallResult<T>> {
       const invokeResult = await invokeTool<T>(name, input, {
         traceId: options.traceId,
       });
@@ -145,9 +137,7 @@ export function toMcpEndpoints(options: McpEndpointOptions = {}): McpEndpoints {
       // Format validation errors for MCP response
       // Convert path to (string | number)[] - filter out symbols as they're not JSON-serializable
       const validationErrors = invokeResult.validationErrors?.map((issue) => ({
-        path: issue.path.filter(
-          (p): p is string | number => typeof p !== "symbol",
-        ),
+        path: issue.path.filter((p): p is string | number => typeof p !== 'symbol'),
         message: issue.message,
       }));
 

@@ -3,10 +3,10 @@
  * Provides registerTool, getTool, listTools, and invokeTool functions.
  */
 
-import { logToolCall, redact } from "@acme/obs";
-import { z } from "zod";
+import { logToolCall, redact } from '@acme/obs';
+import { z } from 'zod';
 
-import type { ToolContract, ToolImpl } from "./contracts.js";
+import type { ToolContract, ToolImpl } from './contracts.js';
 
 // =============================================================================
 // Types
@@ -146,14 +146,14 @@ export async function invokeTool<T = unknown>(
           name,
           startedAt,
           finishedAt,
-          error: "Input validation failed",
+          error: 'Input validation failed',
           args: redact(input),
           traceId: options.traceId,
         });
 
         return {
           ok: false,
-          error: "Input validation failed",
+          error: 'Input validation failed',
           validationErrors: inputResult.error.issues,
         };
       }
@@ -175,14 +175,14 @@ export async function invokeTool<T = unknown>(
           name,
           startedAt,
           finishedAt,
-          error: "Output validation failed",
+          error: 'Output validation failed',
           args: redact(input),
           traceId: options.traceId,
         });
 
         return {
           ok: false,
-          error: "Output validation failed",
+          error: 'Output validation failed',
           validationErrors: outputResult.error.issues,
         };
       }

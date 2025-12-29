@@ -22,13 +22,13 @@ src/prompts/{feature}/{name}.v{version}.ts
 2. Export the new prompt in `src/prompts/index.ts`:
 
    ```typescript
-   export { chatDefaultV2 } from "./chat/default.v2.js";
+   export { chatDefaultV2 } from './chat/default.v2.js';
    ```
 
 3. Update the router mapping in `src/router.ts`:
 
    ```typescript
-   import { chatDefaultV2 } from "./prompts/chat/default.v2.js";
+   import { chatDefaultV2 } from './prompts/chat/default.v2.js';
 
    const PROMPT_MAPPING = {
      chat: {
@@ -62,7 +62,7 @@ JSON schemas are stored in `src/schemas/{namespace}/{name}.json` with version in
 3. Register in `src/schemas/index.ts`:
 
    ```typescript
-   import searchSchema from "./tools/search.json" with { type: "json" };
+   import searchSchema from './tools/search.json' with { type: 'json' };
 
    export const schemas = {
      // ...existing schemas
@@ -73,7 +73,7 @@ JSON schemas are stored in `src/schemas/{namespace}/{name}.json` with version in
 4. Use the compiled validator:
    ```typescript
    const ajv = configureAjv();
-   const validator = ajv.getValidator("toolsSearch");
+   const validator = ajv.getValidator('toolsSearch');
    const result = validator.validate(data);
    ```
 

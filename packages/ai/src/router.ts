@@ -1,7 +1,7 @@
-import { agentDefaultV1 } from "./prompts/agent/default.v1";
-import { chatDefaultV1 } from "./prompts/chat/default.v1";
+import { agentDefaultV1 } from './prompts/agent/default.v1';
+import { chatDefaultV1 } from './prompts/chat/default.v1';
 
-import type { PromptDef } from "./prompts/types";
+import type { PromptDef } from './prompts/types';
 
 /**
  * Prompt Router - Single point of control for active prompt versions.
@@ -39,7 +39,7 @@ const PROMPT_MAPPING: FeatureMapping = {
   // rag: { default: ragDefaultV1 },
 };
 
-const DEFAULT_CHANNEL = "default";
+const DEFAULT_CHANNEL = 'default';
 
 /**
  * Selects the active prompt for a given feature and optional channel.
@@ -62,7 +62,7 @@ export function selectPrompt(feature: string, channel?: string): PromptDef {
 
   if (!featureMapping) {
     throw new Error(
-      `Unknown feature: "${feature}". Available: ${Object.keys(PROMPT_MAPPING).join(", ")}`,
+      `Unknown feature: "${feature}". Available: ${Object.keys(PROMPT_MAPPING).join(', ')}`,
     );
   }
 
@@ -71,7 +71,7 @@ export function selectPrompt(feature: string, channel?: string): PromptDef {
 
   if (!prompt) {
     throw new Error(
-      `Unknown channel "${targetChannel}" for feature "${feature}". Available: ${Object.keys(featureMapping).join(", ")}`,
+      `Unknown channel "${targetChannel}" for feature "${feature}". Available: ${Object.keys(featureMapping).join(', ')}`,
     );
   }
 

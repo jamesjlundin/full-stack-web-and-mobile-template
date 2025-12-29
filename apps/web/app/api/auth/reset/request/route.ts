@@ -1,12 +1,9 @@
-import { auth, getDevToken, consumeTokenForEmail } from "@acme/auth";
-import { createRateLimiter } from "@acme/security";
-import { NextRequest, NextResponse } from "next/server";
+import { auth, getDevToken, consumeTokenForEmail } from '@acme/auth';
+import { createRateLimiter } from '@acme/security';
+import { NextRequest, NextResponse } from 'next/server';
 
-import {
-  sendPasswordResetEmail,
-  buildPasswordResetUrls,
-} from "../../../_lib/passwordResetEmail";
-import { withRateLimit } from "../../../_lib/withRateLimit";
+import { sendPasswordResetEmail, buildPasswordResetUrls } from '../../../_lib/passwordResetEmail';
+import { withRateLimit } from '../../../_lib/withRateLimit';
 
 // Rate limit: 5 requests per 60 seconds per IP
 const limiter = createRateLimiter({ limit: 5, windowMs: 60_000 });
@@ -22,14 +19,13 @@ const limiter = createRateLimiter({ limit: 5, windowMs: 60_000 });
 async function handler(request: NextRequest) {
   // Check if dev token echoing is allowed (dev mode OR ALLOW_DEV_TOKENS=true for testing)
   const isDevTokenAllowed =
-    process.env.NODE_ENV !== "production" ||
-    process.env.ALLOW_DEV_TOKENS === "true";
+    process.env.NODE_ENV !== 'production' || process.env.ALLOW_DEV_TOKENS === 'true';
 
   try {
     const body = await request.json();
     const { email } = body;
 
-    if (!email || typeof email !== "string") {
+    if (!email || typeof email !== 'string') {
       // Still return 200 to prevent enumeration of valid/invalid emails
       return NextResponse.json({ ok: true });
     }
@@ -38,25 +34,25 @@ async function handler(request: NextRequest) {
     // This will trigger the sendResetPassword callback which stores the token
     try {
       await auth.api.requestPasswordReset({
-        body: { email, redirectTo: "/reset-password/confirm" },
+        body: { email, redirectTo: '/reset-password/confirm' },
         headers: request.headers,
       });
     } catch {
       // Even on error (e.g., user not found), return success to prevent enumeration
       // Log for debugging but don't expose to client
-      console.log("[reset/request] Password reset requested for:", email);
+      console.log('[reset/request] Password reset requested for:', email);
     }
 
     // Small delay to ensure token is stored by callback
     await new Promise((resolve) => setTimeout(resolve, 100));
 
     // Try to get token for email sending (works in all environments)
-    const tokenForEmail = consumeTokenForEmail("reset", email);
+    const tokenForEmail = consumeTokenForEmail('reset', email);
 
     // In dev mode, also get devToken for response echoing
     if (isDevTokenAllowed) {
       // Get token again if we consumed it for email (need to re-check)
-      const devToken = getDevToken("reset", email) ?? tokenForEmail;
+      const devToken = getDevToken('reset', email) ?? tokenForEmail;
 
       // Send email (in dev, just logs to console)
       if (tokenForEmail) {
@@ -74,17 +70,13 @@ async function handler(request: NextRequest) {
       });
       if (!emailResult.ok) {
         // Log error but still return success to prevent enumeration
-        console.error(
-          "[reset/request] Failed to send email:",
-          emailResult.error,
-        );
+        console.error('[reset/request] Failed to send email:', emailResult.error);
 
         // If no email service, log URLs for manual testing
-        const { webResetUrl, mobileDeepLink } =
-          buildPasswordResetUrls(tokenForEmail);
-        console.log("[reset/request] Reset URL (no email sent):", webResetUrl);
+        const { webResetUrl, mobileDeepLink } = buildPasswordResetUrls(tokenForEmail);
+        console.log('[reset/request] Reset URL (no email sent):', webResetUrl);
         if (mobileDeepLink) {
-          console.log("[reset/request] Mobile deep link:", mobileDeepLink);
+          console.log('[reset/request] Mobile deep link:', mobileDeepLink);
         }
       }
     }
@@ -92,10 +84,10 @@ async function handler(request: NextRequest) {
     // Production: never expose tokens
     return NextResponse.json({ ok: true });
   } catch (error) {
-    console.error("[reset/request] Error:", error);
+    console.error('[reset/request] Error:', error);
     // Return success even on error to prevent enumeration
     return NextResponse.json({ ok: true });
   }
 }
 
-export const POST = withRateLimit("/api/auth/reset/request", limiter, handler);
+export const POST = withRateLimit('/api/auth/reset/request', limiter, handler);

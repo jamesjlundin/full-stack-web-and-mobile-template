@@ -20,31 +20,31 @@ pnpm add @acme/tools-testing
 ### Register Test Tools
 
 ```typescript
-import "@acme/tools-testing/register";
+import '@acme/tools-testing/register';
 
 // Or explicitly:
-import { registerTestTools } from "@acme/tools-testing";
+import { registerTestTools } from '@acme/tools-testing';
 registerTestTools();
 ```
 
 ### Use Test Tools
 
 ```typescript
-import { invokeTool } from "@acme/tools";
-import "@acme/tools-testing/register";
+import { invokeTool } from '@acme/tools';
+import '@acme/tools-testing/register';
 
 // Echo tool
-const echo = await invokeTool("echo", { text: "hello" });
+const echo = await invokeTool('echo', { text: 'hello' });
 // { ok: true, result: { text: "hello" } }
 
-const upper = await invokeTool("echo", {
-  text: "hello",
-  transform: "uppercase",
+const upper = await invokeTool('echo', {
+  text: 'hello',
+  transform: 'uppercase',
 });
 // { ok: true, result: { text: "HELLO" } }
 
 // Math.add tool
-const sum = await invokeTool("math.add", { a: 5, b: 3 });
+const sum = await invokeTool('math.add', { a: 5, b: 3 });
 // { ok: true, result: { sum: 8 } }
 ```
 
@@ -97,15 +97,10 @@ pnpm -C packages/tools-testing test
 
 ```typescript
 // Tool registration
-export { registerTestTools } from "@acme/tools-testing";
+export { registerTestTools } from '@acme/tools-testing';
 
 // Echo tool
-export {
-  echoContract,
-  echoImpl,
-  echoInputSchema,
-  echoOutputSchema,
-} from "@acme/tools-testing";
+export { echoContract, echoImpl, echoInputSchema, echoOutputSchema } from '@acme/tools-testing';
 
 // Math.add tool
 export {
@@ -113,7 +108,7 @@ export {
   mathAddImpl,
   mathAddInputSchema,
   mathAddOutputSchema,
-} from "@acme/tools-testing";
+} from '@acme/tools-testing';
 
 // Types
 export type {
@@ -122,5 +117,5 @@ export type {
   EchoTransform,
   MathAddInput,
   MathAddOutput,
-} from "@acme/tools-testing";
+} from '@acme/tools-testing';
 ```

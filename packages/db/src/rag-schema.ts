@@ -9,7 +9,7 @@
  * TypeScript types for non-vector columns.
  */
 
-import { pgTable, text, timestamp, jsonb, index } from "drizzle-orm/pg-core";
+import { pgTable, text, timestamp, jsonb, index } from 'drizzle-orm/pg-core';
 
 /**
  * RAG chunks table
@@ -18,16 +18,16 @@ import { pgTable, text, timestamp, jsonb, index } from "drizzle-orm/pg-core";
  * The embedding column uses pgvector VECTOR(1536) type, created via migration.
  */
 export const ragChunks = pgTable(
-  "rag_chunks",
+  'rag_chunks',
   {
     /** Unique chunk identifier (ULID) */
-    id: text("id").primaryKey(),
+    id: text('id').primaryKey(),
 
     /** Parent document identifier */
-    docId: text("doc_id").notNull(),
+    docId: text('doc_id').notNull(),
 
     /** Text content of the chunk */
-    content: text("content").notNull(),
+    content: text('content').notNull(),
 
     /**
      * Vector embedding
@@ -37,14 +37,14 @@ export const ragChunks = pgTable(
     // embedding is handled via raw SQL due to pgvector type
 
     /** Optional metadata (source, order, etc.) */
-    metadata: jsonb("metadata").$type<Record<string, unknown>>(),
+    metadata: jsonb('metadata').$type<Record<string, unknown>>(),
 
     /** Creation timestamp */
-    createdAt: timestamp("created_at").defaultNow().notNull(),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
   },
   (table) => [
     // Index on doc_id for efficient document-level operations
-    index("rag_chunks_doc_id_idx").on(table.docId),
+    index('rag_chunks_doc_id_idx').on(table.docId),
   ],
 );
 

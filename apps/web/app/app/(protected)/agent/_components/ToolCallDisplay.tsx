@@ -1,10 +1,10 @@
-"use client";
+'use client';
 
-import { Cloud, Clock, Loader2, CheckCircle } from "lucide-react";
+import { Cloud, Clock, Loader2, CheckCircle } from 'lucide-react';
 
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent } from '@/components/ui/card';
 
-import type { ToolCall } from "../_lib/types";
+import type { ToolCall } from '../_lib/types';
 
 const toolIcons: Record<string, typeof Cloud> = {
   get_weather: Cloud,
@@ -17,7 +17,7 @@ interface ToolCallDisplayProps {
 
 export function ToolCallDisplay({ toolCall }: ToolCallDisplayProps) {
   const Icon = toolIcons[toolCall.name] || Cloud;
-  const isComplete = toolCall.status === "complete";
+  const isComplete = toolCall.status === 'complete';
 
   return (
     <Card className="my-2 bg-muted/50">
@@ -28,9 +28,7 @@ export function ToolCallDisplay({ toolCall }: ToolCallDisplayProps) {
           </div>
           <div className="flex-1 min-w-0 space-y-1">
             <div className="flex items-center gap-2">
-              <span className="font-medium text-sm">
-                {formatToolName(toolCall.name)}
-              </span>
+              <span className="font-medium text-sm">{formatToolName(toolCall.name)}</span>
               {isComplete ? (
                 <CheckCircle className="h-3.5 w-3.5 text-green-500" />
               ) : (
@@ -43,8 +41,7 @@ export function ToolCallDisplay({ toolCall }: ToolCallDisplayProps) {
               <div className="text-xs text-muted-foreground">
                 {Object.entries(toolCall.args).map(([key, value]) => (
                   <span key={key} className="mr-2">
-                    {key}:{" "}
-                    <span className="font-mono">{formatArgValue(value)}</span>
+                    {key}: <span className="font-mono">{formatArgValue(value)}</span>
                   </span>
                 ))}
               </div>
@@ -65,32 +62,32 @@ export function ToolCallDisplay({ toolCall }: ToolCallDisplayProps) {
 
 function formatToolName(name: string): string {
   return name
-    .split("_")
+    .split('_')
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(" ");
+    .join(' ');
 }
 
 function formatArgValue(value: unknown): string {
   if (value === null || value === undefined) {
-    return "null";
+    return 'null';
   }
-  if (typeof value === "object") {
+  if (typeof value === 'object') {
     return JSON.stringify(value);
   }
   return String(value);
 }
 
 function formatToolResult(toolName: string, result: unknown): string {
-  if (typeof result !== "object" || result === null) {
+  if (typeof result !== 'object' || result === null) {
     return String(result);
   }
 
   const data = result as Record<string, unknown>;
 
   switch (toolName) {
-    case "get_weather":
-      return `${data.temperature}°${(data.unit as string)?.[0]?.toUpperCase() || "F"} - ${data.conditions}`;
-    case "get_time":
+    case 'get_weather':
+      return `${data.temperature}°${(data.unit as string)?.[0]?.toUpperCase() || 'F'} - ${data.conditions}`;
+    case 'get_time':
       return `${data.time} (${data.timezone})`;
     default:
       return JSON.stringify(result, null, 2);

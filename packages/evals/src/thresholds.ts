@@ -32,18 +32,16 @@ export function mergeThresholds(custom?: Partial<Thresholds>): Thresholds {
  * Parse threshold constraints from CLI argument
  * Format: "schema_fidelity:0.95,constraint_satisfaction:0.85"
  */
-export function parseThresholdConstraints(
-  constraintStr: string,
-): Partial<Thresholds> {
+export function parseThresholdConstraints(constraintStr: string): Partial<Thresholds> {
   const result: Partial<Thresholds> = {};
 
   if (!constraintStr) {
     return result;
   }
 
-  const pairs = constraintStr.split(",");
+  const pairs = constraintStr.split(',');
   for (const pair of pairs) {
-    const [key, value] = pair.split(":");
+    const [key, value] = pair.split(':');
     if (key && value) {
       const numValue = parseFloat(value);
       if (!isNaN(numValue) && isValidThresholdKey(key)) {
@@ -74,9 +72,7 @@ export function checkThresholds(
   for (const [metric, threshold] of Object.entries(thresholds)) {
     const score = results[metric];
     if (score !== undefined && score < threshold) {
-      failures.push(
-        `${metric}: ${(score * 100).toFixed(1)}% < ${(threshold * 100).toFixed(1)}%`,
-      );
+      failures.push(`${metric}: ${(score * 100).toFixed(1)}% < ${(threshold * 100).toFixed(1)}%`);
     }
   }
 

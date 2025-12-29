@@ -137,11 +137,11 @@ To protect additional routes, edit the `PROTECTED_PATH_PREFIXES` array in `middl
 
 ```typescript
 const PROTECTED_PATH_PREFIXES = [
-  "/app",
-  "/dashboard",
-  "/account",
-  "/protected",
-  "/my-new-route", // Add your new protected path here
+  '/app',
+  '/dashboard',
+  '/account',
+  '/protected',
+  '/my-new-route', // Add your new protected path here
 ];
 ```
 
@@ -265,15 +265,13 @@ Dark mode is enabled via the `class` strategy and managed by `next-themes`:
 To programmatically control the theme:
 
 ```tsx
-import { useTheme } from "next-themes";
+import { useTheme } from 'next-themes';
 
 function MyComponent() {
   const { theme, setTheme } = useTheme();
 
   return (
-    <button onClick={() => setTheme(theme === "dark" ? "light" : "dark")}>
-      Toggle theme
-    </button>
+    <button onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>Toggle theme</button>
   );
 }
 ```
@@ -285,17 +283,17 @@ Toast notifications use [Sonner](https://sonner.emilkowal.ski/). The `Toaster` c
 To show a toast:
 
 ```tsx
-import { toast } from "sonner";
+import { toast } from 'sonner';
 
 // Success
-toast.success("Operation completed");
+toast.success('Operation completed');
 
 // Error
-toast.error("Something went wrong");
+toast.error('Something went wrong');
 
 // Custom
-toast("Event has been created", {
-  description: "Monday, January 3rd at 6:00pm",
+toast('Event has been created', {
+  description: 'Monday, January 3rd at 6:00pm',
 });
 ```
 

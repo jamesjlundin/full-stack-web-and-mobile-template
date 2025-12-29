@@ -5,12 +5,12 @@
  * Metric: % of responses that are valid JSON matching the schema.
  */
 
-import Ajv from "ajv";
-import addFormats from "ajv-formats";
+import Ajv from 'ajv';
+import addFormats from 'ajv-formats';
 
-import type { Suite, EvalContext } from "./types.js";
-import type { SchemaFixture } from "../fixtures/types.js";
-import type { CaseResult } from "../reporters/types.js";
+import type { Suite, EvalContext } from './types.js';
+import type { SchemaFixture } from '../fixtures/types.js';
+import type { CaseResult } from '../reporters/types.js';
 
 // Create Ajv instance with formats
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -22,13 +22,13 @@ const ajv = new AjvClass({ allErrors: true, strict: false });
 addFormatsFunc(ajv);
 
 export const schemaFidelitySuite: Suite = {
-  name: "Schema Fidelity",
-  description: "Evaluates JSON schema compliance of model outputs",
-  metricName: "schema_fidelity",
+  name: 'Schema Fidelity',
+  description: 'Evaluates JSON schema compliance of model outputs',
+  metricName: 'schema_fidelity',
 
   async run(context: EvalContext): Promise<CaseResult[]> {
     const schemaFixtures = context.fixtures.filter(
-      (f): f is SchemaFixture => f.category === "schema",
+      (f): f is SchemaFixture => f.category === 'schema',
     );
 
     const results: CaseResult[] = [];
@@ -61,13 +61,13 @@ Generate a valid JSON object matching this schema.`;
     const response = await context.model.generate(
       [
         {
-          role: "system",
+          role: 'system',
           content:
-            "You are a helpful assistant that generates valid JSON. Always respond with valid JSON only, no additional text. Ensure the JSON matches the provided schema exactly.",
+            'You are a helpful assistant that generates valid JSON. Always respond with valid JSON only, no additional text. Ensure the JSON matches the provided schema exactly.',
         },
-        { role: "user", content: promptWithSchema },
+        { role: 'user', content: promptWithSchema },
       ],
-      { responseFormat: "json" },
+      { responseFormat: 'json' },
     );
 
     // Try to parse the response as JSON
@@ -77,11 +77,11 @@ Generate a valid JSON object matching this schema.`;
     } catch {
       return {
         id: fixture.id,
-        suite: "schema_fidelity",
+        suite: 'schema_fidelity',
         name: fixture.name,
         passed: false,
         score: 0,
-        error: "Response is not valid JSON",
+        error: 'Response is not valid JSON',
         details: `Response: ${response.content.substring(0, 200)}`,
       };
     }
@@ -92,19 +92,16 @@ Generate a valid JSON object matching this schema.`;
 
     if (!valid) {
       const errors = validate.errors
-        ?.map(
-          (e: { instancePath: string; message?: string }) =>
-            `${e.instancePath} ${e.message}`,
-        )
-        .join("; ");
+        ?.map((e: { instancePath: string; message?: string }) => `${e.instancePath} ${e.message}`)
+        .join('; ');
 
       return {
         id: fixture.id,
-        suite: "schema_fidelity",
+        suite: 'schema_fidelity',
         name: fixture.name,
         passed: false,
         score: 0,
-        error: "Schema validation failed",
+        error: 'Schema validation failed',
         details: errors,
       };
     }
@@ -112,25 +109,23 @@ Generate a valid JSON object matching this schema.`;
     // Check required fields if specified
     if (fixture.requiredFields) {
       const obj = parsed as Record<string, unknown>;
-      const missingFields = fixture.requiredFields.filter(
-        (field) => !(field in obj),
-      );
+      const missingFields = fixture.requiredFields.filter((field) => !(field in obj));
 
       if (missingFields.length > 0) {
         return {
           id: fixture.id,
-          suite: "schema_fidelity",
+          suite: 'schema_fidelity',
           name: fixture.name,
           passed: false,
           score: 0,
-          error: `Missing required fields: ${missingFields.join(", ")}`,
+          error: `Missing required fields: ${missingFields.join(', ')}`,
         };
       }
     }
 
     return {
       id: fixture.id,
-      suite: "schema_fidelity",
+      suite: 'schema_fidelity',
       name: fixture.name,
       passed: true,
       score: 1,
@@ -138,11 +133,11 @@ Generate a valid JSON object matching this schema.`;
   } catch (error) {
     return {
       id: fixture.id,
-      suite: "schema_fidelity",
+      suite: 'schema_fidelity',
       name: fixture.name,
       passed: false,
       score: 0,
-      error: error instanceof Error ? error.message : "Unknown error",
+      error: error instanceof Error ? error.message : 'Unknown error',
     };
   }
 }

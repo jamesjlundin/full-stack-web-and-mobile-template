@@ -4,11 +4,11 @@
  * Provides the main ragQuery function that combines embedding and similarity search.
  */
 
-import { openaiEmbedder, hasOpenAIKey, MissingApiKeyError } from "./embed";
-import { querySimilar } from "./store";
+import { openaiEmbedder, hasOpenAIKey, MissingApiKeyError } from './embed';
+import { querySimilar } from './store';
 
-import type { NeonHttpDatabase } from "drizzle-orm/neon-http";
-import type { NodePgDatabase } from "drizzle-orm/node-postgres";
+import type { NeonHttpDatabase } from 'drizzle-orm/neon-http';
+import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
 
 /**
  * Options for RAG query
@@ -66,10 +66,7 @@ type DbInstance = NodePgDatabase<any> | NeonHttpDatabase<any>;
  * }
  * ```
  */
-export async function ragQuery(
-  db: DbInstance,
-  options: RagQueryOptions,
-): Promise<RagQueryResult> {
+export async function ragQuery(db: DbInstance, options: RagQueryOptions): Promise<RagQueryResult> {
   const { query, k = 3 } = options;
 
   if (!hasOpenAIKey()) {

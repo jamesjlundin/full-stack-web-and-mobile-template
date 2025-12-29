@@ -1,14 +1,14 @@
-"use client";
+'use client';
 
-import { CheckCircle } from "lucide-react";
-import Link from "next/link";
-import { useSearchParams } from "next/navigation";
-import { FormEvent, useState, useEffect, Suspense } from "react";
-import { toast } from "sonner";
+import { CheckCircle } from 'lucide-react';
+import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
+import { FormEvent, useState, useEffect, Suspense } from 'react';
+import { toast } from 'sonner';
 
-import { AppShell } from "@/components/layout";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Button } from "@/components/ui/button";
+import { AppShell } from '@/components/layout';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
@@ -16,21 +16,21 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Spinner } from "@/components/ui/spinner";
+} from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Spinner } from '@/components/ui/spinner';
 
 function ResetConfirmForm() {
   const searchParams = useSearchParams();
-  const [token, setToken] = useState("");
-  const [newPassword, setNewPassword] = useState("");
+  const [token, setToken] = useState('');
+  const [newPassword, setNewPassword] = useState('');
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const tokenParam = searchParams.get("token");
+    const tokenParam = searchParams.get('token');
     if (tokenParam) {
       setToken(tokenParam);
     }
@@ -43,28 +43,24 @@ function ResetConfirmForm() {
     setLoading(true);
 
     try {
-      const response = await fetch("/api/auth/password/reset/confirm", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
+      const response = await fetch('/api/auth/password/reset/confirm', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ token, newPassword }),
       });
 
       const data = await response.json();
 
       if (data.ok) {
-        setMessage(
-          "Password reset successfully! You can now sign in with your new password.",
-        );
-        toast.success("Password reset successfully");
-        setToken("");
-        setNewPassword("");
+        setMessage('Password reset successfully! You can now sign in with your new password.');
+        toast.success('Password reset successfully');
+        setToken('');
+        setNewPassword('');
       } else {
-        setError(data.error ?? "Failed to reset password");
+        setError(data.error ?? 'Failed to reset password');
       }
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Unexpected error occurred",
-      );
+      setError(err instanceof Error ? err.message : 'Unexpected error occurred');
     } finally {
       setLoading(false);
     }
@@ -75,12 +71,8 @@ function ResetConfirmForm() {
       <div className="container flex items-center justify-center min-h-[calc(100vh-3.5rem)] py-12">
         <Card className="w-full max-w-md">
           <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl font-bold">
-              Set New Password
-            </CardTitle>
-            <CardDescription>
-              Enter your reset token and new password below.
-            </CardDescription>
+            <CardTitle className="text-2xl font-bold">Set New Password</CardTitle>
+            <CardDescription>Enter your reset token and new password below.</CardDescription>
           </CardHeader>
           <form onSubmit={handleConfirmReset}>
             <CardContent className="space-y-4">
@@ -129,20 +121,13 @@ function ResetConfirmForm() {
               </div>
             </CardContent>
             <CardFooter className="flex flex-col space-y-4">
-              <Button
-                type="submit"
-                className="w-full"
-                disabled={loading || !token || !newPassword}
-              >
+              <Button type="submit" className="w-full" disabled={loading || !token || !newPassword}>
                 {loading && <Spinner size="sm" className="mr-2" />}
-                {loading ? "Resetting..." : "Set new password"}
+                {loading ? 'Resetting...' : 'Set new password'}
               </Button>
               <div className="text-sm text-center space-y-2">
                 <p className="text-muted-foreground">
-                  <Link
-                    href="/login"
-                    className="text-primary underline-offset-4 hover:underline"
-                  >
+                  <Link href="/login" className="text-primary underline-offset-4 hover:underline">
                     Back to Sign in
                   </Link>
                 </p>
@@ -169,9 +154,7 @@ function ResetConfirmLoading() {
       <div className="container flex items-center justify-center min-h-[calc(100vh-3.5rem)] py-12">
         <Card className="w-full max-w-md">
           <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl font-bold">
-              Set New Password
-            </CardTitle>
+            <CardTitle className="text-2xl font-bold">Set New Password</CardTitle>
             <CardDescription>Loading...</CardDescription>
           </CardHeader>
           <CardContent className="flex justify-center py-8">

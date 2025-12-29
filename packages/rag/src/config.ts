@@ -9,7 +9,7 @@
  * Embedding model identifier (OpenAI format: provider:model)
  * text-embedding-3-small is cost-effective and suitable for most RAG applications
  */
-export const EMBED_MODEL = "openai:text-embedding-3-small";
+export const EMBED_MODEL = 'openai:text-embedding-3-small';
 
 /**
  * Embedding vector dimensions
@@ -22,7 +22,7 @@ export const EMBED_DIMS = 1536;
  * RAG configuration version for tracking compatibility
  * Increment when making breaking changes to chunk/embed/index strategy
  */
-export const RAG_CONFIG_VERSION = "v1";
+export const RAG_CONFIG_VERSION = 'v1';
 
 /**
  * Default chunk size in characters for fixed-size chunking

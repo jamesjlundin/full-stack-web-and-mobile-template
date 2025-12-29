@@ -1,16 +1,16 @@
-import { openai } from "@ai-sdk/openai";
-import { generateImage } from "ai";
-import { z } from "zod";
+import { openai } from '@ai-sdk/openai';
+import { generateImage } from 'ai';
+import { z } from 'zod';
 
 // Image generation model - using OpenAI's DALL-E 3
-const IMAGE_MODEL = "dall-e-3";
+const IMAGE_MODEL = 'dall-e-3';
 
 export const generateImageToolSchema = z.object({
-  prompt: z.string().describe("Detailed description of the image to generate"),
+  prompt: z.string().describe('Detailed description of the image to generate'),
   size: z
-    .enum(["1024x1024", "1792x1024", "1024x1792"])
-    .default("1024x1024")
-    .describe("Image dimensions (square, landscape, or portrait)"),
+    .enum(['1024x1024', '1792x1024', '1024x1792'])
+    .default('1024x1024')
+    .describe('Image dimensions (square, landscape, or portrait)'),
 });
 
 export type GenerateImageInput = z.infer<typeof generateImageToolSchema>;
@@ -39,8 +39,7 @@ export async function executeGenerateImage(
   if (!apiKey) {
     return {
       success: false,
-      error:
-        "Image generation requires an OpenAI API key. Please configure OPENAI_API_KEY.",
+      error: 'Image generation requires an OpenAI API key. Please configure OPENAI_API_KEY.',
     };
   }
 
@@ -58,8 +57,7 @@ export async function executeGenerateImage(
       size: input.size,
     };
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : "Image generation failed";
+    const message = error instanceof Error ? error.message : 'Image generation failed';
     return {
       success: false,
       error: message,

@@ -3,27 +3,24 @@
  * Deterministic mock tool for testing purposes.
  */
 
-import { defineContract } from "@acme/tools";
-import { z } from "zod";
+import { defineContract } from '@acme/tools';
+import { z } from 'zod';
 
-import type { ToolContract, ToolImpl } from "@acme/tools";
+import type { ToolContract, ToolImpl } from '@acme/tools';
 
 // =============================================================================
 // Contract
 // =============================================================================
 
 /** Transform modes for echo tool */
-export type EchoTransform = "none" | "uppercase" | "lowercase" | "reverse";
+export type EchoTransform = 'none' | 'uppercase' | 'lowercase' | 'reverse';
 
 /** Echo input schema */
 export const echoInputSchema = z.object({
   /** Text to echo back */
   text: z.string(),
   /** Optional transform to apply (default: "none") */
-  transform: z
-    .enum(["none", "uppercase", "lowercase", "reverse"])
-    .optional()
-    .default("none"),
+  transform: z.enum(['none', 'uppercase', 'lowercase', 'reverse']).optional().default('none'),
 });
 
 /** Echo output schema */
@@ -34,8 +31,8 @@ export const echoOutputSchema = z.object({
 
 /** Echo tool contract */
 export const echoContract = defineContract({
-  name: "echo",
-  description: "Echo input text back, optionally transforming it",
+  name: 'echo',
+  description: 'Echo input text back, optionally transforming it',
   input: echoInputSchema,
   output: echoOutputSchema,
 });
@@ -57,24 +54,22 @@ export type EchoOutput = z.infer<typeof echoOutputSchema>;
  * @param input - Echo input with text and optional transform
  * @returns Echo output with (transformed) text
  */
-export const echoImpl: ToolImpl<typeof echoContract> = (
-  input: EchoInput,
-): EchoOutput => {
-  const { text, transform = "none" } = input;
+export const echoImpl: ToolImpl<typeof echoContract> = (input: EchoInput): EchoOutput => {
+  const { text, transform = 'none' } = input;
 
   let result: string;
 
   switch (transform) {
-    case "uppercase":
+    case 'uppercase':
       result = text.toUpperCase();
       break;
-    case "lowercase":
+    case 'lowercase':
       result = text.toLowerCase();
       break;
-    case "reverse":
-      result = text.split("").reverse().join("");
+    case 'reverse':
+      result = text.split('').reverse().join('');
       break;
-    case "none":
+    case 'none':
     default:
       result = text;
       break;
@@ -84,7 +79,4 @@ export const echoImpl: ToolImpl<typeof echoContract> = (
 };
 
 // Export contract type for external use
-export type EchoContract = ToolContract<
-  typeof echoInputSchema,
-  typeof echoOutputSchema
->;
+export type EchoContract = ToolContract<typeof echoInputSchema, typeof echoOutputSchema>;

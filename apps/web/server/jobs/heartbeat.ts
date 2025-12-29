@@ -1,4 +1,4 @@
-import { withTrace, nowMs, durationMs } from "@acme/obs";
+import { withTrace, nowMs, durationMs } from '@acme/obs';
 
 /**
  * Heartbeat job result
@@ -6,7 +6,7 @@ import { withTrace, nowMs, durationMs } from "@acme/obs";
 export interface HeartbeatResult {
   ok: boolean;
   ts: number;
-  job: "heartbeat";
+  job: 'heartbeat';
   checks: {
     database?: boolean;
     memory?: boolean;
@@ -25,12 +25,12 @@ export interface HeartbeatResult {
 export async function runHeartbeat(): Promise<HeartbeatResult> {
   const startMs = nowMs();
 
-  const { result, error } = await withTrace("cron.heartbeat", async () => {
-    const checks: HeartbeatResult["checks"] = {};
+  const { result, error } = await withTrace('cron.heartbeat', async () => {
+    const checks: HeartbeatResult['checks'] = {};
 
     // Memory check - verify we can allocate memory
     try {
-      const memCheck = new Array(1000).fill("heartbeat");
+      const memCheck = new Array(1000).fill('heartbeat');
       checks.memory = memCheck.length === 1000;
     } catch {
       checks.memory = false;
@@ -55,7 +55,7 @@ export async function runHeartbeat(): Promise<HeartbeatResult> {
     console.log(
       JSON.stringify({
         ts: new Date().toISOString(),
-        event: "cron.heartbeat.error",
+        event: 'cron.heartbeat.error',
         error: error.message,
         duration_ms: duration,
       }),
@@ -64,7 +64,7 @@ export async function runHeartbeat(): Promise<HeartbeatResult> {
     return {
       ok: false,
       ts: Date.now(),
-      job: "heartbeat",
+      job: 'heartbeat',
       checks: {},
       duration_ms: duration,
     };
@@ -73,7 +73,7 @@ export async function runHeartbeat(): Promise<HeartbeatResult> {
   console.log(
     JSON.stringify({
       ts: new Date().toISOString(),
-      event: "cron.heartbeat.complete",
+      event: 'cron.heartbeat.complete',
       checks: result,
       duration_ms: duration,
     }),
@@ -82,7 +82,7 @@ export async function runHeartbeat(): Promise<HeartbeatResult> {
   return {
     ok: true,
     ts: Date.now(),
-    job: "heartbeat",
+    job: 'heartbeat',
     checks: result || {},
     duration_ms: duration,
   };
