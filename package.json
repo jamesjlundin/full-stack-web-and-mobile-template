@@ -3,7 +3,7 @@
   "private": true,
   "packageManager": "pnpm@9.12.3",
   "scripts": {
-    "env:init": "cp .env.example .env && for dir in packages/*/; do cp .env.example \"$dir.env\"; done && for dir in apps/*/; do cp .env.example \"$dir.env.local\"; done",
+    "env:init": "tsx scripts/init-env.ts",
     "dev": "turbo run dev --parallel",
     "build": "turbo run build",
     "lint": "turbo run lint",
