@@ -13,6 +13,7 @@
     "db:up": "docker compose up -d",
     "db:down": "docker compose down -v",
     "test:integration": "pnpm -C packages/tests test",
+    "test:e2e": "pnpm -C apps/web test:e2e",
     "evals": "node packages/evals/dist/cli.js",
     "ai:build": "pnpm -C packages/ai build",
     "obs:build": "pnpm -C packages/obs build",

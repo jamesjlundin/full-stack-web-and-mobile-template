@@ -1,5 +1,5 @@
 # CI Pipeline for the monorepo
-# Runs install, typecheck, lint, web build, and integration tests
+# Runs install, typecheck, lint, web build, integration tests, and E2E tests
 
 name: CI
 
@@ -84,3 +84,20 @@ jobs:
       # Run integration tests
       - name: Run integration tests
         run: pnpm test:integration
+
+      # Install Playwright browsers
+      - name: Install Playwright browsers
+        run: pnpm -C apps/web exec playwright install --with-deps chromium
+
+      # Run E2E tests
+      - name: Run E2E tests
+        run: pnpm test:e2e
+
+      # Upload Playwright report on failure
+      - name: Upload Playwright report
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report
+          path: apps/web/playwright-report/
+          retention-days: 7

@@ -4,8 +4,63 @@
 
 | Type              | Location                       | Command                    |
 | ----------------- | ------------------------------ | -------------------------- |
+| E2E tests         | `apps/web/e2e/*.spec.ts`       | `pnpm test:e2e`            |
 | Integration tests | `packages/tests/src/*.test.ts` | `pnpm test:integration`    |
 | Mobile unit tests | `apps/mobile/__tests__/`       | `pnpm -C apps/mobile test` |
+
+## E2E Tests (Playwright)
+
+E2E tests use Playwright to run real browser tests against the web app.
+
+### Running E2E Tests
+
+```bash
+# Run all E2E tests (auto-starts dev server if needed)
+pnpm test:e2e
+
+# Run with visible browser
+pnpm -C apps/web test:e2e:headed
+
+# Run with Playwright UI for debugging
+pnpm -C apps/web test:e2e:ui
+
+# Run with step-by-step debugging
+pnpm -C apps/web test:e2e:debug
+```
+
+### First-Time Setup
+
+Install Playwright browsers:
+
+```bash
+pnpm -C apps/web exec playwright install
+```
+
+### Adding E2E Tests
+
+1. Create `apps/web/e2e/<feature>.spec.ts`
+2. Use Playwright's test API
+
+```typescript
+import { test, expect } from '@playwright/test';
+
+test.describe('my feature', () => {
+  test('should work', async ({ page }) => {
+    await page.goto('/my-page');
+    await expect(page.getByRole('heading')).toBeVisible();
+  });
+});
+```
+
+### E2E vs Integration Tests
+
+| Use E2E (Playwright) for         | Use Integration (Vitest) for |
+| -------------------------------- | ---------------------------- |
+| User flows with browser UI       | API endpoint validation      |
+| Form submissions and navigation  | Auth token/session handling  |
+| Visual elements and interactions | CORS and headers             |
+| Cross-browser testing            | Streaming responses          |
+| JavaScript-heavy interactions    | Fast, lightweight API tests  |
 
 ## Running Integration Tests
 
@@ -66,9 +121,11 @@ CI sets these env vars automatically:
 
 ## Common Issues
 
-| Problem                  | Solution                                  |
-| ------------------------ | ----------------------------------------- |
-| Tests fail on connection | Ensure web server is running on port 3000 |
-| Auth tests fail          | Check `BETTER_AUTH_SECRET` is set         |
-| Rate limit errors        | Set `DISABLE_RATE_LIMIT=true` in test env |
-| DB not found             | Run `pnpm db:up` and `migrate:apply`      |
+| Problem                    | Solution                                                  |
+| -------------------------- | --------------------------------------------------------- |
+| Tests fail on connection   | Ensure web server is running on port 3000                 |
+| Auth tests fail            | Check `BETTER_AUTH_SECRET` is set                         |
+| Rate limit errors          | Set `DISABLE_RATE_LIMIT=true` in test env                 |
+| DB not found               | Run `pnpm db:up` and `migrate:apply`                      |
+| E2E: Browser not installed | Run `pnpm -C apps/web exec playwright install`            |
+| E2E: Timeout errors        | Increase timeout in playwright.config.ts or use `--debug` |
