@@ -57,7 +57,7 @@ pnpm lint
 
 ```bash
 pnpm eslint . --fix
-npx prettier --write .
+pnpm format
 ```
 
 ### 3. Build Failures
