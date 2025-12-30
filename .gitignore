@@ -8,6 +8,12 @@ dist
 .env.development
 *.log
 next-env.d.ts
+
+# Playwright
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/
 android
 ios
 # But allow native mobile projects
