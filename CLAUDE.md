@@ -13,6 +13,22 @@ This is the operating manual for AI agents working in this repository.
 - **Rate Limiting**: Upstash Redis
 - **CI/CD**: GitHub Actions → migrations → Vercel deploy hook
 
+---
+
+## REQUIRED: After Every Code Change
+
+**ALWAYS run these commands after making changes:**
+
+```bash
+pnpm typecheck                    # TypeScript check
+pnpm lint                         # ESLint check
+pnpm format                       # Format code
+```
+
+**Do NOT skip this step.** CI will fail if these checks don't pass.
+
+---
+
 ## Commands
 
 ```bash
@@ -26,13 +42,14 @@ pnpm db:up                        # Start local PostgreSQL (Docker)
 pnpm typecheck                    # TypeScript check all packages
 pnpm lint                         # ESLint all packages
 pnpm eslint . --fix               # Auto-fix lint issues
-npx prettier --write .            # Format all files
+pnpm format                       # Format all files
 
 # Database
 pnpm -C packages/db migrate:generate  # Generate migration from schema changes
 pnpm -C packages/db migrate:apply     # Apply migrations
 
 # Testing
+pnpm test:e2e                     # Run Playwright E2E tests
 pnpm test:integration             # Run integration tests (needs web running)
 pnpm -C apps/mobile test          # Mobile unit tests
 ```
