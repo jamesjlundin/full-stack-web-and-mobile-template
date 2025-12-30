@@ -29,6 +29,7 @@ A production-ready GitHub template for building full-stack applications with a s
 | **Rate Limiting**         | Upstash Redis-powered protection on auth & API routes    |
 | **Email Integration**     | Resend for verification & password reset emails          |
 | **CI/CD Pipeline**        | GitHub Actions with tests, migrations, and auto-deploy   |
+| **E2E Testing**           | Playwright browser tests alongside Vitest integration    |
 | **iOS TestFlight**        | Fastlane + Match workflow for automated iOS releases     |
 
 ---
@@ -396,10 +397,25 @@ rm -rf packages/ai/src/prompts/agent
 - **JWT token generation** for mobile/API clients
 - **Health check endpoint** for monitoring
 
+### Testing
+
+- **Playwright E2E tests** for browser-based user flow testing (`apps/web/e2e/`)
+- **Vitest integration tests** for API endpoint validation (`packages/tests/`)
+- **Jest mobile tests** for React Native unit testing (`apps/mobile/__tests__/`)
+- **Parallel test types**: E2E tests for UI flows, integration tests for APIs
+
+Run tests locally:
+
+```bash
+pnpm test:e2e           # Run Playwright E2E tests
+pnpm test:integration   # Run Vitest integration tests
+```
+
 ### DevOps & CI/CD
 
-- **GitHub Actions CI**: type checking, linting, build verification, integration tests
+- **GitHub Actions CI**: type checking, linting, build verification, integration tests, E2E tests
 - **PostgreSQL test service** in CI for realistic testing
+- **Playwright browser testing** with automatic browser installation in CI
 - **Migration-safe deploy workflow**: runs migrations before triggering Vercel
 - **Vercel deploy hook integration** for automated production deployments
 - **iOS TestFlight workflow**: automated builds and uploads via Fastlane + Match
