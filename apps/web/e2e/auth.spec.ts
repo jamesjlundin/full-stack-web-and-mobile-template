@@ -35,8 +35,13 @@ test.describe('Login Form', () => {
     await page.getByLabel(/password/i).fill('wrongpassword');
     await page.getByRole('button', { name: /sign in/i }).click();
 
-    // Should show error message (adjust based on your actual error messages)
-    await expect(page.getByRole('alert')).toBeVisible({ timeout: 10000 });
+    // Should show error message in the main content area
+    await expect(
+      page
+        .getByRole('main')
+        .getByRole('alert')
+        .filter({ hasText: /unable to sign in/i }),
+    ).toBeVisible({ timeout: 10000 });
   });
 
   test('should have forgot password link', async ({ page }) => {
@@ -76,7 +81,8 @@ test.describe('Register Form', () => {
   });
 
   test('should have sign in link', async ({ page }) => {
-    const signInLink = page.getByRole('link', { name: /sign in/i });
+    // Use the link in the main content area (not the navigation)
+    const signInLink = page.getByRole('main').getByRole('link', { name: /sign in/i });
     await expect(signInLink).toBeVisible();
     await signInLink.click();
     await expect(page).toHaveURL(/\/login/);

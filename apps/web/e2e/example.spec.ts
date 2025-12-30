@@ -17,8 +17,8 @@ test.describe('Homepage', () => {
   test('should have navigation links', async ({ page }) => {
     await page.goto('/');
 
-    // Check for login link (adjust selector based on your actual UI)
-    const loginLink = page.getByRole('link', { name: /sign in|login/i });
+    // Check for login link in the navigation
+    const loginLink = page.getByRole('navigation').getByRole('link', { name: /sign in/i });
     await expect(loginLink).toBeVisible();
   });
 });
@@ -46,15 +46,21 @@ test.describe('Public Pages', () => {
   test('should navigate between login and register', async ({ page }) => {
     await page.goto('/login');
 
-    // Click the register link
-    await page.getByRole('link', { name: /create one/i }).click();
+    // Click the register link in the main content
+    await page
+      .getByRole('main')
+      .getByRole('link', { name: /create one/i })
+      .click();
 
     // Should be on register page
     await expect(page).toHaveURL(/\/register/);
     await expect(page.getByRole('heading', { name: /create an account/i })).toBeVisible();
 
-    // Click the sign in link
-    await page.getByRole('link', { name: /sign in/i }).click();
+    // Click the sign in link in the main content (not navigation)
+    await page
+      .getByRole('main')
+      .getByRole('link', { name: /sign in/i })
+      .click();
 
     // Should be back on login page
     await expect(page).toHaveURL(/\/login/);
