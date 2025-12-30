@@ -1,9 +1,9 @@
-# AGENTS
+# AGENTS.md
 
 This repository uses `CLAUDE.md` as the canonical operating guide for AI agents.
 
-## Instructions
+## Instructions (must follow)
 
-1. Read and follow `./CLAUDE.md` before doing any work in this repository.
+1. Read and follow `CLAUDE.md` **in the repository root** before doing any work.
 
-All operational guidance, commands, constraints, and routing to reference docs are defined there.
+If anything conflicts, `CLAUDE.md` is authoritative.
