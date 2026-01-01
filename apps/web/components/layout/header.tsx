@@ -10,7 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Sheet, SheetContent, SheetTrigger, SheetTitle } from '@/components/ui/sheet';
+import { Sheet, SheetClose, SheetContent, SheetTrigger, SheetTitle } from '@/components/ui/sheet';
 
 import { SignOutMenuItem } from './sign-out-menu-item';
 import { ThemeToggle } from './theme-toggle';
@@ -121,36 +121,44 @@ export function Header({ user }: HeaderProps) {
                           )}
                         </div>
                       </div>
-                      <Link
-                        href="/app/home"
-                        className="text-sm font-medium transition-colors hover:text-primary"
-                      >
-                        App
-                      </Link>
-                      <Link
-                        href="/app/home"
-                        className="text-sm font-medium transition-colors hover:text-primary"
-                      >
-                        Dashboard
-                      </Link>
+                      <SheetClose asChild>
+                        <Link
+                          href="/app/home"
+                          className="text-sm font-medium transition-colors hover:text-primary"
+                        >
+                          App
+                        </Link>
+                      </SheetClose>
+                      <SheetClose asChild>
+                        <Link
+                          href="/app/home"
+                          className="text-sm font-medium transition-colors hover:text-primary"
+                        >
+                          Dashboard
+                        </Link>
+                      </SheetClose>
                       <div className="pt-4 border-t">
                         <SignOutMenuItem asMobileLink />
                       </div>
                     </>
                   ) : (
                     <>
-                      <Link
-                        href="/login"
-                        className="text-sm font-medium transition-colors hover:text-primary"
-                      >
-                        Sign in
-                      </Link>
-                      <Link
-                        href="/register"
-                        className="text-sm font-medium transition-colors hover:text-primary"
-                      >
-                        Create account
-                      </Link>
+                      <SheetClose asChild>
+                        <Link
+                          href="/login"
+                          className="text-sm font-medium transition-colors hover:text-primary"
+                        >
+                          Sign in
+                        </Link>
+                      </SheetClose>
+                      <SheetClose asChild>
+                        <Link
+                          href="/register"
+                          className="text-sm font-medium transition-colors hover:text-primary"
+                        >
+                          Create account
+                        </Link>
+                      </SheetClose>
                     </>
                   )}
                 </nav>

@@ -54,7 +54,9 @@ type AuthContextValue = {
 const defaultConfig: AppConfig = {
   isEmailVerificationRequired: false,
   isGoogleAuthEnabled: false,
+  blobStorageEnabled: false,
   ai: {providers: [], defaultProvider: null},
+  analytics: {googleAnalyticsId: null},
 };
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
