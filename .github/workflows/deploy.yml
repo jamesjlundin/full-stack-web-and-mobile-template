@@ -35,10 +35,10 @@ jobs:
         run: pnpm install
 
       - name: Typecheck
-        run: pnpm tsc --noEmit
+        run: pnpm typecheck
 
       - name: Lint
-        run: pnpm eslint .
+        run: pnpm lint
 
       - name: Build web app
         run: pnpm -C apps/web build
