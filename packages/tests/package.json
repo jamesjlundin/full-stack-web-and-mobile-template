@@ -9,6 +9,8 @@
     "@types/set-cookie-parser": "^2.4.7"
   },
   "scripts": {
-    "test": "vitest run --reporter=dot"
+    "test": "vitest run --reporter=dot",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit"
   }
 }
