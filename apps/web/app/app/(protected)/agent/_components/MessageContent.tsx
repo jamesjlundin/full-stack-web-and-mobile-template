@@ -1,6 +1,7 @@
 'use client';
 
 import { X } from 'lucide-react';
+import Image from 'next/image';
 import { useState } from 'react';
 
 import { Dialog, DialogContent } from '@/components/ui/dialog';
@@ -34,11 +35,14 @@ export function MessageContent({ parts, className = '' }: MessageContentProps) {
           if (part.type === 'image') {
             return (
               <div key={index} className="relative group">
-                <img
+                <Image
                   src={part.url}
                   alt={part.alt || 'Image'}
-                  className="max-w-full max-h-64 rounded-lg cursor-pointer hover:opacity-90 transition-opacity"
+                  width={512}
+                  height={256}
+                  className="max-w-full max-h-64 w-auto h-auto rounded-lg cursor-pointer hover:opacity-90 transition-opacity"
                   onClick={() => setLightboxImage(part.url)}
+                  unoptimized
                 />
                 {part.alt && (
                   <span className="text-xs text-muted-foreground mt-1 block">{part.alt}</span>
@@ -61,7 +65,15 @@ export function MessageContent({ parts, className = '' }: MessageContentProps) {
             <X className="h-5 w-5" />
           </button>
           {lightboxImage && (
-            <img src={lightboxImage} alt="Full size" className="w-full h-full object-contain" />
+            <div className="relative w-full h-full min-h-[50vh]">
+              <Image
+                src={lightboxImage}
+                alt="Full size"
+                fill
+                className="object-contain"
+                unoptimized
+              />
+            </div>
           )}
         </DialogContent>
       </Dialog>
@@ -88,11 +100,14 @@ export function UserMessageContent({ parts }: UserMessageContentProps) {
       {imageParts.length > 0 && (
         <div className="flex flex-wrap gap-2 mt-2">
           {imageParts.map((part, index) => (
-            <img
+            <Image
               key={index}
               src={part.type === 'image' ? part.url : ''}
               alt={part.type === 'image' ? part.alt || 'Attached image' : ''}
-              className="max-w-32 max-h-32 rounded-md object-cover"
+              width={128}
+              height={128}
+              className="max-w-32 max-h-32 w-auto h-auto rounded-md object-cover"
+              unoptimized
             />
           ))}
         </div>

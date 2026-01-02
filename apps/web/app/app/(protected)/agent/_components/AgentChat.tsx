@@ -1,6 +1,7 @@
 'use client';
 
 import { Bot, ImagePlus, Send, Square, Trash2, Upload, User, X } from 'lucide-react';
+import Image from 'next/image';
 import { useRef, useEffect, useState, useMemo } from 'react';
 
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -293,10 +294,13 @@ export function AgentChat({ providers, defaultProvider, blobStorageEnabled }: Ag
           <div className="flex flex-wrap gap-2 p-2 bg-muted/30 rounded-lg">
             {selectedFiles.map((file, index) => (
               <div key={index} className="relative group">
-                <img
+                <Image
                   src={URL.createObjectURL(file)}
                   alt={file.name}
+                  width={64}
+                  height={64}
                   className="h-16 w-16 object-cover rounded-md"
+                  unoptimized
                 />
                 <button
                   type="button"
