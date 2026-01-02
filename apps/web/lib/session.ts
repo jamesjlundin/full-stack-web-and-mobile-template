@@ -1,4 +1,6 @@
-import { cookies, headers } from 'next/headers';
+import { getAvailableProviders, getDefaultProvider } from '@acme/ai';
+import { auth } from '@acme/auth';
+import { headers } from 'next/headers';
 
 export type SessionUser = {
   id: string;
@@ -28,43 +30,60 @@ export type SessionResult = {
 };
 
 /**
+ * Build app configuration from environment variables.
+ * Same logic as /api/me route for consistency.
+ */
+function getConfig(): AppConfig {
+  const providers = getAvailableProviders();
+  const defaultProvider = getDefaultProvider();
+
+  return {
+    isEmailVerificationRequired: !!process.env.RESEND_API_KEY,
+    isGoogleAuthEnabled: !!(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET),
+    blobStorageEnabled: !!process.env.BLOB_READ_WRITE_TOKEN,
+    ai: {
+      providers,
+      defaultProvider: defaultProvider?.id ?? null,
+    },
+  };
+}
+
+/**
  * Server-side session check for protected routes.
  * Call this from server components to get the current user and app config.
+ *
+ * Uses Better Auth's direct session API with nextCookies() plugin,
+ * which properly handles cookie access in server components.
  */
 export async function getServerSession(): Promise<SessionResult> {
-  const cookieStore = await cookies();
   const headersList = await headers();
 
-  // Get the host for constructing the URL
-  const host = headersList.get('host') || 'localhost:3000';
-  const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
-
-  const defaultConfig: AppConfig = {
-    isEmailVerificationRequired: false,
-    isGoogleAuthEnabled: false,
-    blobStorageEnabled: false,
-    ai: { providers: [], defaultProvider: null },
-  };
+  const defaultConfig = getConfig();
 
   try {
-    const response = await fetch(`${protocol}://${host}/api/me`, {
-      headers: {
-        cookie: cookieStore.toString(),
-      },
-      cache: 'no-store',
+    // Use Better Auth's direct session API
+    // The nextCookies() plugin handles cookie access properly in server components
+    const session = await auth.api.getSession({
+      headers: headersList,
     });
 
-    if (response.status === 401) {
+    if (!session?.user) {
       return { user: null, config: defaultConfig };
     }
 
-    const data = await response.json();
     return {
-      user: data?.user ?? null,
-      config: data?.config ?? defaultConfig,
+      user: {
+        id: session.user.id,
+        email: session.user.email,
+        name: session.user.name ?? undefined,
+        emailVerified: session.user.emailVerified ?? false,
+      },
+      config: defaultConfig,
     };
   } catch (error) {
-    console.error('Failed to fetch session:', error);
+    // Only log presence indicators, not actual values, for security
+    const hasCookie = !!headersList.get('cookie');
+    console.error('Failed to get session:', error, { hasCookie });
     return { user: null, config: defaultConfig };
   }
 }
