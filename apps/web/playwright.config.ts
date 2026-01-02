@@ -7,6 +7,7 @@ import { defineConfig, devices } from '@playwright/test';
  * - Sensible defaults for local development and CI
  * - Automatic web server startup in development
  * - Multiple browser support (chromium by default, extend as needed)
+ * - Global setup for authenticated test user creation
  *
  * Run tests:
  *   pnpm test:e2e           # Run all E2E tests
@@ -14,9 +15,15 @@ import { defineConfig, devices } from '@playwright/test';
  *   pnpm test:e2e:headed    # Run with visible browser
  */
 
+// Auth state file path - shared between global setup and tests
+export const AUTH_FILE = 'e2e/.auth/user.json';
+
 export default defineConfig({
   // Test directory
   testDir: './e2e',
+
+  // Global setup for authenticated user creation
+  globalSetup: require.resolve('./e2e/global-setup'),
 
   // Run tests in parallel within files
   fullyParallel: true,
@@ -47,9 +54,21 @@ export default defineConfig({
 
   // Browser configurations
   projects: [
+    // Unauthenticated tests - no storage state
     {
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] },
+      testMatch: /.*(?<!\.auth)\.spec\.ts/,
+    },
+
+    // Authenticated tests - use saved auth state
+    {
+      name: 'chromium-authenticated',
+      use: {
+        ...devices['Desktop Chrome'],
+        storageState: AUTH_FILE,
+      },
+      testMatch: /.*\.auth\.spec\.ts/,
     },
 
     // Uncomment to add more browsers:
