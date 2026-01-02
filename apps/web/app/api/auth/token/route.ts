@@ -1,4 +1,4 @@
-import auth from '@acme/auth';
+import { auth } from '@acme/auth';
 import { db, schema } from '@acme/db';
 import { createRateLimiter } from '@acme/security';
 import { eq } from 'drizzle-orm';
