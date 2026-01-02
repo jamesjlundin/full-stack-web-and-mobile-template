@@ -16,8 +16,8 @@ test.describe('Authenticated Dashboard', () => {
     // Should see the dashboard heading
     await expect(page.getByRole('heading', { name: /dashboard/i })).toBeVisible();
 
-    // Should see the "Protected" badge
-    await expect(page.getByText('Protected')).toBeVisible();
+    // Should see the "Protected" badge (use exact match to avoid matching "protected area" text)
+    await expect(page.getByText('Protected', { exact: true })).toBeVisible();
 
     // Should see account information card
     await expect(page.getByText('Account Information')).toBeVisible();
