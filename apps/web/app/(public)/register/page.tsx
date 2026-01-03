@@ -82,7 +82,11 @@ function RegisterForm() {
       // If verification is required, redirect to verify page
       if (data.requiresVerification) {
         toast.success('Account created! Please verify your email.');
-        router.push(`/auth/verify?email=${encodeURIComponent(email)}&sent=true`);
+        const verifyUrl =
+          nextUrl !== '/app/home'
+            ? `/auth/verify?email=${encodeURIComponent(email)}&sent=true&next=${encodeURIComponent(nextUrl)}`
+            : `/auth/verify?email=${encodeURIComponent(email)}&sent=true`;
+        router.push(verifyUrl);
         return;
       }
 
@@ -194,7 +198,14 @@ function RegisterForm() {
               </Button>
               <p className="text-sm text-center text-muted-foreground">
                 Already have an account?{' '}
-                <Link href="/login" className="text-primary underline-offset-4 hover:underline">
+                <Link
+                  href={
+                    nextUrl !== '/app/home'
+                      ? `/login?next=${encodeURIComponent(nextUrl)}`
+                      : '/login'
+                  }
+                  className="text-primary underline-offset-4 hover:underline"
+                >
                   Sign in
                 </Link>
               </p>
