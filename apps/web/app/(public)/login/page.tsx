@@ -77,7 +77,11 @@ function LoginForm() {
         // If verification is required, redirect to verify page
         if (data.requiresVerification) {
           toast.info('Please verify your email to continue');
-          router.push(`/auth/verify?email=${encodeURIComponent(data.email || email)}`);
+          const verifyUrl =
+            nextUrl !== '/app/home'
+              ? `/auth/verify?email=${encodeURIComponent(data.email || email)}&next=${encodeURIComponent(nextUrl)}`
+              : `/auth/verify?email=${encodeURIComponent(data.email || email)}`;
+          router.push(verifyUrl);
           return;
         }
 
@@ -177,7 +181,11 @@ function LoginForm() {
                 <p className="text-muted-foreground">
                   Need an account?{' '}
                   <Link
-                    href="/register"
+                    href={
+                      nextUrl !== '/app/home'
+                        ? `/register?next=${encodeURIComponent(nextUrl)}`
+                        : '/register'
+                    }
                     className="text-primary underline-offset-4 hover:underline"
                   >
                     Create one
@@ -192,7 +200,11 @@ function LoginForm() {
                   </Link>
                   {' | '}
                   <Link
-                    href="/auth/verify"
+                    href={
+                      nextUrl !== '/app/home'
+                        ? `/auth/verify?next=${encodeURIComponent(nextUrl)}`
+                        : '/auth/verify'
+                    }
                     className="text-primary underline-offset-4 hover:underline"
                   >
                     Verify email

@@ -14,6 +14,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { Spinner } from '@/components/ui/spinner';
+import { getSafeRedirectUrl } from '@/lib/utils';
 
 function VerifyEmailForm() {
   const router = useRouter();
@@ -21,6 +22,7 @@ function VerifyEmailForm() {
   const emailParam = searchParams.get('email');
   const sentParam = searchParams.get('sent') === 'true';
   const tokenParam = searchParams.get('token');
+  const nextUrl = getSafeRedirectUrl(searchParams.get('next'));
 
   const [email, setEmail] = useState(emailParam ?? '');
   const [token, setToken] = useState(tokenParam ?? '');
@@ -68,7 +70,11 @@ function VerifyEmailForm() {
 
           // Redirect to login after a short delay
           setTimeout(() => {
-            router.push('/login?verified=true');
+            const loginUrl =
+              nextUrl !== '/app/home'
+                ? `/login?verified=true&next=${encodeURIComponent(nextUrl)}`
+                : '/login?verified=true';
+            router.push(loginUrl);
           }, 1500);
         } else {
           setError(data.error ?? 'Failed to verify email. The link may have expired.');
@@ -81,7 +87,7 @@ function VerifyEmailForm() {
         setLoading(false);
       }
     },
-    [router],
+    [router, nextUrl],
   );
 
   // Auto-verify when token is in URL
@@ -315,7 +321,14 @@ function VerifyEmailForm() {
 
                 <div className="text-sm text-center space-y-2">
                   <p className="text-muted-foreground">
-                    <Link href="/login" className="text-primary underline-offset-4 hover:underline">
+                    <Link
+                      href={
+                        nextUrl !== '/app/home'
+                          ? `/login?next=${encodeURIComponent(nextUrl)}`
+                          : '/login'
+                      }
+                      className="text-primary underline-offset-4 hover:underline"
+                    >
                       Back to Sign in
                     </Link>
                   </p>
