@@ -2,17 +2,20 @@
   "$schema": "https://turbo.build/schema.json",
   "globalEnv": [
     "VERCEL",
+    "VERCEL_PROJECT_ID",
     "DATABASE_URL",
     "DATABASE_URL_UNPOOLED",
     "BETTER_AUTH_SECRET",
     "RESEND_API_KEY",
     "RESEND_DRY_RUN",
+    "MAIL_FROM",
     "APP_BASE_URL",
     "AI_MODEL",
     "OPENAI_API_KEY",
     "ANTHROPIC_API_KEY",
     "GOOGLE_GENERATIVE_AI_API_KEY",
     "NODE_ENV",
+    "PORT",
     "POSTGRES_URL",
     "POSTGRES_PRISMA_URL",
     "POSTGRES_URL_NON_POOLING",
@@ -35,7 +38,13 @@
     "REDIS_URL",
     "GOOGLE_CLIENT_ID",
     "GOOGLE_CLIENT_SECRET",
-    "BLOB_READ_WRITE_TOKEN"
+    "BLOB_READ_WRITE_TOKEN",
+    "NEXT_PUBLIC_GA_TRACKING_ID",
+    "MOBILE_APP_SCHEME",
+    "MOBILE_DEEP_LINK_ENABLED",
+    "ALLOW_DEV_TOKENS",
+    "DISABLE_RATE_LIMIT",
+    "RATE_LIMIT_MULTIPLIER"
   ],
   "tasks": {
     "dev": {

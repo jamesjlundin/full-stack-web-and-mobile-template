@@ -145,11 +145,15 @@ function getOrCreateRatelimiter(limit: number, windowSeconds: number): Ratelimit
     token: process.env.KV_REST_API_TOKEN!,
   });
 
+  // Use VERCEL_PROJECT_ID to namespace rate limits per project.
+  // This allows multiple projects to share the same Redis instance without collisions.
+  const projectId = process.env.VERCEL_PROJECT_ID || 'local';
+
   ratelimiter = new Ratelimit({
     redis,
     limiter: Ratelimit.slidingWindow(limit, `${windowSeconds} s`),
     analytics: true,
-    prefix: 'ratelimit',
+    prefix: `ratelimit:${projectId}`,
   });
 
   rateLimiterCache.set(cacheKey, ratelimiter);
