@@ -46,9 +46,10 @@ export interface RateLimitResult {
 
 /**
  * Check if Upstash Redis is configured via environment variables.
+ * Vercel's Upstash KV integration provides KV_REST_API_URL and KV_REST_API_TOKEN.
  */
 function isRedisConfigured(): boolean {
-  return !!(process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN);
+  return !!(process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN);
 }
 
 /**
@@ -139,7 +140,10 @@ function getOrCreateRatelimiter(limit: number, windowSeconds: number): Ratelimit
     return ratelimiter;
   }
 
-  const redis = Redis.fromEnv();
+  const redis = new Redis({
+    url: process.env.KV_REST_API_URL!,
+    token: process.env.KV_REST_API_TOKEN!,
+  });
 
   ratelimiter = new Ratelimit({
     redis,
@@ -195,7 +199,7 @@ export function createRateLimiter(config: RateLimiterConfig) {
     if (!useRedis) {
       if (!hasLoggedFallback) {
         console.warn(
-          '[RateLimit] Upstash Redis not configured (UPSTASH_REDIS_REST_URL, UPSTASH_REDIS_REST_TOKEN). ' +
+          '[RateLimit] Upstash Redis not configured (KV_REST_API_URL, KV_REST_API_TOKEN). ' +
             'Using in-memory fallback. This is fine for local development but will NOT work correctly in serverless production.',
         );
         hasLoggedFallback = true;
