@@ -102,8 +102,8 @@ Vercel automatically adds these env vars to your project:
 
 Vercel automatically adds these env vars to your project:
 
-- `UPSTASH_REDIS_REST_URL`
-- `UPSTASH_REDIS_REST_TOKEN`
+- `KV_REST_API_URL`
+- `KV_REST_API_TOKEN`
 
 ### 6. Set Up Vercel Blob Storage (Optional)
 
@@ -138,10 +138,11 @@ If you want to use a custom domain instead of the default `.vercel.app` URL:
 
 1. In Vercel, click **"Settings"** → **"Git"** (left sidebar)
 2. Scroll to **"Deploy Hooks"** → click **"Create Hook"**
-3. Name: `GitHub Actions`, Branch: `main` → click **"Create Hook"**
-4. Add the generated url for the hook to the note from step 2 as `VERCEL_DEPLOY_HOOK_URL`
-
-This prevents Vercel from auto-deploying; our GitHub Actions CI/CD handles deployments after running migrations.
+3. Fill in the required fields:
+   - **Name**: `GitHub Actions`
+   - **Branch**: `main`
+4. Click **"Create Hook"**
+5. Add the generated url for the hook to the note from step 2 as `VERCEL_DEPLOY_HOOK_URL`
 
 ### 9. Set Up Resend (Email) (Optional)
 
@@ -562,14 +563,14 @@ When running `pnpm db:up`, pgweb is available at [http://localhost:8081](http://
 
 ### Required Variables
 
-| Variable                   | Description                                                                                                           |
-| -------------------------- | --------------------------------------------------------------------------------------------------------------------- |
-| `DATABASE_URL`             | PostgreSQL connection string (e.g., `postgres://user:pass@host:5432/db`)                                              |
-| `BETTER_AUTH_SECRET`       | Secret key for auth tokens (minimum 32 characters)                                                                    |
-| `APP_BASE_URL`             | Base URL for auth and email links (e.g., `https://your-app.vercel.app`)                                               |
-| `CRON_SECRET`              | Secret for cron job auth (generate with `openssl rand -hex 32`). Vercel sends this as `Authorization: Bearer` header. |
-| `UPSTASH_REDIS_REST_URL`   | Upstash Redis URL for rate limiting (from Vercel Marketplace → Upstash)                                               |
-| `UPSTASH_REDIS_REST_TOKEN` | Upstash Redis token for rate limiting (auto-set when connected via Vercel)                                            |
+| Variable             | Description                                                                                                           |
+| -------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| `DATABASE_URL`       | PostgreSQL connection string (e.g., `postgres://user:pass@host:5432/db`)                                              |
+| `BETTER_AUTH_SECRET` | Secret key for auth tokens (minimum 32 characters)                                                                    |
+| `APP_BASE_URL`       | Base URL for auth and email links (e.g., `https://your-app.vercel.app`)                                               |
+| `CRON_SECRET`        | Secret for cron job auth (generate with `openssl rand -hex 32`). Vercel sends this as `Authorization: Bearer` header. |
+| `KV_REST_API_URL`    | Upstash Redis URL for rate limiting (auto-set when you add Upstash KV via Vercel Storage)                             |
+| `KV_REST_API_TOKEN`  | Upstash Redis token for rate limiting (auto-set when you add Upstash KV via Vercel Storage)                           |
 
 ### Application URLs
 

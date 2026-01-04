@@ -10,6 +10,12 @@ import { getServerSession } from '../../../../lib/session';
 
 import { SignOutButton } from './_components/SignOutButton';
 
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Dashboard',
+};
+
 export default async function ProtectedHomePage() {
   const { user } = await getServerSession();
 

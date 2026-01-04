@@ -8,7 +8,10 @@ import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 
 export const metadata: Metadata = {
-  title: 'Template',
+  title: {
+    template: '%s | Template',
+    default: 'Template',
+  },
   description: 'Full-stack web and mobile template.',
 };
 

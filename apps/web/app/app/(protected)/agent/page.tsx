@@ -7,6 +7,11 @@ import { getServerSession } from '@/lib/session';
 import { AgentChat } from './_components/AgentChat';
 
 import type { AiProviderInfo } from '@acme/api-client';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'AI Agent',
+};
 
 // Skip static generation - this page requires auth check at runtime
 export const dynamic = 'force-dynamic';

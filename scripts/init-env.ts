@@ -61,7 +61,7 @@ function initEnv() {
         value = generateHexSecret();
         hasChanges = true;
       } else if (
-        (key === 'UPSTASH_REDIS_REST_URL' || key === 'UPSTASH_REDIS_REST_TOKEN') &&
+        (key === 'KV_REST_API_URL' || key === 'KV_REST_API_TOKEN') &&
         (!value || value === '')
       ) {
         value = defaultValue;
