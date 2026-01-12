@@ -1,6 +1,8 @@
 import './globals.css';
 
 import { GoogleAnalytics } from '@/components/google-analytics';
+import { NavigationProgress } from '@/components/navigation-progress';
+import { StaleDataBanner } from '@/components/stale-data-banner';
 import { ThemeProvider } from '@/components/theme-provider';
 import { Toaster } from '@/components/ui/sonner';
 
@@ -26,7 +28,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           enableSystem
           disableTransitionOnChange
         >
+          <NavigationProgress />
           {children}
+          <StaleDataBanner />
           <Toaster />
         </ThemeProvider>
       </body>
