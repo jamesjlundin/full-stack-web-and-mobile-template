@@ -87,6 +87,7 @@ export default function LogoutPage() {
               disabled={loading}
               variant="destructive"
               className="w-full"
+              data-testid="logout-signout-button"
             >
               {loading && <Spinner size="sm" className="mr-2" />}
               {loading ? 'Signing out...' : 'Sign out'}

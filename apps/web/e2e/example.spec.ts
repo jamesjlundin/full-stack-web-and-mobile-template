@@ -18,7 +18,7 @@ test.describe('Homepage', () => {
     await page.goto('/');
 
     // Check for login link in the navigation
-    const loginLink = page.getByRole('navigation').getByRole('link', { name: /sign in/i });
+    const loginLink = page.getByTestId('header-signin-link');
     await expect(loginLink).toBeVisible();
   });
 });
@@ -28,39 +28,33 @@ test.describe('Public Pages', () => {
     await page.goto('/login');
 
     // Check for login form elements
-    await expect(page.getByRole('heading', { name: /sign in/i })).toBeVisible();
-    await expect(page.getByLabel(/email/i)).toBeVisible();
-    await expect(page.getByLabel(/password/i)).toBeVisible();
+    await expect(page.getByTestId('login-heading')).toBeVisible();
+    await expect(page.getByTestId('login-email-input')).toBeVisible();
+    await expect(page.getByTestId('login-password-input')).toBeVisible();
   });
 
   test('should navigate to register page', async ({ page }) => {
     await page.goto('/register');
 
     // Check for registration form elements
-    await expect(page.getByRole('heading', { name: /create an account/i })).toBeVisible();
-    await expect(page.getByLabel(/name/i)).toBeVisible();
-    await expect(page.getByLabel(/email/i)).toBeVisible();
-    await expect(page.getByLabel(/password/i)).toBeVisible();
+    await expect(page.getByTestId('register-heading')).toBeVisible();
+    await expect(page.getByTestId('register-name-input')).toBeVisible();
+    await expect(page.getByTestId('register-email-input')).toBeVisible();
+    await expect(page.getByTestId('register-password-input')).toBeVisible();
   });
 
   test('should navigate between login and register', async ({ page }) => {
     await page.goto('/login');
 
-    // Click the register link in the main content
-    await page
-      .getByRole('main')
-      .getByRole('link', { name: /create one/i })
-      .click();
+    // Click the register link
+    await page.getByTestId('login-register-link').click();
 
     // Should be on register page
     await expect(page).toHaveURL(/\/register/);
-    await expect(page.getByRole('heading', { name: /create an account/i })).toBeVisible();
+    await expect(page.getByTestId('register-heading')).toBeVisible();
 
-    // Click the sign in link in the main content (not navigation)
-    await page
-      .getByRole('main')
-      .getByRole('link', { name: /sign in/i })
-      .click();
+    // Click the sign in link
+    await page.getByTestId('register-signin-link').click();
 
     // Should be back on login page
     await expect(page).toHaveURL(/\/login/);

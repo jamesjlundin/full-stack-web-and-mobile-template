@@ -39,13 +39,13 @@ async function globalSetup(config: FullConfig): Promise<void> {
     // Navigate to registration page
     await page.goto(`${baseURL}/register`);
 
-    // Fill registration form
-    await page.getByLabel(/name/i).fill(testName);
-    await page.getByLabel(/email/i).fill(testEmail);
-    await page.getByLabel(/password/i).fill(testPassword);
+    // Fill registration form using data-testid selectors
+    await page.getByTestId('register-name-input').fill(testName);
+    await page.getByTestId('register-email-input').fill(testEmail);
+    await page.getByTestId('register-password-input').fill(testPassword);
 
     // Submit registration
-    await page.getByRole('button', { name: /create account/i }).click();
+    await page.getByTestId('register-submit-button').click();
 
     // Wait for successful registration - should redirect to /app/home or show success
     // The app may redirect to login page after registration or directly to app
@@ -59,9 +59,9 @@ async function globalSetup(config: FullConfig): Promise<void> {
 
     // If redirected to login, log in with the new credentials
     if (page.url().includes('/login')) {
-      await page.getByLabel(/email/i).fill(testEmail);
-      await page.getByLabel(/password/i).fill(testPassword);
-      await page.getByRole('button', { name: /sign in/i }).click();
+      await page.getByTestId('login-email-input').fill(testEmail);
+      await page.getByTestId('login-password-input').fill(testPassword);
+      await page.getByTestId('login-submit-button').click();
 
       // Wait for redirect to app
       await page.waitForURL((url) => url.pathname.includes('/app'), { timeout: 15000 });

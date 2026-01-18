@@ -33,7 +33,9 @@ export default async function AgentDemoPage() {
         <div className="max-w-3xl mx-auto space-y-6">
           <div className="space-y-2">
             <div className="flex items-center gap-2">
-              <h1 className="text-3xl font-bold">AI Agent</h1>
+              <h1 className="text-3xl font-bold" data-testid="agent-heading">
+                AI Agent
+              </h1>
               <Badge variant="secondary">Demo</Badge>
             </div>
             <p className="text-muted-foreground">

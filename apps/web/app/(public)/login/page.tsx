@@ -126,7 +126,9 @@ function LoginForm() {
       <div className="container flex items-center justify-center min-h-[calc(100vh-3.5rem)] py-12">
         <Card className="w-full max-w-md min-h-[440px]">
           <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl font-bold">Sign in</CardTitle>
+            <CardTitle className="text-2xl font-bold" data-testid="login-heading">
+              Sign in
+            </CardTitle>
             <CardDescription>Enter your email and password to access your account</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -161,6 +163,7 @@ function LoginForm() {
                   onChange={(e) => setEmail(e.target.value)}
                   required
                   autoComplete="email"
+                  data-testid="login-email-input"
                 />
               </div>
               <div className="space-y-2">
@@ -172,11 +175,17 @@ function LoginForm() {
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   autoComplete="current-password"
+                  data-testid="login-password-input"
                 />
               </div>
             </CardContent>
             <CardFooter className="flex flex-col space-y-4">
-              <Button type="submit" className="w-full" disabled={loading}>
+              <Button
+                type="submit"
+                className="w-full"
+                disabled={loading}
+                data-testid="login-submit-button"
+              >
                 {loading && <Spinner size="sm" className="mr-2" />}
                 {loading ? 'Signing in...' : 'Sign in'}
               </Button>
@@ -190,6 +199,7 @@ function LoginForm() {
                         : '/register'
                     }
                     className="text-primary underline-offset-4 hover:underline"
+                    data-testid="login-register-link"
                   >
                     Create one
                   </Link>
@@ -198,6 +208,7 @@ function LoginForm() {
                   <Link
                     href="/reset-password"
                     className="text-primary underline-offset-4 hover:underline"
+                    data-testid="login-forgot-password-link"
                   >
                     Forgot password?
                   </Link>
@@ -209,6 +220,7 @@ function LoginForm() {
                         : '/auth/verify'
                     }
                     className="text-primary underline-offset-4 hover:underline"
+                    data-testid="login-verify-email-link"
                   >
                     Verify email
                   </Link>

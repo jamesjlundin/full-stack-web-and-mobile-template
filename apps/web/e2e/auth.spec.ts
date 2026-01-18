@@ -15,25 +15,25 @@ test.describe('Login Form', () => {
   });
 
   test('should display login form with all fields', async ({ page }) => {
-    await expect(page.getByRole('heading', { name: /sign in/i })).toBeVisible();
-    await expect(page.getByLabel(/email/i)).toBeVisible();
-    await expect(page.getByLabel(/password/i)).toBeVisible();
-    await expect(page.getByRole('button', { name: /sign in/i })).toBeVisible();
+    await expect(page.getByTestId('login-heading')).toBeVisible();
+    await expect(page.getByTestId('login-email-input')).toBeVisible();
+    await expect(page.getByTestId('login-password-input')).toBeVisible();
+    await expect(page.getByTestId('login-submit-button')).toBeVisible();
   });
 
   test('should show validation for empty form submission', async ({ page }) => {
     // Clear any default values and submit
-    await page.getByRole('button', { name: /sign in/i }).click();
+    await page.getByTestId('login-submit-button').click();
 
     // HTML5 validation should prevent submission - email field should be focused
-    const emailInput = page.getByLabel(/email/i);
+    const emailInput = page.getByTestId('login-email-input');
     await expect(emailInput).toBeFocused();
   });
 
   test('should show error for invalid credentials', async ({ page }) => {
-    await page.getByLabel(/email/i).fill('nonexistent@example.com');
-    await page.getByLabel(/password/i).fill('wrongpassword');
-    await page.getByRole('button', { name: /sign in/i }).click();
+    await page.getByTestId('login-email-input').fill('nonexistent@example.com');
+    await page.getByTestId('login-password-input').fill('wrongpassword');
+    await page.getByTestId('login-submit-button').click();
 
     // Should show an error alert in the main content area
     // The exact message may vary (e.g., "Invalid email or password", "User not found")
@@ -43,14 +43,14 @@ test.describe('Login Form', () => {
   });
 
   test('should have forgot password link', async ({ page }) => {
-    const forgotLink = page.getByRole('link', { name: /forgot password/i });
+    const forgotLink = page.getByTestId('login-forgot-password-link');
     await expect(forgotLink).toBeVisible();
     await forgotLink.click();
     await expect(page).toHaveURL(/\/reset-password/);
   });
 
   test('should have register link', async ({ page }) => {
-    const registerLink = page.getByRole('link', { name: /create one/i });
+    const registerLink = page.getByTestId('login-register-link');
     await expect(registerLink).toBeVisible();
     await registerLink.click();
     await expect(page).toHaveURL(/\/register/);
@@ -63,24 +63,23 @@ test.describe('Register Form', () => {
   });
 
   test('should display registration form with all fields', async ({ page }) => {
-    await expect(page.getByRole('heading', { name: /create an account/i })).toBeVisible();
-    await expect(page.getByLabel(/name/i)).toBeVisible();
-    await expect(page.getByLabel(/email/i)).toBeVisible();
-    await expect(page.getByLabel(/password/i)).toBeVisible();
-    await expect(page.getByRole('button', { name: /create account/i })).toBeVisible();
+    await expect(page.getByTestId('register-heading')).toBeVisible();
+    await expect(page.getByTestId('register-name-input')).toBeVisible();
+    await expect(page.getByTestId('register-email-input')).toBeVisible();
+    await expect(page.getByTestId('register-password-input')).toBeVisible();
+    await expect(page.getByTestId('register-submit-button')).toBeVisible();
   });
 
   test('should show validation for empty form submission', async ({ page }) => {
-    await page.getByRole('button', { name: /create account/i }).click();
+    await page.getByTestId('register-submit-button').click();
 
     // HTML5 validation should prevent submission - name field should be focused
-    const nameInput = page.getByLabel(/name/i);
+    const nameInput = page.getByTestId('register-name-input');
     await expect(nameInput).toBeFocused();
   });
 
   test('should have sign in link', async ({ page }) => {
-    // Use the link in the main content area (not the navigation)
-    const signInLink = page.getByRole('main').getByRole('link', { name: /sign in/i });
+    const signInLink = page.getByTestId('register-signin-link');
     await expect(signInLink).toBeVisible();
     await signInLink.click();
     await expect(page).toHaveURL(/\/login/);
@@ -91,8 +90,8 @@ test.describe('Password Reset', () => {
   test('should display password reset form', async ({ page }) => {
     await page.goto('/reset-password');
 
-    await expect(page.getByRole('heading', { name: /reset password/i })).toBeVisible();
-    await expect(page.getByLabel(/email/i)).toBeVisible();
+    await expect(page.getByTestId('reset-password-heading')).toBeVisible();
+    await expect(page.getByTestId('reset-password-email-input')).toBeVisible();
   });
 });
 
