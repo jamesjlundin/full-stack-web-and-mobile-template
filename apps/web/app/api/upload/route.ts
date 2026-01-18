@@ -2,6 +2,13 @@ import { auth } from '@acme/auth';
 // eslint-disable-next-line import/no-unresolved
 import { handleUpload, type HandleUploadBody } from '@vercel/blob/client';
 import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
+
+// Schema for Vercel Blob upload request body
+const uploadBodySchema = z.object({
+  type: z.enum(['blob.generate-client-token', 'blob.upload-completed']),
+  payload: z.record(z.string(), z.unknown()),
+});
 
 /**
  * Upload API route for Vercel Blob
@@ -14,7 +21,18 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const body = (await request.json()) as HandleUploadBody;
+  // Parse and validate request body
+  const rawBody = await request.json().catch(() => null);
+  const parsed = uploadBodySchema.safeParse(rawBody);
+
+  if (!parsed.success) {
+    return NextResponse.json(
+      { error: 'Invalid request body', details: parsed.error.issues },
+      { status: 400 },
+    );
+  }
+
+  const body = rawBody as HandleUploadBody;
 
   try {
     const jsonResponse = await handleUpload({
@@ -50,9 +68,15 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       },
       onUploadCompleted: async ({ blob, tokenPayload }) => {
         // This callback is called after the upload is complete
-        // You can use this to save the blob URL to your database
-        console.log('Upload completed:', blob.url);
-        console.log('Token payload:', tokenPayload);
+        // Log as structured JSON for log aggregators
+        console.log(
+          JSON.stringify({
+            ts: new Date().toISOString(),
+            event: 'upload_completed',
+            blob_url: blob.url,
+            user_id: tokenPayload ? JSON.parse(tokenPayload).userId : null,
+          }),
+        );
 
         // In a production app, you might want to:
         // - Save the blob URL to your database

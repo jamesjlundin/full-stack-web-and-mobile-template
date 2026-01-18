@@ -49,7 +49,10 @@ function LoginForm() {
     fetch('/api/config')
       .then((res) => res.json())
       .then((data) => setIsGoogleAuthEnabled(data.isGoogleAuthEnabled ?? false))
-      .catch(() => {});
+      .catch((err) => {
+        // Config fetch is non-critical; Google auth will remain disabled if it fails
+        console.error('Failed to fetch config:', err);
+      });
   }, []);
 
   useEffect(() => {

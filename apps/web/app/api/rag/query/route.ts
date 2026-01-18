@@ -80,8 +80,14 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      // Log unexpected errors but don't expose details
-      console.error('RAG query error:', err);
+      // Log unexpected errors as structured JSON
+      console.error(
+        JSON.stringify({
+          ts: new Date().toISOString(),
+          event: 'rag_query_error',
+          error: err instanceof Error ? err.message : String(err),
+        }),
+      );
 
       return NextResponse.json(
         {
@@ -94,7 +100,13 @@ export async function POST(request: NextRequest) {
   });
 
   if (error) {
-    console.error('RAG query trace error:', error);
+    console.error(
+      JSON.stringify({
+        ts: new Date().toISOString(),
+        event: 'rag_query_trace_error',
+        error: error.message,
+      }),
+    );
     return NextResponse.json(
       {
         error: 'internal_error',

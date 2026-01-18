@@ -35,6 +35,8 @@ export function MessageContent({ parts, className = '' }: MessageContentProps) {
           if (part.type === 'image') {
             return (
               <div key={index} className="relative group">
+                {/* Using unoptimized for dynamic images from multiple sources (AI providers, user uploads).
+                    Remote patterns are configured in next.config.mjs for Vercel Blob and OpenAI DALL-E. */}
                 <Image
                   src={part.url}
                   alt={part.alt || 'Image'}
@@ -66,6 +68,7 @@ export function MessageContent({ parts, className = '' }: MessageContentProps) {
           </button>
           {lightboxImage && (
             <div className="relative w-full h-full min-h-[50vh]">
+              {/* Keep unoptimized for lightbox to preserve original image quality */}
               <Image
                 src={lightboxImage}
                 alt="Full size"
@@ -96,7 +99,7 @@ export function UserMessageContent({ parts }: UserMessageContentProps) {
         <span key={index}>{part.type === 'text' ? part.text : null}</span>
       ))}
 
-      {/* Image thumbnails */}
+      {/* Image thumbnails - unoptimized for dynamic user-uploaded images */}
       {imageParts.length > 0 && (
         <div className="flex flex-wrap gap-2 mt-2">
           {imageParts.map((part, index) => (

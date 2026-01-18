@@ -5,7 +5,20 @@ import { AppShell } from '@/components/layout';
 
 import { getServerSession } from '../../lib/session';
 
+import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
+
+export const metadata: Metadata = {
+  title: {
+    template: '%s | App',
+    default: 'App',
+  },
+  // Prevent indexing of authenticated pages
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
 
 export default async function ProtectedLayout({ children }: { children: ReactNode }) {
   const { user, config } = await getServerSession();
