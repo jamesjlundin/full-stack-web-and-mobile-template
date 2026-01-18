@@ -14,32 +14,28 @@ test.describe('Authenticated Dashboard', () => {
     await page.goto('/app/home');
 
     // Should see the dashboard heading
-    await expect(page.getByRole('heading', { name: /dashboard/i })).toBeVisible();
+    await expect(page.getByTestId('dashboard-heading')).toBeVisible();
 
-    // Should see the "Protected" badge (use exact match to avoid matching "protected area" text)
-    await expect(page.getByText('Protected', { exact: true })).toBeVisible();
+    // Should see the "Protected" badge
+    await expect(page.getByTestId('dashboard-protected-badge')).toBeVisible();
 
     // Should see account information card
-    await expect(page.getByText('Account Information')).toBeVisible();
+    await expect(page.getByTestId('dashboard-account-info-title')).toBeVisible();
   });
 
   test('should display user information', async ({ page }) => {
     await page.goto('/app/home');
 
-    // Should show "Signed in as" with user info
-    await expect(page.getByText('Signed in as')).toBeVisible();
-
-    // The test user should be displayed (email or name)
-    // We use a flexible check since the display depends on user data
-    const signedInText = page.locator('[role="alert"]').filter({ hasText: 'Signed in as' });
-    await expect(signedInText).toBeVisible();
+    // Should show "Signed in as" alert with user info
+    const signedInAlert = page.getByTestId('dashboard-signed-in-alert');
+    await expect(signedInAlert).toBeVisible();
   });
 
   test('should have sign out button', async ({ page }) => {
     await page.goto('/app/home');
 
     // Should have a sign out button
-    const signOutButton = page.getByRole('button', { name: /sign out/i });
+    const signOutButton = page.getByTestId('dashboard-signout-button');
     await expect(signOutButton).toBeVisible();
   });
 
@@ -47,7 +43,7 @@ test.describe('Authenticated Dashboard', () => {
     await page.goto('/app/home');
 
     // Should have a link to the AI Agent page
-    const agentLink = page.getByRole('link', { name: /ai agent demo/i });
+    const agentLink = page.getByTestId('dashboard-ai-agent-link');
     await expect(agentLink).toBeVisible();
 
     // Click and verify navigation
@@ -67,7 +63,7 @@ test.describe('Authenticated Dashboard', () => {
   test('should maintain session across page navigations', async ({ page }) => {
     // Start at dashboard
     await page.goto('/app/home');
-    await expect(page.getByRole('heading', { name: /dashboard/i })).toBeVisible();
+    await expect(page.getByTestId('dashboard-heading')).toBeVisible();
 
     // Navigate to agent page
     await page.goto('/app/agent');
@@ -75,10 +71,10 @@ test.describe('Authenticated Dashboard', () => {
 
     // Navigate back to dashboard
     await page.goto('/app/home');
-    await expect(page.getByRole('heading', { name: /dashboard/i })).toBeVisible();
+    await expect(page.getByTestId('dashboard-heading')).toBeVisible();
 
     // Should still be authenticated
-    await expect(page.getByText('Signed in as')).toBeVisible();
+    await expect(page.getByTestId('dashboard-signed-in-alert')).toBeVisible();
   });
 });
 
@@ -87,7 +83,7 @@ test.describe('Sign Out Flow', () => {
     await page.goto('/app/home');
 
     // Find and click the sign out button
-    const signOutButton = page.getByRole('button', { name: /sign out/i });
+    const signOutButton = page.getByTestId('dashboard-signout-button');
     await expect(signOutButton).toBeVisible();
     await signOutButton.click();
 

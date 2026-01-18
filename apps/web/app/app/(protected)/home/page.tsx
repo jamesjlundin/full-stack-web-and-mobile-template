@@ -26,29 +26,36 @@ export default async function ProtectedHomePage() {
       <div className="max-w-2xl mx-auto space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
+            <h1 className="text-3xl font-bold tracking-tight" data-testid="dashboard-heading">
+              Dashboard
+            </h1>
             <p className="text-muted-foreground">Welcome to your protected area</p>
           </div>
-          <Badge variant="secondary">Protected</Badge>
+          <Badge variant="secondary" data-testid="dashboard-protected-badge">
+            Protected
+          </Badge>
         </div>
 
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
+            <CardTitle
+              className="flex items-center gap-2"
+              data-testid="dashboard-account-info-title"
+            >
               <Home className="h-5 w-5" />
               Account Information
             </CardTitle>
             <CardDescription>Your current session details</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <Alert>
+            <Alert data-testid="dashboard-signed-in-alert">
               <AlertTitle>Signed in as</AlertTitle>
               <AlertDescription className="font-medium">{displayName}</AlertDescription>
             </Alert>
 
             <div className="flex flex-wrap gap-3">
               <Button variant="outline" asChild>
-                <Link href="/app/agent">
+                <Link href="/app/agent" data-testid="dashboard-ai-agent-link">
                   <Bot className="mr-2 h-4 w-4" />
                   AI Agent Demo
                 </Link>

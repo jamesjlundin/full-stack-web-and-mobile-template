@@ -28,10 +28,10 @@ test.describe('Redirect After Login', () => {
     await expect(page).toHaveURL(/\/login\?next=%2Fapp%2Fagent/);
 
     // Wait for the form to be fully hydrated (email input visible means form is ready)
-    await expect(page.getByLabel(/email/i)).toBeVisible();
+    await expect(page.getByTestId('login-email-input')).toBeVisible();
 
     // Step 2: Click "Create one" link to register - should preserve ?next=
-    const registerLink = page.getByRole('link', { name: /create one/i });
+    const registerLink = page.getByTestId('login-register-link');
     await expect(registerLink).toBeVisible();
     await registerLink.click();
 
@@ -39,19 +39,19 @@ test.describe('Redirect After Login', () => {
     await expect(page).toHaveURL(/\/register\?next=%2Fapp%2Fagent/);
 
     // Step 3: Fill in registration form
-    await page.getByLabel(/name/i).fill(TEST_NAME);
-    await page.getByLabel(/email/i).fill(testEmail);
-    await page.getByLabel(/password/i).fill(TEST_PASSWORD);
+    await page.getByTestId('register-name-input').fill(TEST_NAME);
+    await page.getByTestId('register-email-input').fill(testEmail);
+    await page.getByTestId('register-password-input').fill(TEST_PASSWORD);
 
     // Submit registration
-    await page.getByRole('button', { name: /create account/i }).click();
+    await page.getByTestId('register-submit-button').click();
 
     // Step 4: After successful registration (without email verification),
     // should be redirected to /app/agent
     await expect(page).toHaveURL(/\/app\/agent/, { timeout: 15000 });
 
     // Verify we're actually on the agent page by checking for the main heading
-    await expect(page.getByRole('heading', { name: 'AI Agent', exact: true })).toBeVisible({
+    await expect(page.getByTestId('agent-heading')).toBeVisible({
       timeout: 10000,
     });
   });
@@ -61,10 +61,10 @@ test.describe('Redirect After Login', () => {
     await page.goto('/login?next=/app/agent');
 
     // Wait for the form to be fully hydrated (email input visible means form is ready)
-    await expect(page.getByLabel(/email/i)).toBeVisible();
+    await expect(page.getByTestId('login-email-input')).toBeVisible();
 
     // Wait for the register link to have the ?next= parameter (indicates hydration is complete)
-    const registerLink = page.getByRole('link', { name: /create one/i });
+    const registerLink = page.getByTestId('login-register-link');
     await expect(registerLink).toHaveAttribute('href', /register\?next=/, { timeout: 10000 });
 
     // Click register link
@@ -79,10 +79,10 @@ test.describe('Redirect After Login', () => {
     await page.goto('/register?next=/app/agent');
 
     // Wait for the form to be fully hydrated (name input visible means form is ready)
-    await expect(page.getByLabel(/name/i)).toBeVisible();
+    await expect(page.getByTestId('register-name-input')).toBeVisible();
 
-    // Click sign in link (in main content, not header)
-    const signInLink = page.getByRole('main').getByRole('link', { name: /sign in/i });
+    // Click sign in link
+    const signInLink = page.getByTestId('register-signin-link');
     await signInLink.click();
 
     // Should preserve the ?next= parameter
@@ -94,19 +94,19 @@ test.describe('Redirect After Login', () => {
 
     // First, create a user by registering
     await page.goto('/register');
-    await expect(page.getByLabel(/name/i)).toBeVisible();
-    await page.getByLabel(/name/i).fill(TEST_NAME);
-    await page.getByLabel(/email/i).fill(testEmail);
-    await page.getByLabel(/password/i).fill(TEST_PASSWORD);
-    await page.getByRole('button', { name: /create account/i }).click();
+    await expect(page.getByTestId('register-name-input')).toBeVisible();
+    await page.getByTestId('register-name-input').fill(TEST_NAME);
+    await page.getByTestId('register-email-input').fill(testEmail);
+    await page.getByTestId('register-password-input').fill(TEST_PASSWORD);
+    await page.getByTestId('register-submit-button').click();
 
     // Wait for successful registration and redirect to app
     await expect(page).toHaveURL(/\/app/, { timeout: 15000 });
 
     // Log out by going to logout page and clicking the sign out button
     await page.goto('/logout');
-    await expect(page.getByRole('button', { name: /sign out/i })).toBeVisible();
-    await page.getByRole('button', { name: /sign out/i }).click();
+    await expect(page.getByTestId('logout-signout-button')).toBeVisible();
+    await page.getByTestId('logout-signout-button').click();
 
     // Wait for redirect to home page after logout
     await expect(page).toHaveURL('/', { timeout: 10000 });
@@ -118,12 +118,12 @@ test.describe('Redirect After Login', () => {
     await expect(page).toHaveURL(/\/login\?next=%2Fapp%2Fagent/);
 
     // Wait for the form to be fully hydrated
-    await expect(page.getByLabel(/email/i)).toBeVisible();
+    await expect(page.getByTestId('login-email-input')).toBeVisible();
 
     // Log in with the user we created
-    await page.getByLabel(/email/i).fill(testEmail);
-    await page.getByLabel(/password/i).fill(TEST_PASSWORD);
-    await page.getByRole('button', { name: /sign in/i }).click();
+    await page.getByTestId('login-email-input').fill(testEmail);
+    await page.getByTestId('login-password-input').fill(TEST_PASSWORD);
+    await page.getByTestId('login-submit-button').click();
 
     // Should be redirected to /app/agent (not default /app/home)
     await expect(page).toHaveURL(/\/app\/agent/, { timeout: 15000 });
@@ -134,11 +134,11 @@ test.describe('Redirect After Login', () => {
 
     // Register without any ?next= param
     await page.goto('/register');
-    await expect(page.getByLabel(/name/i)).toBeVisible();
-    await page.getByLabel(/name/i).fill(TEST_NAME);
-    await page.getByLabel(/email/i).fill(testEmail);
-    await page.getByLabel(/password/i).fill(TEST_PASSWORD);
-    await page.getByRole('button', { name: /create account/i }).click();
+    await expect(page.getByTestId('register-name-input')).toBeVisible();
+    await page.getByTestId('register-name-input').fill(TEST_NAME);
+    await page.getByTestId('register-email-input').fill(testEmail);
+    await page.getByTestId('register-password-input').fill(TEST_PASSWORD);
+    await page.getByTestId('register-submit-button').click();
 
     // Should be redirected to default /app/home
     await expect(page).toHaveURL(/\/app\/home/, { timeout: 15000 });
@@ -149,10 +149,10 @@ test.describe('Redirect After Login', () => {
     await page.goto('/login?next=/app/agent');
 
     // Wait for the form to be fully hydrated
-    await expect(page.getByLabel(/email/i)).toBeVisible();
+    await expect(page.getByTestId('login-email-input')).toBeVisible();
 
     // Click verify email link
-    const verifyLink = page.getByRole('link', { name: /verify email/i });
+    const verifyLink = page.getByTestId('login-verify-email-link');
     await verifyLink.click();
 
     // Should preserve the ?next= parameter

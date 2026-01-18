@@ -137,7 +137,9 @@ function RegisterForm() {
       <div className="container flex items-center justify-center min-h-[calc(100vh-3.5rem)] py-12">
         <Card className="w-full max-w-md min-h-[440px]">
           <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl font-bold">Create an account</CardTitle>
+            <CardTitle className="text-2xl font-bold" data-testid="register-heading">
+              Create an account
+            </CardTitle>
             <CardDescription>Enter your details to create an account</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -165,6 +167,7 @@ function RegisterForm() {
                   onChange={(e) => setName(e.target.value)}
                   required
                   autoComplete="name"
+                  data-testid="register-name-input"
                 />
               </div>
               <div className="space-y-2">
@@ -177,6 +180,7 @@ function RegisterForm() {
                   onChange={(e) => setEmail(e.target.value)}
                   required
                   autoComplete="email"
+                  data-testid="register-email-input"
                 />
               </div>
               <div className="space-y-2">
@@ -188,11 +192,17 @@ function RegisterForm() {
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   autoComplete="new-password"
+                  data-testid="register-password-input"
                 />
               </div>
             </CardContent>
             <CardFooter className="flex flex-col space-y-4">
-              <Button type="submit" className="w-full" disabled={loading}>
+              <Button
+                type="submit"
+                className="w-full"
+                disabled={loading}
+                data-testid="register-submit-button"
+              >
                 {loading && <Spinner size="sm" className="mr-2" />}
                 {loading ? 'Creating account...' : 'Create account'}
               </Button>
@@ -205,6 +215,7 @@ function RegisterForm() {
                       : '/login'
                   }
                   className="text-primary underline-offset-4 hover:underline"
+                  data-testid="register-signin-link"
                 >
                   Sign in
                 </Link>

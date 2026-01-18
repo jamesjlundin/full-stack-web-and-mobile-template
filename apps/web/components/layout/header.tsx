@@ -84,7 +84,9 @@ export function Header({ user }: HeaderProps) {
               <>
                 <ThemeToggle />
                 <Button variant="ghost" asChild>
-                  <Link href="/login">Sign in</Link>
+                  <Link href="/login" data-testid="header-signin-link">
+                    Sign in
+                  </Link>
                 </Button>
                 <Button asChild>
                   <Link href="/register">Create account</Link>

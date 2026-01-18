@@ -39,7 +39,12 @@ export function SignOutButton() {
   };
 
   return (
-    <Button variant="destructive" onClick={handleSignOut} disabled={loading}>
+    <Button
+      variant="destructive"
+      onClick={handleSignOut}
+      disabled={loading}
+      data-testid="dashboard-signout-button"
+    >
       {loading ? <Spinner size="sm" className="mr-2" /> : <LogOut className="mr-2 h-4 w-4" />}
       {loading ? 'Signing out...' : 'Sign out'}
     </Button>

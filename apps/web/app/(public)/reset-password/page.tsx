@@ -60,7 +60,9 @@ export default function RequestResetPage() {
       <div className="container flex items-center justify-center min-h-[calc(100vh-3.5rem)] py-12">
         <Card className="w-full max-w-md">
           <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl font-bold">Reset Password</CardTitle>
+            <CardTitle className="text-2xl font-bold" data-testid="reset-password-heading">
+              Reset Password
+            </CardTitle>
             <CardDescription>
               {!submitted
                 ? "Enter your email address and we'll send you a link to reset your password."
@@ -86,6 +88,7 @@ export default function RequestResetPage() {
                     onChange={(e) => setEmail(e.target.value)}
                     required
                     autoComplete="email"
+                    data-testid="reset-password-email-input"
                   />
                 </div>
               </CardContent>
