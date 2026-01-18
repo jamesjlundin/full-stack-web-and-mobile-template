@@ -53,15 +53,16 @@ export function withUserRateLimit(
     // Call the handler with authenticated user
     const response = await handler(request, userResult);
 
-    // Clone response to add headers
-    const newHeaders = new Headers(response.headers);
+    // Clone response to safely read the body and add headers
+    const clonedResponse = response.clone();
+    const newHeaders = new Headers(clonedResponse.headers);
     for (const [headerKey, value] of Object.entries(rateLimitHeaders)) {
       newHeaders.set(headerKey, value);
     }
 
-    return new Response(response.body, {
-      status: response.status,
-      statusText: response.statusText,
+    return new Response(clonedResponse.body, {
+      status: clonedResponse.status,
+      statusText: clonedResponse.statusText,
       headers: newHeaders,
     });
   };
