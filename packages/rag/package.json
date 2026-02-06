@@ -38,8 +38,10 @@
     "@acme/obs": "workspace:*",
     "ai": "^6.0.0",
     "@ai-sdk/openai": "^3.0.0",
-    "drizzle-orm": "^0.45.1",
     "ulid": "^3.0.2"
+  },
+  "peerDependencies": {
+    "drizzle-orm": "^0.45.1"
   },
   "devDependencies": {
     "@types/node": "^25.0.0",

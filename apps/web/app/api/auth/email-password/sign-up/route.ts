@@ -1,9 +1,10 @@
-import { auth, authHandler, consumeTokenForEmail, getDevToken } from '@acme/auth';
+import { auth, consumeTokenForEmail, getDevToken } from '@acme/auth';
 import { createRateLimiter } from '@acme/security';
 import { NextResponse } from 'next/server';
 
 import { sendVerificationEmail } from '../../../_lib/mailer';
 import { withRateLimit } from '../../../_lib/withRateLimit';
+import { proxyBetterAuthPost, tryReadJsonField } from '../../_lib/betterAuthProxy';
 
 // Rate limiter: 5 requests per 60 seconds per IP
 const authLimiter = createRateLimiter({
@@ -19,29 +20,11 @@ async function handleSignUp(request: Request) {
     process.env.NODE_ENV !== 'production' || process.env.ALLOW_DEV_TOKENS === 'true';
   const isProduction = process.env.NODE_ENV === 'production';
 
-  // Clone the request to read the body (we need the email for verification)
-  const clonedRequest = request.clone();
-  let email: string | undefined;
+  // Read email from body for verification (preserves original body)
+  const email = await tryReadJsonField<string>(request, 'email');
 
-  try {
-    const body = await clonedRequest.json();
-    email = body.email;
-  } catch {
-    // If we can't parse the body, let Better Auth handle the error
-  }
-
-  // Rewrite the request URL to the Better Auth endpoint path
-  const url = new URL(request.url);
-  url.pathname = '/api/auth/sign-up/email';
-
-  const newRequest = new Request(url.toString(), {
-    method: request.method,
-    headers: request.headers,
-    body: request.body,
-    duplex: 'half',
-  } as RequestInit);
-
-  const response = await authHandler.POST(newRequest);
+  // Forward to Better Auth sign-up endpoint
+  const response = await proxyBetterAuthPost(request, '/api/auth/sign-up/email');
 
   // If sign-up failed, return the original response
   if (!response.ok) {

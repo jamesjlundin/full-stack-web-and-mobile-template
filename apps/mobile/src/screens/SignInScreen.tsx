@@ -36,8 +36,17 @@ export default function SignInScreen({
     setError(null);
 
     try {
-      await signIn(email.trim(), password);
-      onSignedIn();
+      const result = await signIn(email.trim(), password);
+
+      // Only navigate to signed-in state if sign-in was successful
+      // If verification is required, the RootNavigator will handle navigation
+      // based on pendingVerificationEmail state
+      if (result.success) {
+        onSignedIn();
+      }
+      // If !result.success (requiresVerification), do nothing here
+      // The AuthContext sets pendingVerificationEmail which triggers
+      // RootNavigator to show VerifyEmailScreen
     } catch (err) {
       if (err instanceof Error) {
         setError(err.message);

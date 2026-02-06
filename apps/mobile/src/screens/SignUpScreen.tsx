@@ -36,12 +36,16 @@ export default function SignUpScreen({
 
     try {
       const result = await signUp(name.trim(), email.trim(), password);
-      // If verification is required, the navigation will be handled by RootNavigator
-      // based on needsVerification state. Otherwise, call onSignedUp.
-      if (!result.requiresVerification) {
+
+      // Handle based on the discriminated union result
+      if (result.requiresVerification) {
+        // Verification is required - the AuthContext sets pendingVerificationEmail
+        // which triggers RootNavigator to show VerifyEmailScreen
+        // No need to call onSignedUp() here
+      } else {
+        // No verification required and sign-in succeeded - navigate to signed-in state
         onSignedUp();
       }
-      // If verification is required, the user state will trigger navigation to VerifyEmailScreen
     } catch (err) {
       if (err instanceof Error) {
         setError(err.message);

@@ -1,24 +1,7 @@
-import { getAvailableProviders, getDefaultProvider } from '@acme/ai';
 import { getCurrentUser } from '@acme/auth';
-import { db, schema } from '@acme/db';
-import { eq } from 'drizzle-orm';
 import { NextResponse } from 'next/server';
 
-import { verifyAuthToken } from '../../../lib/jwt';
-
-function getConfig() {
-  const providers = getAvailableProviders();
-  const defaultProvider = getDefaultProvider();
-
-  return {
-    isEmailVerificationRequired: !!process.env.RESEND_API_KEY,
-    blobStorageEnabled: !!process.env.BLOB_READ_WRITE_TOKEN,
-    ai: {
-      providers,
-      defaultProvider: defaultProvider?.id ?? null,
-    },
-  };
-}
+import { getAppConfig } from '../../../lib/appConfig';
 
 export async function GET(request: Request) {
   const result = await getCurrentUser(request);
@@ -32,7 +15,7 @@ export async function GET(request: Request) {
           name: result.user.name,
           emailVerified: result.user.emailVerified,
         },
-        config: getConfig(),
+        config: getAppConfig(),
       },
       { status: 200 },
     );
@@ -44,41 +27,6 @@ export async function GET(request: Request) {
     }
 
     return response;
-  }
-
-  const authHeader = request.headers.get('authorization');
-
-  if (authHeader?.toLowerCase().startsWith('bearer ')) {
-    const token = authHeader.slice('bearer '.length).trim();
-
-    try {
-      const payload = await verifyAuthToken(token);
-
-      // Look up user from database to get emailVerified status and name
-      const [dbUser] = await db
-        .select({
-          emailVerified: schema.users.emailVerified,
-          name: schema.users.name,
-        })
-        .from(schema.users)
-        .where(eq(schema.users.id, payload.sub))
-        .limit(1);
-
-      return NextResponse.json(
-        {
-          user: {
-            id: payload.sub,
-            email: payload.email,
-            name: dbUser?.name ?? undefined,
-            emailVerified: dbUser?.emailVerified ?? false,
-          },
-          config: getConfig(),
-        },
-        { status: 200 },
-      );
-    } catch {
-      return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
-    }
   }
 
   const status = result?.status ?? 401;

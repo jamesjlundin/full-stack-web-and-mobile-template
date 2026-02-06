@@ -1,6 +1,9 @@
-import { getAvailableProviders, getDefaultProvider } from '@acme/ai';
 import { auth } from '@acme/auth';
 import { headers } from 'next/headers';
+
+import { getAppConfig } from './appConfig';
+
+import type { AppConfig } from '@acme/types';
 
 export type SessionUser = {
   id: string;
@@ -9,44 +12,10 @@ export type SessionUser = {
   emailVerified?: boolean;
 };
 
-export type AppConfig = {
-  isEmailVerificationRequired: boolean;
-  isGoogleAuthEnabled?: boolean;
-  blobStorageEnabled?: boolean;
-  ai?: {
-    providers: Array<{
-      id: string;
-      name: string;
-      models: Array<{ id: string; name: string }>;
-      defaultModel: string;
-    }>;
-    defaultProvider: string | null;
-  };
-};
-
 export type SessionResult = {
   user: SessionUser | null;
   config: AppConfig;
 };
-
-/**
- * Build app configuration from environment variables.
- * Same logic as /api/me route for consistency.
- */
-function getConfig(): AppConfig {
-  const providers = getAvailableProviders();
-  const defaultProvider = getDefaultProvider();
-
-  return {
-    isEmailVerificationRequired: !!process.env.RESEND_API_KEY,
-    isGoogleAuthEnabled: !!(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET),
-    blobStorageEnabled: !!process.env.BLOB_READ_WRITE_TOKEN,
-    ai: {
-      providers,
-      defaultProvider: defaultProvider?.id ?? null,
-    },
-  };
-}
 
 /**
  * Server-side session check for protected routes.
@@ -58,7 +27,7 @@ function getConfig(): AppConfig {
 export async function getServerSession(): Promise<SessionResult> {
   const headersList = await headers();
 
-  const defaultConfig = getConfig();
+  const defaultConfig = getAppConfig();
 
   try {
     // Use Better Auth's direct session API

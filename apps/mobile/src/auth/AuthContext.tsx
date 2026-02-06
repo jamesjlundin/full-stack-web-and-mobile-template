@@ -13,10 +13,15 @@ import {API_BASE} from '../config/api';
 
 import {clearToken, loadToken, saveToken} from './tokenStorage';
 
-type SignUpResult = {
-  requiresVerification: boolean;
-  email: string;
-};
+/** Result of a sign-in attempt */
+export type SignInResult =
+  | {success: true}
+  | {success: false; requiresVerification: true; email: string};
+
+/** Result of a sign-up attempt */
+export type SignUpResult =
+  | {success: true; requiresVerification: false}
+  | {success: true; requiresVerification: true; email: string};
 
 type AuthContextValue = {
   /** The currently authenticated user, or null if not authenticated */
@@ -31,9 +36,9 @@ type AuthContextValue = {
   needsVerification: boolean;
   /** Email address pending verification (from sign-up or sign-in of unverified account) */
   pendingVerificationEmail: string | null;
-  /** Sign in with email and password */
-  signIn: (email: string, password: string) => Promise<void>;
-  /** Create a new account. Returns whether verification is required. */
+  /** Sign in with email and password. Returns a discriminated union indicating success or verification required. */
+  signIn: (email: string, password: string) => Promise<SignInResult>;
+  /** Create a new account. Returns a discriminated union indicating success and whether verification is required. */
   signUp: (
     name: string,
     email: string,
@@ -140,10 +145,10 @@ export function AuthProvider({children}: PropsWithChildren) {
   /**
    * Sign in with email and password
    * Stores token in secure storage and updates state
-   * Throws an error with requiresVerification flag if email not verified
+   * Returns a discriminated union indicating success or verification required
    */
   const signIn = useCallback(
-    async (email: string, password: string) => {
+    async (email: string, password: string): Promise<SignInResult> => {
       const response = await apiClient.signIn({
         email,
         password,
@@ -161,7 +166,11 @@ export function AuthProvider({children}: PropsWithChildren) {
 
         // Set pending verification email to trigger verification screen
         setPendingVerificationEmail(response.email);
-        return;
+        return {
+          success: false,
+          requiresVerification: true,
+          email: response.email,
+        };
       }
 
       const nextToken = response.token;
@@ -183,13 +192,15 @@ export function AuthProvider({children}: PropsWithChildren) {
       } catch {
         // Ignore - we already have a default config
       }
+
+      return {success: true};
     },
     [apiClient],
   );
 
   /**
    * Create a new account
-   * Returns whether verification is required
+   * Returns a discriminated union indicating success and whether verification is required
    */
   const signUp = useCallback(
     async (
@@ -197,30 +208,10 @@ export function AuthProvider({children}: PropsWithChildren) {
       email: string,
       password: string,
     ): Promise<SignUpResult> => {
-      const response = await fetch(
-        `${API_BASE}/api/auth/email-password/sign-up`,
-        {
-          method: 'POST',
-          headers: {
-            'content-type': 'application/json',
-          },
-          body: JSON.stringify({name, email, password}),
-        },
-      );
+      const response = await apiClient.signUp({name, email, password});
 
-      if (!response.ok) {
-        const errorText = await response.text().catch(() => '');
-        throw new Error(
-          `Sign-up failed with status ${response.status}${
-            errorText ? `: ${errorText}` : ''
-          }`,
-        );
-      }
-
-      const data = await response.json().catch(() => ({}));
-
-      // If verification is required, don't sign in - return the result
-      if (data.requiresVerification) {
+      // If verification is required, set pending email and return the result
+      if (response.requiresVerification) {
         // Fetch config to update state
         try {
           const appConfig = await apiClient.getConfig();
@@ -229,9 +220,13 @@ export function AuthProvider({children}: PropsWithChildren) {
           // Ignore config fetch errors
         }
 
+        // Set pending verification email to trigger verification screen
+        setPendingVerificationEmail(response.email);
+
         return {
+          success: true,
           requiresVerification: true,
-          email: data.email || email,
+          email: response.email,
         };
       }
 
@@ -239,8 +234,8 @@ export function AuthProvider({children}: PropsWithChildren) {
       await signIn(email, password);
 
       return {
+        success: true,
         requiresVerification: false,
-        email,
       };
     },
     [apiClient, signIn],

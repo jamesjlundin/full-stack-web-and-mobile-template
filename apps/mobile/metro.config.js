@@ -62,6 +62,10 @@ const config = {
     unstable_enableSymlinks: true,
   },
 
+  server: {
+    port: 10001,
+  },
+
   transformer: {
     getTransformOptions: async () => ({
       transform: {

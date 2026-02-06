@@ -9,6 +9,12 @@ type SignInParams = {
   password: string;
 };
 
+type SignUpParams = {
+  name: string;
+  email: string;
+  password: string;
+};
+
 export type StreamChatParams = {
   prompt: string;
   token?: string;
@@ -32,6 +38,17 @@ export type SignInResult =
     }
   | {
       success: false;
+      requiresVerification: true;
+      email: string;
+    };
+
+export type SignUpResult =
+  | {
+      success: true;
+      requiresVerification: false;
+    }
+  | {
+      success: true;
       requiresVerification: true;
       email: string;
     };
@@ -192,6 +209,42 @@ export function createApiClient({ baseUrl = '' }: ApiClientConfig = {}) {
     };
   };
 
+  const signUp = async ({ name, email, password }: SignUpParams): Promise<SignUpResult> => {
+    const response = await fetch(buildUrl('/api/auth/email-password/sign-up'), {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+      },
+      body: JSON.stringify({ name, email, password }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text().catch(() => '');
+      throw new Error(
+        `Sign-up failed with status ${response.status}${errorText ? `: ${errorText}` : ''}`,
+      );
+    }
+
+    const payload = (await response.json().catch(() => null)) as {
+      success?: boolean;
+      requiresVerification?: boolean;
+      email?: string;
+    } | null;
+
+    if (payload?.requiresVerification) {
+      return {
+        success: true,
+        requiresVerification: true,
+        email: payload.email || email,
+      };
+    }
+
+    return {
+      success: true,
+      requiresVerification: false,
+    };
+  };
+
   const requestVerificationEmail = async ({
     email,
     token,
@@ -239,6 +292,7 @@ export function createApiClient({ baseUrl = '' }: ApiClientConfig = {}) {
     getMe,
     requestVerificationEmail,
     signIn,
+    signUp,
     streamChat,
   };
 }
@@ -249,6 +303,7 @@ export const getConfig = defaultClient.getConfig;
 export const getMe = defaultClient.getMe;
 export const requestVerificationEmail = defaultClient.requestVerificationEmail;
 export const signIn = defaultClient.signIn;
+export const signUp = defaultClient.signUp;
 export const streamChat = defaultClient.streamChat;
 
 export type { AiModelInfo, AiProviderInfo, AppConfig, ChatChunk, User } from '@acme/types';

@@ -1,8 +1,9 @@
-import { authHandler, getCurrentUser } from '@acme/auth';
+import { getCurrentUser } from '@acme/auth';
 import { createRateLimiter } from '@acme/security';
 import { NextResponse } from 'next/server';
 
 import { withRateLimit } from '../../../_lib/withRateLimit';
+import { proxyBetterAuthPost, tryReadJsonField } from '../../_lib/betterAuthProxy';
 
 // Rate limiter: 5 requests per 60 seconds per IP
 const authLimiter = createRateLimiter({
@@ -15,29 +16,11 @@ const routeId = '/api/auth/email-password/sign-in';
 async function handleSignIn(request: Request) {
   const isEmailVerificationRequired = !!process.env.RESEND_API_KEY;
 
-  // Clone the request to read the body (we need the email for verification redirect)
-  const clonedRequest = request.clone();
-  let email: string | undefined;
+  // Read email from body for verification redirect (preserves original body)
+  const email = await tryReadJsonField<string>(request, 'email');
 
-  try {
-    const body = await clonedRequest.json();
-    email = body.email;
-  } catch {
-    // If we can't parse the body, let Better Auth handle the error
-  }
-
-  // Rewrite the request URL to the Better Auth endpoint path
-  const url = new URL(request.url);
-  url.pathname = '/api/auth/sign-in/email';
-
-  const newRequest = new Request(url.toString(), {
-    method: request.method,
-    headers: request.headers,
-    body: request.body,
-    duplex: 'half',
-  } as RequestInit);
-
-  const response = await authHandler.POST(newRequest);
+  // Forward to Better Auth sign-in endpoint
+  const response = await proxyBetterAuthPost(request, '/api/auth/sign-in/email');
 
   // If sign-in failed, return the original response
   if (!response.ok) {

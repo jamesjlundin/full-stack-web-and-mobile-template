@@ -18,7 +18,7 @@
     "typescript": "^5.9.3"
   },
   "dependencies": {
-    "@upstash/ratelimit": "^2.0.7",
-    "@upstash/redis": "^1.35.8"
+    "@upstash/ratelimit": "^2.0.8",
+    "@upstash/redis": "^1.36.2"
   }
 }
