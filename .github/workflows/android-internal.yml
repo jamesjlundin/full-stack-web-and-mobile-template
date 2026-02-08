@@ -1,0 +1,63 @@
+name: Android Internal Testing Upload
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-and-upload:
+    runs-on: ubuntu-latest
+    env:
+      ANDROID_PACKAGE_NAME: ${{ secrets.ANDROID_PACKAGE_NAME }}
+      ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+      ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+      ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+      ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+      GOOGLE_PLAY_SERVICE_ACCOUNT_JSON_BASE64: ${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT_JSON_BASE64 }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - name: Install JS deps
+        run: pnpm install
+
+      - name: Fix Hermes compiler permissions
+        run: |
+          # pnpm doesn't preserve executable bits on binaries
+          chmod +x node_modules/hermes-compiler/hermesc/linux64-bin/hermesc
+          # Verify
+          node_modules/hermes-compiler/hermesc/linux64-bin/hermesc --version || echo "hermesc version check failed"
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version-file: 'apps/mobile/android/.ruby-version'
+          bundler-cache: true
+          working-directory: apps/mobile/android
+
+      - name: Fastlane preflight (safe if secrets missing)
+        working-directory: apps/mobile/android
+        run: bundle exec fastlane android preflight
+
+      - name: Fastlane upload to internal testing
+        if: ${{ success() }}
+        working-directory: apps/mobile/android
+        timeout-minutes: 45
+        run: bundle exec fastlane android upload_internal

@@ -29,6 +29,13 @@
       "when": 1765600000000,
       "tag": "0003_pgvector_rag_chunks",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1770472374309,
+      "tag": "0004_add_user_role",
+      "breakpoints": true
     }
   ]
 }

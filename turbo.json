@@ -44,7 +44,9 @@
     "MOBILE_DEEP_LINK_ENABLED",
     "ALLOW_DEV_TOKENS",
     "DISABLE_RATE_LIMIT",
-    "RATE_LIMIT_MULTIPLIER"
+    "RATE_LIMIT_MULTIPLIER",
+    "API_BASE_URL",
+    "CI"
   ],
   "tasks": {
     "dev": {

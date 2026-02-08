@@ -4,7 +4,7 @@
  * Provides upsertChunks and querySimilar functions using Drizzle ORM and pgvector.
  */
 
-import { sql } from 'drizzle-orm';
+import { sql } from '@acme/db';
 
 import type { NeonHttpDatabase } from 'drizzle-orm/neon-http';
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres';

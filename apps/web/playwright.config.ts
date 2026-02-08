@@ -3,27 +3,21 @@ import { defineConfig, devices } from '@playwright/test';
 /**
  * Playwright E2E Test Configuration
  *
- * This config is designed for template users to extend. It provides:
- * - Sensible defaults for local development and CI
- * - Automatic web server startup in development
- * - Multiple browser support (chromium by default, extend as needed)
- * - Global setup for authenticated test user creation
+ * This config uses Playwright's recommended "setup project" pattern for auth.
+ * The setup project creates an authenticated user and saves browser state.
+ * Tests that need auth opt in with: test.use({ storageState: 'e2e/.auth/user.json' });
  *
  * Run tests:
  *   pnpm test:e2e           # Run all E2E tests
  *   pnpm test:e2e:ui        # Open Playwright UI mode
  *   pnpm test:e2e:headed    # Run with visible browser
+ *
+ * @see https://playwright.dev/docs/auth#basic-shared-account-in-all-tests
  */
-
-// Auth state file path - shared between global setup and tests
-export const AUTH_FILE = 'e2e/.auth/user.json';
 
 export default defineConfig({
   // Test directory
   testDir: './e2e',
-
-  // Global setup for authenticated user creation
-  globalSetup: require.resolve('./e2e/global-setup'),
 
   // Run tests in parallel within files
   fullyParallel: true,
@@ -38,7 +32,9 @@ export default defineConfig({
   workers: process.env.CI ? 1 : undefined,
 
   // Reporter configuration
-  reporter: process.env.CI ? 'github' : 'html',
+  // CI: GitHub annotations for PR feedback + HTML report as artifact
+  // Local: Interactive HTML report
+  reporter: process.env.CI ? [['github'], ['html', { open: 'never' }]] : 'html',
 
   // Shared settings for all projects
   use: {
@@ -50,45 +46,52 @@ export default defineConfig({
 
     // Screenshot on failure
     screenshot: 'only-on-failure',
+
+    // Video on first retry (free in happy path, helps debug flaky tests)
+    video: 'on-first-retry',
   },
 
   // Browser configurations
   projects: [
-    // Unauthenticated tests - no storage state
+    // Setup project - creates authenticated user and saves storage state.
+    // Runs before all test projects via the `dependencies` array.
+    // Produces traces and appears in HTML reports (unlike legacy globalSetup).
+    {
+      name: 'setup',
+      testMatch: /.*\.setup\.ts/,
+    },
+
+    // Main test project - runs after setup completes.
+    // Tests are unauthenticated by default. Authenticated tests opt in with:
+    //   test.use({ storageState: 'e2e/.auth/user.json' });
     {
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] },
-      testMatch: /.*(?<!\.auth)\.spec\.ts/,
-    },
-
-    // Authenticated tests - use saved auth state
-    {
-      name: 'chromium-authenticated',
-      use: {
-        ...devices['Desktop Chrome'],
-        storageState: AUTH_FILE,
-      },
-      testMatch: /.*\.auth\.spec\.ts/,
+      dependencies: ['setup'],
     },
 
     // Uncomment to add more browsers:
     // {
     //   name: 'firefox',
     //   use: { ...devices['Desktop Firefox'] },
+    //   dependencies: ['setup'],
     // },
     // {
     //   name: 'webkit',
     //   use: { ...devices['Desktop Safari'] },
+    //   dependencies: ['setup'],
     // },
 
     // Mobile viewports (uncomment to enable):
     // {
     //   name: 'Mobile Chrome',
     //   use: { ...devices['Pixel 5'] },
+    //   dependencies: ['setup'],
     // },
     // {
     //   name: 'Mobile Safari',
     //   use: { ...devices['iPhone 12'] },
+    //   dependencies: ['setup'],
     // },
   ],
 
@@ -99,8 +102,16 @@ export default defineConfig({
     : {
         command: 'pnpm dev',
         url: 'http://localhost:3000',
-        reuseExistingServer: true,
+        reuseExistingServer: !process.env.PLAYWRIGHT_FRESH_SERVER,
         timeout: 120_000,
+        env: {
+          DATABASE_URL:
+            process.env.DATABASE_URL || 'postgres://postgres:postgres@localhost:5432/acme',
+          BETTER_AUTH_SECRET:
+            process.env.BETTER_AUTH_SECRET || 'test_secret_key_for_local_development_32',
+          APP_BASE_URL: process.env.APP_BASE_URL || 'http://localhost:3000',
+          DISABLE_RATE_LIMIT: 'true',
+        },
       },
 
   // Test timeout

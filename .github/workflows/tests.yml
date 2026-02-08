@@ -1,7 +1,7 @@
-# CI Pipeline for the monorepo
-# Runs install, typecheck, lint, web build, integration tests, and E2E tests
+# Tests Pipeline for the monorepo
+# Runs build, integration tests, and E2E tests
 
-name: CI
+name: Tests
 
 on:
   push:
@@ -9,8 +9,8 @@ on:
   pull_request:
 
 jobs:
-  build:
-    name: Validate, Build and Test
+  test:
+    name: Build and Test
     runs-on: ubuntu-latest
 
     services:
@@ -37,6 +37,8 @@ jobs:
       ALLOW_DEV_TOKENS: true
       # Disable rate limiting entirely for integration tests
       DISABLE_RATE_LIMIT: 'true'
+      # Integration test base URL (must match the port in pnpm start)
+      TEST_BASE_URL: http://localhost:3000
 
     steps:
       - name: Checkout repository
@@ -55,17 +57,6 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install
-
-      - name: Check formatting
-        run: |
-          pnpm format
-          git diff --exit-code
-
-      - name: Typecheck
-        run: pnpm typecheck
-
-      - name: Lint
-        run: pnpm lint
 
       - name: Build web app
         run: pnpm -C apps/web build
@@ -88,18 +79,37 @@ jobs:
       - name: Run integration tests
         run: pnpm test:integration
 
-      # Install Playwright browsers
+      # Get Playwright version for cache key
+      - name: Get Playwright version
+        id: playwright-version
+        run: echo "version=$(pnpm -C apps/web exec playwright --version | head -1)" >> $GITHUB_OUTPUT
+
+      # Cache Playwright browsers to speed up E2E tests
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        id: playwright-cache
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ steps.playwright-version.outputs.version }}-${{ hashFiles('**/pnpm-lock.yaml') }}
+
+      # Install Playwright browsers (chromium for desktop, webkit for mobile Safari)
       - name: Install Playwright browsers
-        run: pnpm -C apps/web exec playwright install --with-deps chromium
+        run: pnpm -C apps/web exec playwright install --with-deps chromium webkit
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+
+      # Install system dependencies even if browsers are cached
+      - name: Install Playwright system dependencies
+        run: pnpm -C apps/web exec playwright install-deps chromium webkit
+        if: steps.playwright-cache.outputs.cache-hit == 'true'
 
       # Run E2E tests
       - name: Run E2E tests
         run: pnpm test:e2e
 
-      # Upload Playwright report on failure
+      # Upload Playwright HTML report (always, for debugging)
       - name: Upload Playwright report
         uses: actions/upload-artifact@v4
-        if: failure()
+        if: ${{ !cancelled() }}
         with:
           name: playwright-report
           path: apps/web/playwright-report/

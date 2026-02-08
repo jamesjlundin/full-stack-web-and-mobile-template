@@ -1,0 +1,113 @@
+# Mobile E2E Tests with Detox
+# Runs on macOS to support iOS simulator testing
+# Triggered manually via workflow_dispatch
+
+name: Mobile E2E
+
+on:
+  workflow_dispatch:
+    inputs:
+      platform:
+        description: 'Platform to test'
+        required: true
+        default: 'ios'
+        type: choice
+        options:
+          - ios
+          - android
+          - both
+
+jobs:
+  ios-e2e:
+    name: iOS E2E Tests
+    runs-on: macos-14
+    if: ${{ github.event.inputs.platform == 'ios' || github.event.inputs.platform == 'both' }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Install applesimutils
+        run: |
+          brew tap wix/brew
+          brew install applesimutils
+
+      - name: Install CocoaPods dependencies
+        run: cd apps/mobile/ios && pod install
+
+      - name: Cache Detox build
+        uses: actions/cache@v4
+        with:
+          path: apps/mobile/ios/build
+          key: detox-ios-${{ runner.os }}-${{ hashFiles('apps/mobile/ios/Podfile.lock', 'apps/mobile/package.json') }}
+
+      - name: Build iOS app for Detox
+        run: pnpm -C apps/mobile build:e2e:ios
+
+      - name: Run iOS E2E tests
+        run: pnpm -C apps/mobile test:e2e:ios
+
+  android-e2e:
+    name: Android E2E Tests
+    runs-on: ubuntu-latest
+    if: ${{ github.event.inputs.platform == 'android' || github.event.inputs.platform == 'both' }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Cache Android SDK
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.android/avd
+            ~/.android/adb*
+          key: android-sdk-${{ runner.os }}-${{ hashFiles('apps/mobile/android/build.gradle') }}
+
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Build Android app for Detox
+        run: pnpm -C apps/mobile build:e2e:android
+
+      - name: Run Android E2E tests
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          arch: x86_64
+          profile: Pixel 4
+          avd-name: Pixel_4_API_34
+          script: pnpm -C apps/mobile test:e2e:android

@@ -1,9 +1,8 @@
 import 'dotenv/config';
-import { db, schema } from '@acme/db';
-import { betterAuth, type Session, type User } from 'better-auth';
+import { db, eq, schema } from '@acme/db';
+import { betterAuth, type Session } from 'better-auth';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 import { nextCookies, toNextJsHandler } from 'better-auth/next-js';
-import { eq } from 'drizzle-orm';
 import { jwtVerify } from 'jose';
 
 /**
@@ -82,9 +81,39 @@ export function consumeTokenForEmail(type: 'verify' | 'reset', email: string): s
 
 type SessionResponse = {
   headers: Headers | null | undefined;
-  response: { session: Session; user: User } | null;
+  response: { session: Session; user: AuthUser } | null;
   status?: number;
 } | null;
+
+/**
+ * Type-only auth configuration for $Infer type inference.
+ * This creates a compile-time type without runtime initialization.
+ * Must be kept in sync with the actual auth configuration in getAuth().
+ */
+const _authTypeHelper = betterAuth({
+  baseURL: 'http://localhost',
+  user: {
+    additionalFields: {
+      role: {
+        type: 'string',
+        required: false,
+        defaultValue: 'user',
+        input: false,
+      },
+    },
+  },
+});
+
+/**
+ * Inferred session type from Better Auth configuration.
+ * Includes user with role field from additionalFields.
+ */
+export type AuthSession = typeof _authTypeHelper.$Infer.Session;
+
+/**
+ * Inferred user type with role field from additionalFields.
+ */
+export type AuthUser = AuthSession['user'];
 
 // Lazy initialization for auth - env vars are checked at runtime, not build time
 let _auth: ReturnType<typeof betterAuth> | null = null;
@@ -118,6 +147,19 @@ function getAuth() {
     baseURL,
     secret,
     trustedOrigins,
+    advanced: {
+      cookiePrefix: 'acme',
+    },
+    user: {
+      additionalFields: {
+        role: {
+          type: 'string',
+          required: false,
+          defaultValue: 'user',
+          input: false,
+        },
+      },
+    },
     // Disable Better Auth's built-in rate limiting for CI/testing
     rateLimit: {
       enabled: !disableRateLimit,
@@ -201,7 +243,7 @@ export type CurrentUserResult = {
   headers: Headers | null;
   session: Session | null;
   status: number;
-  user: User | null;
+  user: AuthUser | null;
 };
 
 /**
@@ -257,13 +299,14 @@ async function verifyBearerToken(token: string): Promise<CurrentUserResult | nul
       return null;
     }
 
-    // Convert to User type expected by Better Auth
-    const user: User = {
+    // Convert to AuthUser type expected by Better Auth
+    const user: AuthUser = {
       id: dbUser.id,
       email: dbUser.email,
       emailVerified: dbUser.emailVerified ?? false,
       name: dbUser.name ?? '',
       image: dbUser.image ?? null,
+      role: dbUser.role ?? 'user',
       createdAt: dbUser.createdAt,
       updatedAt: dbUser.updatedAt,
     };
@@ -332,11 +375,11 @@ export async function getCurrentUser(request: Request): Promise<CurrentUserResul
 }
 
 /**
- * Check if Google OAuth is enabled based on environment variables.
- * Returns true only if both GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET are set.
+ * Check if Google OAuth is enabled.
+ * Always returns true as Google OAuth is a required feature.
  */
 export function isGoogleAuthEnabled(): boolean {
-  return !!(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET);
+  return true;
 }
 
 export default auth;

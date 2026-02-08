@@ -1,0 +1,98 @@
+require 'tempfile'
+require 'base64'
+
+default_platform(:android)
+
+platform :android do
+  before_all do
+    UI.user_error!("Missing ANDROID_PACKAGE_NAME") unless ENV["ANDROID_PACKAGE_NAME"].to_s.strip.length > 0
+  end
+
+  lane :preflight do
+    missing = []
+    %w[
+      ANDROID_PACKAGE_NAME
+      ANDROID_KEYSTORE_BASE64
+      ANDROID_KEYSTORE_PASSWORD
+      ANDROID_KEY_ALIAS
+      ANDROID_KEY_PASSWORD
+      GOOGLE_PLAY_SERVICE_ACCOUNT_JSON_BASE64
+    ].each { |k| missing << k if (ENV[k].to_s.strip.length == 0) }
+
+    if missing.any?
+      UI.important("Android preflight: missing secrets → #{missing.join(", ")}")
+      UI.important("Add them in GitHub → Repo → Settings → Secrets and variables → Actions")
+      UI.important("This is expected if you're setting up from your phone. Exiting 0.")
+      next
+    else
+      UI.message("Android preflight OK: all required secrets present")
+    end
+  end
+
+  lane :upload_internal do
+    preflight
+    return if ENV["GOOGLE_PLAY_SERVICE_ACCOUNT_JSON_BASE64"].to_s.strip.empty?
+
+    # Decode base64 keystore to temp file
+    keystore_file = Tempfile.new(['keystore', '.jks'])
+    keystore_file.binmode
+    keystore_file.write(Base64.decode64(ENV["ANDROID_KEYSTORE_BASE64"]))
+    keystore_file.close
+
+    # Decode base64 service account JSON to temp file
+    service_account_file = Tempfile.new(['service_account', '.json'])
+    service_account_file.write(Base64.decode64(ENV["GOOGLE_PLAY_SERVICE_ACCOUNT_JSON_BASE64"]))
+    service_account_file.close
+
+    # Set environment variables for gradle signing
+    ENV["ANDROID_KEYSTORE_PATH"] = keystore_file.path
+    ENV["GOOGLE_PLAY_SERVICE_ACCOUNT_JSON_PATH"] = service_account_file.path
+
+    # Get next version code from Play Store or use env override
+    version_code = ENV["ANDROID_VERSION_CODE"]
+
+    if version_code.nil? || version_code.strip.empty?
+      begin
+        # Try to get the latest version code from Google Play
+        version_codes = google_play_track_version_codes(
+          track: "internal",
+          json_key: service_account_file.path,
+          package_name: ENV["ANDROID_PACKAGE_NAME"]
+        )
+        current_version = version_codes.max || 0
+        version_code = (current_version + 1).to_s
+        UI.message("Got version code #{current_version} from Play Store, using #{version_code}")
+      rescue => e
+        UI.important("Could not get version code from Play Store: #{e.message}")
+        UI.important("Using default version code 1")
+        version_code = "1"
+      end
+    end
+
+    ENV["ANDROID_VERSION_CODE"] = version_code
+    UI.message("Building with version code: #{version_code}")
+
+    # Build the release AAB
+    gradle(task: "bundleRelease")
+
+    # Upload to Google Play internal testing track
+    # Note: release_status must be "draft" until the app is published for the first time
+    # After first manual publish, you can change this to "completed" for auto-rollout
+    upload_to_play_store(
+      track: "internal",
+      aab: "app/build/outputs/bundle/release/app-release.aab",
+      json_key: service_account_file.path,
+      package_name: ENV["ANDROID_PACKAGE_NAME"],
+      release_status: "draft",
+      skip_upload_metadata: true,
+      skip_upload_images: true,
+      skip_upload_screenshots: true
+    )
+
+    UI.success("Successfully uploaded to Google Play internal testing!")
+
+    # Cleanup temp files
+    keystore_file.unlink
+    service_account_file.unlink
+  end
+end

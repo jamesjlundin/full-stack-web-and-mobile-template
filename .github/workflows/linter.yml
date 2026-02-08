@@ -1,0 +1,43 @@
+# Linter Pipeline for the monorepo
+# Runs formatting check, typecheck, and lint
+
+name: Linter
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  lint:
+    name: Format, Typecheck and Lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Setup pnpm before Node.js to enable pnpm caching in setup-node
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        # Version is read from package.json packageManager field
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Check formatting
+        run: |
+          pnpm format
+          git diff --exit-code
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Lint
+        run: pnpm lint

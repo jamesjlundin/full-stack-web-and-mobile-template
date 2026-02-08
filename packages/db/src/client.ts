@@ -30,7 +30,7 @@ export function createLocalDb(): {
 }
 
 // Lazy initialization for serverless db
-type DbInstance = NeonHttpDatabase<typeof schema> | NodePgDatabase<typeof schema>;
+export type DbInstance = NeonHttpDatabase<typeof schema> | NodePgDatabase<typeof schema>;
 let _db: DbInstance | null = null;
 let _pool: Pool | null = null;
 

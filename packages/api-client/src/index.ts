@@ -1,5 +1,37 @@
 import type { AppConfig, ChatChunk, User } from '@acme/types';
 
+// Default timeout for API requests (10 seconds)
+const DEFAULT_TIMEOUT_MS = 10000;
+
+/**
+ * Fetch with timeout support.
+ * Prevents indefinite hangs when server is unreachable.
+ */
+async function fetchWithTimeout(
+  url: string,
+  init?: RequestInit & { timeout?: number },
+): Promise<Response> {
+  const { timeout = DEFAULT_TIMEOUT_MS, ...fetchInit } = init ?? {};
+
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeout);
+
+  try {
+    const response = await fetch(url, {
+      ...fetchInit,
+      signal: controller.signal,
+    });
+    return response;
+  } catch (error) {
+    if (error instanceof Error && error.name === 'AbortError') {
+      throw new Error(`Request timed out after ${timeout}ms`);
+    }
+    throw error;
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
+
 type ApiClientConfig = {
   baseUrl?: string;
 };
@@ -110,38 +142,46 @@ export function createApiClient({ baseUrl = '' }: ApiClientConfig = {}) {
   };
 
   const getMe = async ({ token }: GetMeParams = {}): Promise<GetMeResult> => {
-    const headers: HeadersInit = {};
+    const headers: Record<string, string> = {};
 
     if (token) {
       headers.Authorization = `Bearer ${token}`;
     }
 
-    const response = await fetch(buildUrl('/api/me'), { headers });
+    try {
+      const response = await fetchWithTimeout(buildUrl('/api/me'), { headers });
 
-    if (!response.ok) {
+      if (!response.ok) {
+        return { user: null, config: defaultConfig };
+      }
+
+      const data = (await response.json().catch(() => null)) as {
+        user?: User;
+        config?: AppConfig;
+      } | null;
+
+      return {
+        user: data?.user ?? null,
+        config: data?.config ?? defaultConfig,
+      };
+    } catch {
       return { user: null, config: defaultConfig };
     }
-
-    const data = (await response.json().catch(() => null)) as {
-      user?: User;
-      config?: AppConfig;
-    } | null;
-
-    return {
-      user: data?.user ?? null,
-      config: data?.config ?? defaultConfig,
-    };
   };
 
   const getConfig = async (): Promise<AppConfig> => {
-    const response = await fetch(buildUrl('/api/config'));
+    try {
+      const response = await fetchWithTimeout(buildUrl('/api/config'));
 
-    if (!response.ok) {
+      if (!response.ok) {
+        return defaultConfig;
+      }
+
+      const data = (await response.json().catch(() => null)) as AppConfig | null;
+      return data ?? defaultConfig;
+    } catch {
       return defaultConfig;
     }
-
-    const data = (await response.json().catch(() => null)) as AppConfig | null;
-    return data ?? defaultConfig;
   };
 
   const signIn = async ({ email, password }: SignInParams): Promise<SignInResult> => {
@@ -196,7 +236,7 @@ export function createApiClient({ baseUrl = '' }: ApiClientConfig = {}) {
     email,
     token,
   }: RequestVerificationParams): Promise<RequestVerificationResult> => {
-    const headers: HeadersInit = {
+    const headers: Record<string, string> = {
       'content-type': 'application/json',
     };
 
@@ -216,7 +256,7 @@ export function createApiClient({ baseUrl = '' }: ApiClientConfig = {}) {
   };
 
   const streamChat = async function* ({ prompt, token, signal }: StreamChatParams) {
-    const headers: HeadersInit = {
+    const headers: Record<string, string> = {
       'content-type': 'application/json',
     };
 

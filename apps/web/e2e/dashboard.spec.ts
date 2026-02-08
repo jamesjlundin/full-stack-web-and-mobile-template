@@ -3,11 +3,15 @@ import { test, expect } from '@playwright/test';
 /**
  * Authenticated Dashboard E2E Tests
  *
- * These tests run with a pre-authenticated user session (created by global-setup.ts).
+ * These tests run with a pre-authenticated user session (created by auth.setup.ts).
  * They verify that authenticated users can access protected routes and see the correct content.
  *
- * The `.auth.spec.ts` suffix indicates these tests use the authenticated storage state.
+ * Note: The Sign Out test lives in sign-out.spec.ts with its own isolated user,
+ * since signing out revokes the shared session and would break parallel tests.
  */
+
+// Use the authenticated storage state saved by auth.setup.ts
+test.use({ storageState: 'e2e/.auth/user.json' });
 
 test.describe('Authenticated Dashboard', () => {
   test('should display the dashboard when authenticated', async ({ page }) => {
@@ -75,28 +79,5 @@ test.describe('Authenticated Dashboard', () => {
 
     // Should still be authenticated
     await expect(page.getByTestId('dashboard-signed-in-alert')).toBeVisible();
-  });
-});
-
-test.describe('Sign Out Flow', () => {
-  test('should sign out when clicking sign out button', async ({ page }) => {
-    await page.goto('/app/home');
-
-    // Find and click the sign out button
-    const signOutButton = page.getByTestId('dashboard-signout-button');
-    await expect(signOutButton).toBeVisible();
-    await signOutButton.click();
-
-    // Should be redirected to login page or home page after sign out
-    await page.waitForURL(
-      (url) => {
-        const pathname = url.pathname;
-        return pathname === '/' || pathname.includes('/login');
-      },
-      { timeout: 10000 },
-    );
-
-    // Verify we're no longer on a protected route
-    expect(page.url()).not.toContain('/app/home');
   });
 });

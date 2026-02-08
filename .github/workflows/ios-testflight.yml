@@ -7,6 +7,9 @@ jobs:
   build-and-upload:
     runs-on: macos-15
     env:
+      # Locale settings to prevent CocoaPods encoding issues
+      LANG: en_US.UTF-8
+      LC_ALL: en_US.UTF-8
       APP_IDENTIFIER: ${{ secrets.APP_IDENTIFIER }}
       APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
       APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
@@ -18,6 +21,15 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Select latest Xcode
+        run: |
+          # List available Xcode versions and select the latest
+          ls -d /Applications/Xcode*.app | sort -V | tail -1
+          LATEST_XCODE=$(ls -d /Applications/Xcode*.app | sort -V | tail -1)
+          sudo xcode-select -s "$LATEST_XCODE/Contents/Developer"
+          echo "Selected Xcode: $(xcodebuild -version)"
+          echo "SDK: $(xcrun --show-sdk-version)"
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
@@ -34,14 +46,14 @@ jobs:
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: '3.2'
+          ruby-version-file: 'apps/mobile/ios/.ruby-version'
           bundler-cache: true
           working-directory: apps/mobile/ios
 
       - name: Install CocoaPods
         run: |
           cd apps/mobile/ios
-          rm -rf Pods Podfile.lock
+          rm -rf Pods Podfile.lock build
           pod install --repo-update
 
       - name: Fastlane preflight (safe if secrets missing)
@@ -51,5 +63,5 @@ jobs:
       - name: Fastlane upload to TestFlight
         if: ${{ success() }}
         working-directory: apps/mobile/ios
-        timeout-minutes: 45
+        timeout-minutes: 90
         run: bundle exec fastlane ios upload_testflight

@@ -1,7 +1,6 @@
 import { auth } from '@acme/auth';
-import { db, schema } from '@acme/db';
+import { db, eq, schema } from '@acme/db';
 import { createRateLimiter } from '@acme/security';
-import { eq } from 'drizzle-orm';
 import { NextRequest, NextResponse } from 'next/server';
 
 import { signAuthToken } from '../../../../lib/jwt';

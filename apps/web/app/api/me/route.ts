@@ -1,7 +1,6 @@
 import { getAvailableProviders, getDefaultProvider } from '@acme/ai';
 import { getCurrentUser } from '@acme/auth';
-import { db, schema } from '@acme/db';
-import { eq } from 'drizzle-orm';
+import { db, eq, schema } from '@acme/db';
 import { NextResponse } from 'next/server';
 
 import { verifyAuthToken } from '../../../lib/jwt';
