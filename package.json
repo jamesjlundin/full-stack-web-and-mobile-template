@@ -50,5 +50,11 @@
     "@upstash/ratelimit": "^2.0.7",
     "@upstash/redis": "^1.35.8",
     "ai": "^6.0.77"
+  },
+  "pnpm": {
+    "overrides": {
+      "ai": "^6.0.77",
+      "@ai-sdk/provider": "^3.0.8"
+    }
   }
 }
