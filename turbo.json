@@ -48,6 +48,7 @@
     "API_BASE_URL",
     "CI"
   ],
+  "globalDependencies": ["pnpm-lock.yaml"],
   "tasks": {
     "dev": {
       "cache": false,
