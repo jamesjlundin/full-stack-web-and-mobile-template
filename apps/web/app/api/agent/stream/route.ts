@@ -167,7 +167,9 @@ async function handleRequest(request: NextRequest, _userResult: CurrentUserResul
   }
 
   // Get the language model instance
-  const languageModel = getModel(validated.provider, validated.model);
+  const languageModel = getModel(validated.provider, validated.model) as
+    | Parameters<typeof streamText>[0]['model']
+    | null;
 
   // If model creation failed (shouldn't happen after validation), return mock
   if (!languageModel) {

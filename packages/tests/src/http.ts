@@ -31,6 +31,12 @@ function buildHeaders(opts?: RequestOptions): Headers {
   const headers = new Headers();
   headers.set('Content-Type', 'application/json');
 
+  // Better Auth enforces Origin checks in production mode.
+  // Integration tests run against `next start` (production), so explicitly
+  // include Origin/Referer to simulate browser requests.
+  headers.set('Origin', BASE_URL);
+  headers.set('Referer', `${BASE_URL}/`);
+
   if (opts?.cookies) {
     headers.set('Cookie', opts.cookies);
   }
@@ -132,6 +138,7 @@ export async function options(
 }> {
   const url = buildUrl(path);
   const headers = new Headers();
+  headers.set('Origin', BASE_URL);
 
   if (customHeaders) {
     for (const [key, value] of Object.entries(customHeaders)) {
