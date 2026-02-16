@@ -12,6 +12,7 @@
     "typecheck": "turbo run typecheck",
     "db:up": "docker compose up -d",
     "db:down": "docker compose down -v",
+    "local:migrate": "pnpm -C packages/db migrate:apply",
     "test:integration": "pnpm -C packages/tests test",
     "test:e2e": "pnpm -C apps/web test:e2e",
     "evals": "node packages/evals/dist/cli.js",
@@ -55,6 +56,9 @@
     "overrides": {
       "ai": "^6.0.77",
       "@ai-sdk/provider": "^3.0.8"
-    }
+    },
+    "onlyBuiltDependencies": [
+      "esbuild"
+    ]
   }
 }
