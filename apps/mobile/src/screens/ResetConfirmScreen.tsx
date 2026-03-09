@@ -1,12 +1,6 @@
 import React, {useCallback, useState, useEffect} from 'react';
-import {
-  Button,
-  SafeAreaView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from 'react-native';
+import {Button, StyleSheet, Text, TextInput, View} from 'react-native';
+import {SafeAreaView} from 'react-native-safe-area-context';
 
 import {API_BASE} from '../config/api';
 

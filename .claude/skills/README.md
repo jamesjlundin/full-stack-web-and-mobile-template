@@ -8,6 +8,13 @@ Skills are organized folders of instructions, scripts, and resources that Claude
 
 ## Available Skills
 
+### Getting Started
+
+| Skill             | Purpose                                              | Trigger                              |
+| ----------------- | ---------------------------------------------------- | ------------------------------------ |
+| `getting-started` | Interactive setup wizard to customize this template  | /getting-started, "set up template"  |
+| `github-pr`       | Manage PRs via gh CLI (review, create, check status) | /github-pr, "review PR", "create PR" |
+
 ### Navigation & Understanding
 
 | Skill            | Purpose                        | Trigger                      |
@@ -16,10 +23,12 @@ Skills are organized folders of instructions, scripts, and resources that Claude
 
 ### Implementation Work
 
-| Skill                   | Purpose                                      | Trigger                      |
-| ----------------------- | -------------------------------------------- | ---------------------------- |
-| `api-endpoint-scaffold` | Create API endpoints with auth/rate limiting | "add endpoint", "create API" |
-| `db-schema-change`      | Safely modify database schema                | "add table", "migration"     |
+| Skill                   | Purpose                                      | Trigger                            |
+| ----------------------- | -------------------------------------------- | ---------------------------------- |
+| `implement-plan`        | Execute structured plans with phased agents  | "implement the following plan"     |
+| `api-endpoint-scaffold` | Create API endpoints with auth/rate limiting | "add endpoint", "create API"       |
+| `db-schema-change`      | Safely modify database schema                | "add table", "migration"           |
+| `bug-batch`             | Fix multiple bugs across web and mobile      | "fix these bugs", "list of issues" |
 
 ### Quality Gates
 
@@ -40,6 +49,13 @@ Skills are organized folders of instructions, scripts, and resources that Claude
 | Skill             | Purpose              | Trigger                      |
 | ----------------- | -------------------- | ---------------------------- |
 | `secrets-scanner` | Scan for secrets/PII | "scan secrets", "check keys" |
+
+### Verification & Audit
+
+| Skill          | Purpose                             | Trigger                          |
+| -------------- | ----------------------------------- | -------------------------------- |
+| `validate-ui`  | Verify UI changes on web and mobile | "validate", "test visually"      |
+| `visual-audit` | Full UI/UX audit across all pages   | "audit the UI", "find UX issues" |
 
 ### Power-User Workflows
 

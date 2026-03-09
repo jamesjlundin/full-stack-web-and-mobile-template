@@ -5,7 +5,7 @@
   "scripts": {
     "env:init": "tsx scripts/init-env.ts",
     "env:set": "tsx scripts/set-env.ts",
-    "dev": "turbo run dev --parallel",
+    "dev": "docker compose up -d --wait && pnpm local:migrate && pnpm -C apps/web dev",
     "build": "turbo run build",
     "lint": "turbo run lint",
     "format": "prettier --write .",
@@ -23,6 +23,8 @@
     "tools-testing:test": "pnpm -C packages/tools-testing test",
     "rag:build": "pnpm -C packages/rag build",
     "rag:seed": "pnpm -C packages/rag seed",
+    "metro": "pnpm -C apps/mobile start",
+    "mobile": "pnpm -C apps/mobile ios",
     "mobile:start": "pnpm -C apps/mobile start"
   },
   "devDependencies": {

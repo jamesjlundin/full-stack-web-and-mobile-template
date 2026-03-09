@@ -2,12 +2,12 @@ import React from 'react';
 import {
   Button,
   Linking,
-  SafeAreaView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from 'react-native';
+import {SafeAreaView} from 'react-native-safe-area-context';
 
 type WelcomeScreenProps = {
   onCreateAccount: () => void;

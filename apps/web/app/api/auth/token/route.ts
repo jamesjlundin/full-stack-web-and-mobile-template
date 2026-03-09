@@ -2,9 +2,15 @@ import { auth } from '@acme/auth';
 import { db, eq, schema } from '@acme/db';
 import { createRateLimiter } from '@acme/security';
 import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
 
 import { signAuthToken } from '../../../../lib/jwt';
 import { withRateLimit } from '../../_lib/withRateLimit';
+
+const tokenRequestSchema = z.object({
+  email: z.string(),
+  password: z.string(),
+});
 
 const isEmailVerificationRequired = !!process.env.RESEND_API_KEY;
 
@@ -31,7 +37,7 @@ async function authenticateUser(email: string, password: string) {
   }
 }
 
-async function handler(request: NextRequest) {
+async function handlePost(request: NextRequest) {
   let body: unknown;
 
   try {
@@ -40,11 +46,11 @@ async function handler(request: NextRequest) {
     return NextResponse.json({ error: 'invalid_request' }, { status: 400 });
   }
 
-  const { email, password } = (body ?? {}) as Record<string, unknown>;
-
-  if (typeof email !== 'string' || typeof password !== 'string') {
+  const parsed = tokenRequestSchema.safeParse(body);
+  if (!parsed.success) {
     return NextResponse.json({ error: 'invalid_request' }, { status: 400 });
   }
+  const { email, password } = parsed.data;
 
   const user = await authenticateUser(email, password);
 
@@ -86,4 +92,4 @@ async function handler(request: NextRequest) {
   });
 }
 
-export const POST = withRateLimit('/api/auth/token', tokenLimiter, handler);
+export const POST = withRateLimit('/api/auth/token', tokenLimiter, handlePost);

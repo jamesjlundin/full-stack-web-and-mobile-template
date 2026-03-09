@@ -38,8 +38,8 @@ Use the template in [templates.md](./templates.md).
 Import from existing pattern:
 
 ```typescript
-import { withUserRateLimit } from '../_lib/withUserRateLimit';
 import { createRateLimiter } from '@acme/security';
+import { withRateLimit } from '../_lib/withRateLimit';
 ```
 
 ### Step 3: Add Request Validation
@@ -71,8 +71,8 @@ Run these commands:
 ## Checklist
 
 - [ ] Route file created at correct path
-- [ ] Authentication check using `getCurrentUser()`
-- [ ] Rate limiting applied via `withUserRateLimit`
+- [ ] Authentication check using `getCurrentUser()` inside the handler
+- [ ] Rate limiting applied via `withRateLimit`
 - [ ] Request validation with Zod
 - [ ] Proper error responses (400, 401, 403, 429, 500)
 - [ ] Integration test created
@@ -81,8 +81,8 @@ Run these commands:
 
 ## Guardrails
 
-- ALWAYS use `getCurrentUser()` from `@acme/auth` for auth
-- ALWAYS apply rate limiting to user-facing endpoints
+- ALWAYS use `getCurrentUser()` from `@acme/auth` for auth inside the handler function
+- ALWAYS apply rate limiting to user-facing endpoints via `withRateLimit`
 - NEVER expose internal errors to clients
 - NEVER skip request validation
 - If unsure about rate limit config, ask user

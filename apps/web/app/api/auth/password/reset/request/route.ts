@@ -1,5 +1,13 @@
 import { auth, getDevToken } from '@acme/auth';
-import { NextResponse } from 'next/server';
+import { createRateLimiter } from '@acme/security';
+import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
+
+import { withRateLimit } from '../../../../_lib/withRateLimit';
+
+const resetRequestSchema = z.object({ email: z.string().email() });
+
+const limiter = createRateLimiter({ limit: 5, windowMs: 60_000 });
 
 /**
  * POST /api/auth/password/reset/request
@@ -8,18 +16,19 @@ import { NextResponse } from 'next/server';
  * DEV MODE ONLY: Returns { ok: true, devToken: "..." } for testing without SMTP.
  * PRODUCTION: Returns { ok: true } only. Tokens are NEVER exposed in production.
  */
-export async function POST(request: Request) {
+async function handlePost(request: NextRequest) {
   // Check if dev token echoing is allowed (dev mode OR ALLOW_DEV_TOKENS=true for testing)
   const isDevTokenAllowed =
     process.env.NODE_ENV !== 'production' || process.env.ALLOW_DEV_TOKENS === 'true';
 
   try {
     const body = await request.json();
-    const { email } = body;
 
-    if (!email || typeof email !== 'string') {
+    const parsed = resetRequestSchema.safeParse(body);
+    if (!parsed.success) {
       return NextResponse.json({ ok: false, error: 'Email is required' }, { status: 400 });
     }
+    const { email } = parsed.data;
 
     // Call Better Auth's request password reset API
     await auth.api.requestPasswordReset({
@@ -44,3 +53,5 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: false, error: message }, { status: 500 });
   }
 }
+
+export const POST = withRateLimit('/api/auth/password/reset/request', limiter, handlePost);

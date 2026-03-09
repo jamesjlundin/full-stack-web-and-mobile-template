@@ -1,8 +1,13 @@
 import { auth } from '@acme/auth';
+import { createRateLimiter } from '@acme/security';
 // eslint-disable-next-line import/no-unresolved
 import { handleUpload, type HandleUploadBody } from '@vercel/blob/client';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
+
+import { withRateLimit } from '../_lib/withRateLimit';
+
+const uploadLimiter = createRateLimiter({ limit: 50, windowMs: 60_000 });
 
 // Schema for Vercel Blob upload request body
 const uploadBodySchema = z.object({
@@ -14,7 +19,7 @@ const uploadBodySchema = z.object({
  * Upload API route for Vercel Blob
  * Handles client-side uploads with authentication
  */
-export async function POST(request: NextRequest): Promise<NextResponse> {
+async function handlePost(request: NextRequest): Promise<NextResponse> {
   // Check authentication
   const session = await auth.api.getSession({ headers: request.headers });
   if (!session?.user) {
@@ -91,3 +96,5 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ error: message }, { status: 400 });
   }
 }
+
+export const POST = withRateLimit('/api/upload', uploadLimiter, handlePost);

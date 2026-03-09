@@ -1,9 +1,12 @@
 import { auth, getDevToken, consumeTokenForEmail } from '@acme/auth';
 import { createRateLimiter } from '@acme/security';
 import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
 
 import { sendVerificationEmail } from '@/app/api/_lib/mailer';
 import { withRateLimit } from '@/app/api/_lib/withRateLimit';
+
+const verifyRequestSchema = z.object({ email: z.string().email() });
 
 // Rate limit: 3 requests per 60 seconds per IP (stricter to prevent email spam)
 const verifyRequestLimiter = createRateLimiter({ limit: 3, windowMs: 60_000 });
@@ -18,7 +21,7 @@ const verifyRequestLimiter = createRateLimiter({ limit: 3, windowMs: 60_000 });
  * - PRODUCTION with RESEND_DRY_RUN=1: Logs email payload, returns { ok: true, devNote: "dry_run: email payload logged" }.
  * - PRODUCTION without RESEND_API_KEY: Returns error (email not configured).
  */
-async function handler(request: NextRequest) {
+async function handlePost(request: NextRequest) {
   // Check if dev token echoing is allowed (dev mode OR ALLOW_DEV_TOKENS=true for testing)
   const isDevTokenAllowed =
     process.env.NODE_ENV !== 'production' || process.env.ALLOW_DEV_TOKENS === 'true';
@@ -28,11 +31,12 @@ async function handler(request: NextRequest) {
 
   try {
     const body = await request.json();
-    const { email } = body;
 
-    if (!email || typeof email !== 'string') {
+    const parsed = verifyRequestSchema.safeParse(body);
+    if (!parsed.success) {
       return NextResponse.json({ ok: false, error: 'Email is required' }, { status: 400 });
     }
+    const { email } = parsed.data;
 
     // Call Better Auth's send verification email API
     // This triggers the callback which stores the token
@@ -103,4 +107,8 @@ async function handler(request: NextRequest) {
   }
 }
 
-export const POST = withRateLimit('/api/auth/email/verify/request', verifyRequestLimiter, handler);
+export const POST = withRateLimit(
+  '/api/auth/email/verify/request',
+  verifyRequestLimiter,
+  handlePost,
+);

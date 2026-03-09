@@ -37,7 +37,7 @@ A production-ready GitHub template for building full-stack applications with a s
 ## Table of Contents
 
 - [Prerequisites](#prerequisites)
-- [Quickstart](#quickstart-from-template-to-production)
+- [Quickstart](#quickstart-from-template-to-production) (includes [Claude Code setup wizard](#18-customize-the-template-claude-code))
 - [Demo Features](#demo-features)
 - [What's Included](#whats-included)
 - [Prerequisites](#prerequisites)
@@ -274,15 +274,58 @@ You can set multiple variables at once:
 pnpm env:set RESEND_API_KEY=re_xxx GOOGLE_CLIENT_ID=xxx GOOGLE_CLIENT_SECRET=xxx
 ```
 
-### 18. Run Locally
+### 18. Customize the Template (Claude Code)
+
+> **Using [Claude Code](https://claude.com/claude-code)?** Run the `/getting-started` skill to interactively customize this template for your project. It walks you through renaming packages, configuring mobile bundle IDs, setting up branding, checking for port conflicts, and more — all in one guided session.
+>
+> ```
+> /getting-started
+> ```
+>
+> This handles 80+ customization points across the repo including:
+>
+> - **Project identity** — renames `@acme/*` packages to your org scope across all 13 packages and consumers
+> - **Mobile app identity** — iOS bundle ID, Android package name, deep link URL scheme
+> - **Branding** — app display name, creator references, logo/icon guidance
+> - **Infrastructure** — database name, port assignments (checks for conflicts on your machine)
+> - **Environment secrets** — generates auth and cron secrets, walks through API key setup
+> - **Verification** — runs typecheck, lint, Docker services, and migrations to confirm everything works
+>
+> If you're not using Claude Code, see the sections below to make these changes manually.
+
+<details>
+<summary><strong>Manual customization (without Claude Code)</strong></summary>
+
+At minimum, you'll want to:
+
+1. **Rename packages**: Find and replace `@acme/` with `@yourorg/` across all `package.json` files, imports, and `next.config.mjs`
+2. **Update app name**: Change `"Template"` in `apps/web/app/layout.tsx` and `apps/mobile/app.json`
+3. **Set mobile bundle IDs**:
+   - iOS: Update `PRODUCT_BUNDLE_IDENTIFIER` in `apps/mobile/ios/mobile.xcodeproj/project.pbxproj`
+   - Android: Update `namespace` and `applicationId` in `apps/mobile/android/app/build.gradle`
+4. **Set URL scheme**: Replace `app-template` with your scheme in `.env.example` and mobile native config
+5. **Remove creator branding**: Update `apps/web/app/page.tsx` and `apps/mobile/src/screens/WelcomeScreen.tsx`
+6. **Check ports**: Ensure ports 3000, 5432, 6379, 8079, 8082 don't conflict with your existing services
+7. Run `pnpm install` to regenerate the lockfile after package renames
+
+</details>
+
+### 19. Run Locally
 
 ```bash
-pnpm db:up              # Start local PostgreSQL (requires Docker)
-pnpm -C packages/db migrate:apply  # Run migrations
-pnpm -C apps/web dev    # Start dev server at localhost:3000
+pnpm dev                # Start Docker, run migrations, launch web server at localhost:3000
 ```
 
-### 19. Deploy to Production
+For mobile development (in separate terminals):
+
+```bash
+pnpm metro              # Start Metro bundler
+pnpm mobile             # Build and install on iOS simulator
+```
+
+To target a specific simulator: `pnpm mobile -- --simulator="iPhone 16e"`
+
+### 20. Deploy to Production
 
 ```bash
 git add -A && git commit -m "Initial setup"
@@ -436,20 +479,16 @@ sudo ./scripts/setup-postgres.sh
 
 ### Mobile App Setup
 
-The mobile app requires the web app running locally for API access.
-
-**iOS:**
+The mobile app requires the web app running locally for API access (`pnpm dev`).
 
 ```bash
-cd apps/mobile/ios && bundle exec pod install && cd ..
-pnpm ios
+pnpm metro              # Start Metro bundler (in a separate terminal)
+pnpm mobile             # Build and install on iOS simulator (in a separate terminal)
 ```
 
-**Android:**
+To target a specific simulator: `pnpm mobile -- --simulator="iPhone 16e"`
 
-```bash
-pnpm android
-```
+First-time iOS setup requires CocoaPods: `cd apps/mobile/ios && pod install && cd -`
 
 The mobile app connects to `localhost:3000` (iOS) or `10.0.2.2:3000` (Android emulator).
 
@@ -555,7 +594,7 @@ Once complete, builds will automatically upload to TestFlight. Invite testers fr
 
 ### Database UI
 
-When running `pnpm db:up`, pgweb is available at [http://localhost:8081](http://localhost:8081) for browsing your local database.
+When running `pnpm dev`, pgweb is available at [http://localhost:8082](http://localhost:8082) for browsing your local database.
 
 ---
 

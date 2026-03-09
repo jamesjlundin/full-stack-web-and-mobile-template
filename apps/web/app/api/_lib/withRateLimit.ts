@@ -3,7 +3,14 @@ import { NextRequest, NextResponse } from 'next/server';
 import type { createRateLimiter } from '@acme/security';
 
 type RateLimiter = ReturnType<typeof createRateLimiter>;
-type RouteHandler = (request: NextRequest) => Promise<Response>;
+
+/**
+ * Route context for dynamic routes (e.g., [id], [slug]).
+ * Next.js passes this as the second argument to route handlers.
+ */
+export type RouteContext = { params: Promise<Record<string, string>> };
+
+type RouteHandler = (request: NextRequest, ctx?: RouteContext) => Promise<Response>;
 
 /**
  * Extract client IP from request headers.
@@ -25,13 +32,14 @@ function getClientIp(request: NextRequest): string {
 /**
  * Wraps a Next.js route handler with rate limiting.
  * Rate limit check happens before the handler is invoked.
+ * Passes through RouteContext for dynamic [id] routes.
  */
 export function withRateLimit(
   routeId: string,
   limiter: RateLimiter,
   handler: RouteHandler,
 ): RouteHandler {
-  return async (request: NextRequest): Promise<Response> => {
+  return async (request: NextRequest, ctx?: RouteContext): Promise<Response> => {
     const ip = getClientIp(request);
     const key = `${routeId}:${ip}`;
 
@@ -57,8 +65,8 @@ export function withRateLimit(
       );
     }
 
-    // Call the actual handler
-    const response = await handler(request);
+    // Call the actual handler, passing through route context
+    const response = await handler(request, ctx);
 
     // Clone response to add headers (Response headers may be immutable)
     const newHeaders = new Headers(response.headers);

@@ -13,12 +13,24 @@
 import { db } from '@acme/db';
 import { withTrace } from '@acme/obs';
 import { ragQuery, hasOpenAIKey, MissingApiKeyError } from '@acme/rag';
+import { createRateLimiter } from '@acme/security';
 import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
+
+import { withRateLimit } from '../../_lib/withRateLimit';
+
+const querySchema = z.object({
+  query: z.string().min(1),
+  k: z.number().positive().optional(),
+});
+
+const limiter = createRateLimiter({ limit: 20, windowMs: 60_000 });
+const routeId = '/api/rag/query';
 
 /**
  * Handle POST requests to query the RAG system
  */
-export async function POST(request: NextRequest) {
+async function handlePost(request: NextRequest) {
   // Check for API key early and return helpful error
   if (!hasOpenAIKey()) {
     return NextResponse.json(
@@ -39,7 +51,8 @@ export async function POST(request: NextRequest) {
     // Parse request body
     const body = await request.json().catch(() => null);
 
-    if (!body || typeof body.query !== 'string' || body.query.trim() === '') {
+    const parsed = querySchema.safeParse(body);
+    if (!parsed.success) {
       return NextResponse.json(
         {
           error: 'invalid_request',
@@ -49,8 +62,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const query = body.query.trim();
-    const k = typeof body.k === 'number' && body.k > 0 ? body.k : 3;
+    const query = parsed.data.query.trim();
+    const k = parsed.data.k ?? 3;
 
     try {
       // Execute RAG query
@@ -118,3 +131,5 @@ export async function POST(request: NextRequest) {
 
   return result!;
 }
+
+export const POST = withRateLimit(routeId, limiter, handlePost);

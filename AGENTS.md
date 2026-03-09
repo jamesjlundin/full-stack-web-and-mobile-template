@@ -54,6 +54,11 @@ pnpm test:integration             # Run integration tests (needs web running)
 pnpm -C apps/mobile test          # Mobile unit tests
 ```
 
+## Key Facts
+
+- Web app runs on **port 3000** by default
+- Vercel deploys may fail on pnpm version mismatches — check `packageManager` field in package.json matches the lock file version
+
 ## Do/Don't Rules
 
 ### DO
@@ -63,6 +68,7 @@ pnpm -C apps/mobile test          # Mobile unit tests
 - Add rate limiting to new API endpoints via `@acme/security`
 - Use Drizzle schema in `packages/db/src/schema.ts` for DB changes
 - Follow existing patterns in each package
+- **Build new features for BOTH web and mobile** — plan and implement for both platforms before considering a feature complete
 
 ### DON'T
 
@@ -71,6 +77,8 @@ pnpm -C apps/mobile test          # Mobile unit tests
 - Don't bypass rate limiting in production code
 - Don't create new packages without clear justification
 - Don't mix web-only code into shared packages
+- **Don't build features for only one platform** — all user-facing features must work on both web and mobile
+- **Don't fix bugs on only one platform** — when fixing a bug, always check if the same issue exists on the other platform
 
 ## Workflow Defaults
 

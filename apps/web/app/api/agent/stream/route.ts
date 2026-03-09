@@ -1,13 +1,13 @@
 import { executeGenerateImage, getModel, selectPrompt, validateProviderModel } from '@acme/ai';
+import { getCurrentUser } from '@acme/auth';
 import { createRateLimiter } from '@acme/security';
 import { put } from '@vercel/blob';
 import { stepCountIs, streamText } from 'ai';
-import { NextRequest } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
-import { withUserRateLimit } from '../../_lib/withUserRateLimit';
+import { withRateLimit } from '../../_lib/withRateLimit';
 
-import type { CurrentUserResult } from '@acme/auth';
 import type { ModelMessage, ImagePart, TextPart } from 'ai';
 
 // Rate limiter: 5 requests per 24 hours per user
@@ -138,7 +138,13 @@ function generateBlobId(): string {
   return `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
 }
 
-async function handleRequest(request: NextRequest, _userResult: CurrentUserResult) {
+async function handlePost(request: NextRequest) {
+  // Check authentication
+  const userResult = await getCurrentUser(request);
+  if (!userResult?.user) {
+    return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
+  }
+
   // Parse request body
   const body = await request.json().catch(() => null);
   const parsed = requestSchema.safeParse(body);
@@ -550,4 +556,4 @@ function createMockStream(
   });
 }
 
-export const POST = withUserRateLimit('/api/agent/stream', agentLimiter, handleRequest);
+export const POST = withRateLimit('/api/agent/stream', agentLimiter, handlePost);

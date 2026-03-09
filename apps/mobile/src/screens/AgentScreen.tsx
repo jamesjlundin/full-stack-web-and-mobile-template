@@ -2,12 +2,12 @@ import React, {useCallback, useRef, useState} from 'react';
 import {
   Button,
   FlatList,
-  SafeAreaView,
   StyleSheet,
   Text,
   TextInput,
   View,
 } from 'react-native';
+import {SafeAreaView} from 'react-native-safe-area-context';
 
 import {useAuth} from '../auth/AuthContext';
 import {API_BASE} from '../config/api';

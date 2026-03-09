@@ -1,5 +1,6 @@
 import React, {useCallback, useEffect, useMemo, useState} from 'react';
 import {StyleSheet, View} from 'react-native';
+import {SafeAreaProvider} from 'react-native-safe-area-context';
 
 import {AuthProvider, useAuth} from './src/auth/AuthContext';
 import AppHeader from './src/components/AppHeader';
@@ -320,9 +321,11 @@ function RootNavigator() {
  */
 function App(): React.JSX.Element {
   return (
-    <AuthProvider>
-      <RootNavigator />
-    </AuthProvider>
+    <SafeAreaProvider>
+      <AuthProvider>
+        <RootNavigator />
+      </AuthProvider>
+    </SafeAreaProvider>
   );
 }
 

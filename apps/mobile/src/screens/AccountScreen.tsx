@@ -1,5 +1,6 @@
 import React, {useCallback} from 'react';
-import {Button, SafeAreaView, StyleSheet, Text, View} from 'react-native';
+import {Button, StyleSheet, Text, View} from 'react-native';
+import {SafeAreaView} from 'react-native-safe-area-context';
 
 import {useAuth} from '../auth/AuthContext';
 

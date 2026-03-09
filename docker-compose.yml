@@ -12,12 +12,19 @@ services:
       - '5432:5432'
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres -d acme']
+      interval: 2s
+      timeout: 5s
+      retries: 15
+      start_period: 5s
 
   pgweb:
     image: sosedoff/pgweb:0.14.0
     restart: unless-stopped
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
     environment:
       DATABASE_URL: postgres://postgres:postgres@postgres:5432/acme?sslmode=disable
     ports:
